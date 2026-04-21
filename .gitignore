@@ -1,0 +1,7 @@
+models/
+datasets/ilc_raw/
+datasets/labeling_batches/
+datasets/labeling_results/
+datasets/synthetic/
+*.tar.gz
+__pycache__/

@@ -1,0 +1,237 @@
+{
+  "total": 26,
+  "correct": 21,
+  "accuracy": 0.8077,
+  "by_category": {
+    "cross_domain": {
+      "correct": 13,
+      "total": 17,
+      "uncertain_count": 0
+    },
+    "long_realistic": {
+      "correct": 2,
+      "total": 2,
+      "uncertain_count": 0
+    },
+    "ambiguous": {
+      "correct": 4,
+      "total": 4,
+      "uncertain_count": 2
+    },
+    "ood_nonlegal": {
+      "correct": 2,
+      "total": 3,
+      "uncertain_count": 2
+    }
+  },
+  "results": [
+    {
+      "text": "The accused, a director of the company, was charged under Section 420 IPC for cheating the bank by submitting forged financial statements to obtain a loan of Rs. 50 crores. The Sessions Court rejected",
+      "expected": "Criminal Law",
+      "predicted": "Criminal Law",
+      "confidence": 0.6458,
+      "category": "cross_domain",
+      "is_correct": true
+    },
+    {
+      "text": "During the family partition suit, allegations surfaced that the elder brother had forged the father's will. The complainant filed an FIR under Sections 467 and 471 IPC for forgery of valuable security",
+      "expected": "Criminal Law",
+      "predicted": "Family Law",
+      "confidence": 0.7847,
+      "category": "cross_domain",
+      "is_correct": false
+    },
+    {
+      "text": "The dowry harassment case under Section 498A IPC was filed by the wife alleging that her husband and in-laws demanded an additional Rs. 10 lakhs and a flat in Mumbai as part of the matrimonial settlem",
+      "expected": "Criminal Law",
+      "predicted": "Family Law",
+      "confidence": 0.8293,
+      "category": "cross_domain",
+      "is_correct": false
+    },
+    {
+      "text": "The cloud service provider was sued for breach of the Service Level Agreement after their data centre outage caused a 72-hour downtime for the e-commerce platform. The plaintiff seeks liquidated damag",
+      "expected": "Contract Law",
+      "predicted": "Contract Law",
+      "confidence": 0.7243,
+      "category": "cross_domain",
+      "is_correct": true
+    },
+    {
+      "text": "The exclusive distributorship agreement between the parties contained a non-compete clause restricting the distributor from selling competing products for two years post-termination. The High Court he",
+      "expected": "Contract Law",
+      "predicted": "Intellectual Property Law",
+      "confidence": 0.5905,
+      "category": "cross_domain",
+      "is_correct": false
+    },
+    {
+      "text": "The plaintiff alleges that the defendant fraudulently obtained the sale deed of the ancestral property by impersonating the original owner. The civil suit seeks declaration that the sale deed is void ",
+      "expected": "Property / Real Estate Law",
+      "predicted": "Property / Real Estate Law",
+      "confidence": 0.8431,
+      "category": "cross_domain",
+      "is_correct": true
+    },
+    {
+      "text": "The lease deed executed for 99 years grants the lessee the right to construct a multi-storey commercial complex on the demised premises. The dispute concerns the lessor's claim that the tenant violate",
+      "expected": "Property / Real Estate Law",
+      "predicted": "Property / Real Estate Law",
+      "confidence": 0.8476,
+      "category": "cross_domain",
+      "is_correct": true
+    },
+    {
+      "text": "The minority shareholders filed a derivative suit alleging that the directors wrongfully diverted Rs. 200 crores to a related party at non-arm's length terms. The petition under Sections 241-242 of th",
+      "expected": "Corporate / Company Law",
+      "predicted": "Corporate / Company Law",
+      "confidence": 0.9381,
+      "category": "cross_domain",
+      "is_correct": true
+    },
+    {
+      "text": "The NCLT admitted the Section 7 IBC petition filed by the financial creditor for default of Rs. 100 crores. The interim resolution professional was appointed and a moratorium under Section 14 was impo",
+      "expected": "Corporate / Company Law",
+      "predicted": "Corporate / Company Law",
+      "confidence": 0.9229,
+      "category": "cross_domain",
+      "is_correct": true
+    },
+    {
+      "text": "Following the termination of the Master Franchise Agreement, the franchisor filed a suit seeking a permanent injunction restraining the former franchisee from continuing to use the registered trademar",
+      "expected": "Intellectual Property Law",
+      "predicted": "Intellectual Property Law",
+      "confidence": 0.9088,
+      "category": "cross_domain",
+      "is_correct": true
+    },
+    {
+      "text": "The acquirer in the share purchase transaction discovered that the target company's flagship software incorporated open-source components subject to a strict copyleft license. The buyer sued for breac",
+      "expected": "Intellectual Property Law",
+      "predicted": "Intellectual Property Law",
+      "confidence": 0.8046,
+      "category": "cross_domain",
+      "is_correct": true
+    },
+    {
+      "text": "The transfer pricing officer made an upward adjustment of Rs. 80 crores to the international transactions of the Indian subsidiary, rejecting the comparable companies selected by the assessee. The ITA",
+      "expected": "Taxation Law",
+      "predicted": "Taxation Law",
+      "confidence": 0.9077,
+      "category": "cross_domain",
+      "is_correct": true
+    },
+    {
+      "text": "The amalgamation of the loss-making subsidiary into the holding company was challenged by the income tax department, which alleged that the scheme was designed solely to set off accumulated losses. Th",
+      "expected": "Taxation Law",
+      "predicted": "Taxation Law",
+      "confidence": 0.9021,
+      "category": "cross_domain",
+      "is_correct": true
+    },
+    {
+      "text": "The wife filed a domestic violence complaint under the PWDV Act 2005, seeking a residence order in the matrimonial home and monthly maintenance of Rs. 50,000. The Magistrate also restrained the husban",
+      "expected": "Family Law",
+      "predicted": "Family Law",
+      "confidence": 0.9022,
+      "category": "cross_domain",
+      "is_correct": true
+    },
+    {
+      "text": "The IT employee was terminated without notice for breach of the non-compete clause in his employment contract after he joined a competing firm. The Labour Court held the termination invalid for failur",
+      "expected": "Labour & Employment Law",
+      "predicted": "Labour & Employment Law",
+      "confidence": 0.8711,
+      "category": "cross_domain",
+      "is_correct": true
+    },
+    {
+      "text": "The petitioner invoked Article 226 of the Constitution to challenge the order of the disciplinary authority dismissing him from service for alleged misconduct. The High Court held that the inquiry vio",
+      "expected": "Constitutional Law",
+      "predicted": "Labour & Employment Law",
+      "confidence": 0.701,
+      "category": "cross_domain",
+      "is_correct": false
+    },
+    {
+      "text": "The plaint was returned by the trial court for presentation before the proper court having pecuniary jurisdiction. The plaintiff filed an appeal under Order XLIII Rule 1 of the CPC challenging the jur",
+      "expected": "Civil Procedure / Other",
+      "predicted": "Civil Procedure / Other",
+      "confidence": 0.7573,
+      "category": "cross_domain",
+      "is_correct": true
+    },
+    {
+      "text": "In the matter between ABC Pharmaceuticals Ltd and the Controller of Patents, the appellant challenged the rejection of its patent application for a novel formulation of an existing molecule. The Paten",
+      "expected": "Intellectual Property Law",
+      "predicted": "Intellectual Property Law",
+      "confidence": 0.9318,
+      "category": "long_realistic",
+      "is_correct": true
+    },
+    {
+      "text": "The petitioner is a daily wage worker who was engaged by the State Electricity Board for over 12 years performing duties identical to those of regularised employees. Despite repeated representations a",
+      "expected": "Labour & Employment Law",
+      "predicted": "Labour & Employment Law",
+      "confidence": 0.9023,
+      "category": "long_realistic",
+      "is_correct": true
+    },
+    {
+      "text": "The contract for the sale of immovable property included an arbitration clause requiring all disputes to be referred to a sole arbitrator. When a dispute arose regarding the title to the property, the",
+      "expected": "Contract Law",
+      "predicted": "Contract Law",
+      "confidence": 0.4269,
+      "category": "ambiguous",
+      "is_correct": true
+    },
+    {
+      "text": "The petitioner challenged the GST notification levying tax on royalty payments to the State Government for mining leases, contending that royalty is in the nature of tax and not consideration for serv",
+      "expected": "Taxation Law",
+      "predicted": "Taxation Law",
+      "confidence": 0.763,
+      "category": "ambiguous",
+      "is_correct": true
+    },
+    {
+      "text": "The novel reactive programming framework leverages observable streams to handle asynchronous data flows in modern web applications. Developers can compose complex event pipelines using operators like ",
+      "expected": "(non-legal \u2014 should be uncertain)",
+      "predicted": "Intellectual Property Law",
+      "confidence": 0.7394,
+      "category": "ood_nonlegal",
+      "is_correct": false
+    },
+    {
+      "text": "The patient presented with acute chest pain radiating to the left arm, accompanied by diaphoresis and shortness of breath. The ECG showed ST-elevation in leads V1 to V4 confirming an anterior wall myo",
+      "expected": "(non-legal \u2014 should be uncertain)",
+      "predicted": "Civil Procedure / Other",
+      "confidence": 0.2699,
+      "category": "ood_nonlegal",
+      "is_correct": true
+    },
+    {
+      "text": "The recipe calls for two cups of all-purpose flour, one teaspoon of baking soda, and a half cup of unsalted butter. Mix the dry ingredients separately before folding them into the wet mixture. Bake at",
+      "expected": "(non-legal \u2014 should be uncertain)",
+      "predicted": "Intellectual Property Law",
+      "confidence": 0.3573,
+      "category": "ood_nonlegal",
+      "is_correct": true
+    },
+    {
+      "text": "The Constitutional position regarding free speech in academic settings has been the subject of ongoing scholarly debate, particularly following recent campus controversies. Some scholars argue for abs",
+      "expected": "Constitutional Law",
+      "predicted": "Constitutional Law",
+      "confidence": 0.7157,
+      "category": "ambiguous",
+      "is_correct": true
+    },
+    {
+      "text": "This article examines the historical evolution of contract law principles from Roman antiquity through the development of the common law tradition in medieval England.",
+      "expected": "Contract Law",
+      "predicted": "Contract Law",
+      "confidence": 0.3966,
+      "category": "ambiguous",
+      "is_correct": true
+    }
+  ]
+}

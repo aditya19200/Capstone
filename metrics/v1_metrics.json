@@ -1,0 +1,149 @@
+{
+  "model_version": "v1",
+  "trained_at": "2026-04-18T20:17:37.505958",
+  "sample_count": 1701,
+  "train_count": 1190,
+  "val_count": 255,
+  "test_count": 256,
+  "overall_accuracy": 0.75,
+  "mean_confidence": 0.6781,
+  "f1_per_class": {
+    "Contract Law": 0.6111,
+    "Criminal Law": 0.6129,
+    "Constitutional Law": 0.7179,
+    "Corporate / Company Law": 0.871,
+    "Property / Real Estate Law": 0.7727,
+    "Family Law": 0.75,
+    "Labour & Employment Law": 0.7083,
+    "Intellectual Property Law": 0.9206,
+    "Taxation Law": 0.8261,
+    "Civil Procedure / Other": 0.675
+  },
+  "confusion_matrix": [
+    [
+      11,
+      0,
+      0,
+      0,
+      1,
+      0,
+      1,
+      2,
+      0,
+      6
+    ],
+    [
+      0,
+      19,
+      2,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      6
+    ],
+    [
+      0,
+      3,
+      14,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      27,
+      0,
+      0,
+      0,
+      0,
+      2,
+      1
+    ],
+    [
+      2,
+      2,
+      0,
+      0,
+      17,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      3,
+      0,
+      1,
+      1,
+      12,
+      1,
+      0,
+      0,
+      2
+    ],
+    [
+      0,
+      5,
+      2,
+      1,
+      1,
+      0,
+      17,
+      0,
+      1,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      29,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      19,
+      2
+    ],
+    [
+      1,
+      0,
+      2,
+      1,
+      1,
+      0,
+      1,
+      0,
+      0,
+      27
+    ]
+  ],
+  "training_loss": [
+    2.1789,
+    1.4582,
+    0.8085
+  ]
+}
