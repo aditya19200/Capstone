@@ -7,9 +7,6 @@ stores results, and queues SHAP jobs when needed.
 
 Run with:
     python -m workers.prediction_worker
-
-or via the entry-point script:
-    python worker.py
 """
 
 import logging
@@ -18,15 +15,13 @@ import time
 from typing import List
 
 from config.settings import settings
+from repositories import predictions as predictions_repo
+from repositories import xai_jobs as xai_jobs_repo
 from services.active_learning import active_learning_engine
 from services.model_service import model_service
 from services.supabase_service import (
-    create_document,
     create_explanation,
-    create_prediction,
-    enqueue_xai_job,
     get_pending_prediction_jobs,
-    update_document_status,
     update_prediction_job,
 )
 
@@ -45,7 +40,7 @@ logger = logging.getLogger(__name__)
 # Config
 # ---------------------------------------------------------------------------
 
-POLL_INTERVAL_SECONDS = 5       # how often to check for new jobs
+POLL_INTERVAL_SECONDS = 5
 BATCH_SIZE = settings.BATCH_SIZE
 
 
@@ -62,27 +57,21 @@ def process_batch(jobs: List[dict]) -> None:
       2. Run batched InLegalBERT inference.
       3. For each result: apply active learning, persist prediction, queue SHAP.
       4. Mark job as completed (or failed on error).
-
-    Args:
-        jobs: List of prediction job dicts from the queue.
     """
-    texts = [job["textContent"] for job in jobs]
+    texts = [job["textContent"] for job in jobs]   # legacy prediction_jobs key
 
     logger.info("Processing batch of %d jobs.", len(jobs))
 
-    # --- Batch inference ---
     try:
         inferences = model_service.predict_batch(texts)
     except Exception as exc:
         logger.error("Batch inference failed: %s", exc)
-        # Mark all jobs in this batch as failed
         for job in jobs:
             update_prediction_job(job_id=job["jobId"], status="failed")
         return
 
-    # --- Per-job post-processing ---
     for job, inference in zip(jobs, inferences):
-        job_id = job["jobId"]
+        job_id = job["jobId"]   # legacy prediction_jobs key
         try:
             _process_single_result(job, inference)
         except Exception as exc:
@@ -95,19 +84,13 @@ def _process_single_result(job: dict, inference: dict) -> None:
     Persist a single inference result and handle downstream queuing.
 
     Args:
-        job:       The prediction_job dict from the queue.
+        job:       The prediction_job dict from the legacy queue.
         inference: The inference result dict from model_service.predict_batch().
     """
-    job_id = job["jobId"]
+    job_id = job["jobId"]   # legacy prediction_jobs key
 
-    # Mark job as processing
     update_prediction_job(job_id=job_id, status="processing")
 
-    # Create or resolve document
-    doc = create_document(text_content=job["textContent"], status="pending")
-    document_id = doc["documentId"]
-
-    # Active learning routing
     al_result = active_learning_engine.evaluate(
         confidence=inference["confidence"],
         probabilities=inference["probabilities"],
@@ -115,31 +98,27 @@ def _process_single_result(job: dict, inference: dict) -> None:
         margin=inference["margin"],
     )
 
-    # Persist prediction row
-    pred_row = create_prediction(
-        document_id=document_id,
+    # Persist prediction using the repositories path (real schema)
+    pred_row = predictions_repo.insert(
+        text_content=job["textContent"],
         predicted_label=inference["predicted_label"],
-        confidence_score=inference["confidence"],
-        probability_distribution=inference["probabilities"],
-        routing_decision=al_result.routing_decision,
-        entropy=inference["entropy"],
-        margin=inference["margin"],
+        label_id=inference["label_id"],
+        confidence=inference["confidence"],
+        all_probabilities=inference["probabilities"],
+        model_version=getattr(model_service, "model_version", "v1"),
     )
-    prediction_id = pred_row["predictionId"]
-    update_document_status(document_id, "predicted")
+    prediction_id = pred_row["id"]
 
-    # Queue SHAP job if required
     xai_job_id = None
     if al_result.requires_shap:
         create_explanation(prediction_id=prediction_id)
-        xai_job = enqueue_xai_job(prediction_id=prediction_id)
-        xai_job_id = xai_job["jobId"]
+        xai_job = xai_jobs_repo.insert(prediction_id=prediction_id)
+        xai_job_id = xai_job["id"]
         logger.info("XAI job queued: %s for prediction %s", xai_job_id, prediction_id)
 
-    # Build the result payload stored back on the job row
     result_payload = {
         "prediction_id": prediction_id,
-        "document_id": document_id,
+        "document_id": None,
         "predicted_label": inference["predicted_label"],
         "confidence": inference["confidence"],
         "probabilities": inference["probabilities"],
@@ -169,8 +148,7 @@ def run_worker() -> None:
     Main worker loop.
 
     Loads the model once, then continuously polls the prediction_jobs queue.
-    Jobs are processed in batches of BATCH_SIZE. The loop sleeps for
-    POLL_INTERVAL_SECONDS when the queue is empty.
+    Jobs are processed in batches of BATCH_SIZE.
 
     Runs until interrupted (Ctrl-C / SIGTERM).
     """
@@ -179,7 +157,6 @@ def run_worker() -> None:
     logger.info("Batch size: %d", BATCH_SIZE)
     logger.info("Poll interval: %ds", POLL_INTERVAL_SECONDS)
 
-    # Load model once — reused for every batch
     logger.info("Loading InLegalBERT...")
     model_service.load()
     logger.info("Model ready. Entering poll loop.")
@@ -195,7 +172,6 @@ def run_worker() -> None:
 
             logger.info("Found %d pending job(s).", len(pending))
 
-            # Process in batches
             for i in range(0, len(pending), BATCH_SIZE):
                 batch = pending[i : i + BATCH_SIZE]
                 process_batch(batch)

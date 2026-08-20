@@ -29,7 +29,13 @@ LEGAL_LABELS = [
 ]
 
 RoutingDecision = Literal["AUTO_ACCEPT", "NEEDS_EXPLANATION", "ROUTE_TO_REVIEWER"]
-AnnotationStatus = Literal["pending", "accepted", "modified", "rejected", "conflict"]
+
+# Real schema status values (per CLAUDE.md)
+AnnotationStatus = Literal["pending", "validated", "rejected"]
+XaiJobStatus = Literal["pending", "processing", "done", "failed"]
+RetrainJobStatus = Literal["pending", "running", "complete", "failed"]
+
+# Legacy status values for prediction_jobs (not in real schema)
 JobStatus = Literal["pending", "processing", "completed", "failed"]
 
 
@@ -45,10 +51,13 @@ class PredictResponse(BaseModel):
     distribution over all 10 classes, and the active-learning routing decision.
     """
 
-    prediction_id: str = Field(..., description="Unique ID for this prediction (stored in mock DB).")
-    document_id: Optional[str] = Field(default=None, description="Document ID if one was supplied in the request.")
+    prediction_id: str = Field(..., description="Unique ID for this prediction.")
+    document_id: Optional[str] = Field(
+        default=None,
+        description="Passed through from the request body if supplied; None otherwise.",
+    )
     predicted_label: str = Field(..., description="Top-1 label from InLegalBERT.")
-    confidence: float = Field(..., ge=0.0, le=1.0, description="Max softmax probability (confidence score).")
+    confidence: float = Field(..., ge=0.0, le=1.0, description="Max softmax probability.")
     probabilities: Dict[str, float] = Field(
         ...,
         description="Full softmax distribution keyed by label name.",
@@ -87,9 +96,7 @@ class PredictJobResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 class TokenImportance(BaseModel):
-    """
-    SHAP importance score for a single token.
-    """
+    """SHAP importance score for a single token."""
 
     token: str = Field(..., description="The text token.")
     importance: float = Field(..., description="SHAP value — positive means towards predicted class.")
@@ -102,7 +109,7 @@ class ExplainResponse(BaseModel):
 
     explanation_id: str
     prediction_id: str
-    status: JobStatus
+    status: XaiJobStatus
     token_importances: Optional[List[TokenImportance]] = Field(
         default=None,
         description="Ranked list of token-level SHAP values. None while still pending.",
@@ -114,13 +121,11 @@ class ExplainResponse(BaseModel):
 
 
 class ExplainTriggerResponse(BaseModel):
-    """
-    Returned from POST /explain — confirms the SHAP job was queued.
-    """
+    """Returned from POST /explain — confirms the SHAP job was queued."""
 
     xai_job_id: str
     prediction_id: str
-    status: JobStatus
+    status: XaiJobStatus
     message: str
 
 
@@ -132,8 +137,10 @@ class AnnotateResponse(BaseModel):
     """
     Returned from POST /annotate — confirms the annotation was stored.
 
-    If the submitted label differs from the model prediction, conflict_detected
-    is True and the annotation is flagged for Reviewer attention.
+    conflict_detected=True when the human label differs from the model
+    prediction or from a prior annotator's choice on the same prediction.
+    The annotation's status is unaffected by conflict (see has_conflict column
+    in the annotations table).
     """
 
     annotation_id: str
@@ -144,7 +151,7 @@ class AnnotateResponse(BaseModel):
     annotation_status: AnnotationStatus
     conflict_detected: bool = Field(
         ...,
-        description="True when the human label differs from the model prediction.",
+        description="True when a conflict was detected and has_conflict was set.",
     )
     message: str
 
@@ -153,7 +160,7 @@ class AnnotationListItem(BaseModel):
     """Single item in the GET /annotations list."""
 
     annotation_id: str
-    document_id: str
+    document_id: Optional[str]
     user_id: Optional[str]
     final_label: str
     annotation_status: AnnotationStatus
@@ -175,7 +182,7 @@ class RetrainTriggerResponse(BaseModel):
     """Returned from POST /retrain — confirms the retraining job was queued."""
 
     retrain_job_id: str
-    status: JobStatus
+    status: RetrainJobStatus
     message: str
 
 
@@ -183,7 +190,7 @@ class RetrainStatusResponse(BaseModel):
     """Returned from GET /retrain/status."""
 
     retrain_job_id: Optional[str]
-    status: JobStatus
+    status: RetrainJobStatus
     model_version: Optional[str] = None
     accuracy: Optional[float] = None
     started_at: Optional[str] = None

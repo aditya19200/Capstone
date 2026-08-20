@@ -150,7 +150,7 @@ class ModelService:
             text,
             return_tensors="pt",
             truncation=True,
-            max_length=512,
+            max_length=256,
             padding=True,
         )
         # Move inputs to the same device as the model
@@ -204,7 +204,7 @@ class ModelService:
             texts,
             return_tensors="pt",
             truncation=True,
-            max_length=512,
+            max_length=256,
             padding=True,
         )
         inputs = {k: v.to(self._device) for k, v in inputs.items()}
