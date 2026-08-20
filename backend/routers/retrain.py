@@ -40,8 +40,8 @@ _ROLE_ADMIN = "admin"
     summary="Trigger retraining pipeline (Admin only)",
     description=(
         "Manually kick off a retraining run. The request validates that enough "
-        "accepted/modified annotations exist, enqueues the job, and returns "
-        "immediately. Poll GET /retrain/status for progress."
+        "validated annotations exist, enqueues the job, and returns immediately. "
+        "Poll GET /retrain/status for progress."
     ),
 )
 async def trigger_retrain(
@@ -77,17 +77,17 @@ async def trigger_retrain(
             detail=(
                 f"Insufficient validated annotations for retraining. "
                 f"Found {validated_count}, required {body.min_annotations}. "
-                "Collect more accepted/modified annotations before retraining."
+                "Collect more validated annotations before retraining."
             ),
         )
 
     # --- 3. Guard against concurrent retraining jobs ---
     latest = get_latest_retrain_job()
-    if latest and latest["status"] in ("pending", "processing"):
+    if latest and latest["status"] in ("pending", "running"):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=(
-                f"A retraining job ('{latest['jobId']}') is already "
+                f"A retraining job ('{latest['id']}') is already "
                 f"{latest['status']}. Wait for it to complete before "
                 "triggering a new run."
             ),
@@ -95,20 +95,21 @@ async def trigger_retrain(
 
     # --- 4. Enqueue ---
     job = enqueue_retrain_job(
+        triggered_by=x_user_id,
         notes=body.notes,
         min_annotations=body.min_annotations,
     )
     logger.info(
         "Retrain job enqueued: id=%s by user=%s validated_annotations=%d",
-        job["jobId"], x_user_id, validated_count,
+        job["id"], x_user_id, validated_count,
     )
 
     # --- 5. Return ---
     return RetrainTriggerResponse(
-        retrain_job_id=job["jobId"],
+        retrain_job_id=job["id"],
         status="pending",
         message=(
-            f"Retraining job '{job['jobId']}' queued successfully. "
+            f"Retraining job '{job['id']}' queued successfully. "
             f"Using {validated_count} validated annotations. "
             "Poll GET /retrain/status for progress."
         ),
@@ -126,8 +127,7 @@ async def trigger_retrain(
     summary="Check retraining job status",
     description=(
         "Return the status of a specific retraining job by job_id, or the most "
-        "recent job if no job_id is provided. Includes accuracy and model version "
-        "once the job completes."
+        "recent job if no job_id is provided."
     ),
 )
 async def get_retrain_status(
@@ -140,11 +140,10 @@ async def get_retrain_status(
     """
     Fetch retrain job status.
 
-    Admin-only: retraining metadata is sensitive (model accuracy, versions).
+    Admin-only: retraining metadata is sensitive (model versions).
     Returns 404 if the specified job_id does not exist, or if no jobs have
     been enqueued yet.
     """
-    # Admin-only
     role = (x_role or "").lower()
     if role != _ROLE_ADMIN:
         raise HTTPException(
@@ -152,7 +151,6 @@ async def get_retrain_status(
             detail="Role 'admin' required to view retraining status.",
         )
 
-    # Fetch the right job
     if job_id:
         job = get_retrain_job(job_id=job_id)
         if job is None:
@@ -168,16 +166,15 @@ async def get_retrain_status(
                 detail="No retraining jobs found. Trigger one via POST /retrain.",
             )
 
-    # Build human-readable status message
     message = _status_message(job)
 
     return RetrainStatusResponse(
-        retrain_job_id=job["jobId"],
+        retrain_job_id=job["id"],
         status=job["status"],
-        model_version=job.get("modelVersion"),
-        accuracy=job.get("accuracy"),
-        started_at=job.get("startedAt"),
-        completed_at=job.get("completedAt"),
+        model_version=job.get("model_version_id"),
+        accuracy=None,           # accuracy is on model_versions, not retrain_jobs
+        started_at=job.get("triggered_at"),
+        completed_at=job.get("completed_at"),
         message=message,
     )
 
@@ -190,17 +187,12 @@ def _status_message(job: dict) -> str:
     """Build a human-readable message based on the current job state."""
     s = job["status"]
     if s == "pending":
-        return f"Retraining job '{job['jobId']}' is queued and waiting to start."
-    if s == "processing":
-        return f"Retraining job '{job['jobId']}' is currently running."
-    if s == "completed":
-        acc = job.get("accuracy")
-        ver = job.get("modelVersion", "unknown")
-        acc_str = f"{acc:.4f}" if acc is not None else "N/A"
-        return (
-            f"Retraining completed. New model version: '{ver}', "
-            f"accuracy: {acc_str}."
-        )
+        return f"Retraining job '{job['id']}' is queued and waiting to start."
+    if s == "running":
+        return f"Retraining job '{job['id']}' is currently running."
+    if s == "complete":
+        ver = job.get("model_version_id", "unknown")
+        return f"Retraining completed. New model version id: '{ver}'."
     if s == "failed":
-        return f"Retraining job '{job['jobId']}' failed. Check worker logs."
+        return f"Retraining job '{job['id']}' failed. Check worker logs."
     return f"Unknown status: {s}"

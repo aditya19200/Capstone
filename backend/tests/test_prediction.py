@@ -121,55 +121,51 @@ class TestPredictHappyPath:
         assert "prediction_id" in data
         assert "document_id" in data
 
-    def test_document_created_in_mock_db(self, client, monkeypatch):
-        """A new document row is persisted in mock_db on each predict call."""
-        _patch_model(monkeypatch, _make_inference_result())
+    def test_prediction_stored_in_mock_db(self, client, monkeypatch):
+        """Prediction row is persisted in mock_db with correct snake_case field names."""
+        _patch_model(monkeypatch, _make_inference_result(confidence=0.92, margin=0.30))
 
         client.post("/predict", json={"text": "This lease agreement grants tenancy rights."})
 
-        assert len(mock_db._legal_documents) == 1
         assert len(mock_db._predictions) == 1
+        pred = list(mock_db._predictions.values())[0]
+        assert pred["predicted_label"] == "Contract Law"
+        assert pred["confidence"] == pytest.approx(0.92, abs=1e-4)
 
-    def test_prediction_stored_in_mock_db(self, client, monkeypatch):
-        """Prediction row in mock_db contains correct label and routing decision."""
+    def test_prediction_stores_text_content(self, client, monkeypatch):
+        """Prediction row in mock_db stores the input text_content directly."""
         _patch_model(monkeypatch, _make_inference_result(confidence=0.92, margin=0.30))
+        text = "The accused was charged with felony assault."
 
-        client.post("/predict", json={"text": "The accused was charged with felony assault."})
+        client.post("/predict", json={"text": text})
 
         pred = list(mock_db._predictions.values())[0]
-        assert pred["predictedLabel"] == "Contract Law"
-        assert pred["routingDecision"] == "AUTO_ACCEPT"
+        assert pred["text_content"] == text
 
-    def test_uses_supplied_document_id(self, client, monkeypatch):
-        """When document_id is supplied, no new document is created."""
+    def test_no_document_row_created(self, client, monkeypatch):
+        """POST /predict never creates a legacy document row — predictions are stored directly."""
         _patch_model(monkeypatch, _make_inference_result())
 
-        # Pre-create a document
-        doc = mock_db.create_document("Pre-existing legal text.", status="pending")
-        doc_id = doc["documentId"]
-        initial_doc_count = len(mock_db._legal_documents)
+        client.post("/predict", json={"text": "The parties agree to the terms of this contract."})
+
+        assert len(mock_db._legal_documents) == 0
+        assert len(mock_db._predictions) == 1
+
+    def test_supplied_document_id_echoed_in_response(self, client, monkeypatch):
+        """When document_id is supplied in the request body, the response echoes it back."""
+        _patch_model(monkeypatch, _make_inference_result())
+        supplied_doc_id = "legacy-doc-abc123"
 
         resp = client.post(
             "/predict",
             json={
                 "text": "The parties agree to the terms of this contract.",
-                "document_id": doc_id,
+                "document_id": supplied_doc_id,
             },
         )
 
         assert resp.status_code == 200
-        assert resp.json()["document_id"] == doc_id
-        # No new document should be created
-        assert len(mock_db._legal_documents) == initial_doc_count
-
-    def test_document_status_updated_to_predicted(self, client, monkeypatch):
-        """Document status is updated to 'predicted' after successful inference."""
-        _patch_model(monkeypatch, _make_inference_result())
-
-        client.post("/predict", json={"text": "The employee was wrongfully terminated."})
-
-        doc = list(mock_db._legal_documents.values())[0]
-        assert doc["status"] == "predicted"
+        assert resp.json()["document_id"] == supplied_doc_id
 
 
 # ===========================================================================

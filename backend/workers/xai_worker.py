@@ -6,9 +6,6 @@ queue, generates SHAP token-level explanations for each pending job, and
 stores the results back via supabase_service.
 
 Run with:
-    python xai_worker.py
-
-or:
     python -m workers.xai_worker
 
 SHAP is CPU-bound and slow (~5–30s per document depending on length).
@@ -59,17 +56,17 @@ def process_xai_job(job: dict) -> None:
 
     Steps:
       1. Mark job as 'processing'.
-      2. Fetch the associated prediction (need text + label_id).
-      3. Fetch the prediction's document text from the prediction row.
-      4. Run SHAP via shap_service.explain_safe().
-      5. Update the explanation row with results (completed or failed).
-      6. Mark job as 'completed' or 'failed'.
+      2. Fetch the associated prediction (text_content + predicted_label are
+         stored directly on the predictions row — no document lookup needed).
+      3. Run SHAP via shap_service.explain_safe().
+      4. Update the explanation row with results (completed or failed).
+      5. Mark xai_job as 'done' or 'failed'.
 
     Args:
-        job: XAI job dict from the queue {jobId, predictionId, status, ...}.
+        job: XAI job dict {id, prediction_id, status, ...}.
     """
-    job_id       = job["jobId"]
-    prediction_id = job["predictionId"]
+    job_id        = job["id"]
+    prediction_id = job["prediction_id"]
 
     logger.info("Processing XAI job %s for prediction %s", job_id, prediction_id)
 
@@ -86,40 +83,23 @@ def process_xai_job(job: dict) -> None:
         update_xai_job(job_id=job_id, status="failed")
         return
 
-    # --- 3. Resolve document text ---
-    # The prediction row stores the document text via documentId.
-    # We stored text in the document row during prediction; retrieve it
-    # via the mock_db document store through supabase_service.
-    # Import here to avoid circular dependency at module level.
-    from services.supabase_service import get_document
+    # text_content is stored directly on the prediction row
+    text = prediction["text_content"]
 
-    document = get_document(document_id=prediction["documentId"])
-    if document is None:
-        logger.error(
-            "XAI job %s: document '%s' not found. Marking failed.",
-            job_id, prediction["documentId"],
-        )
-        update_xai_job(job_id=job_id, status="failed")
-        return
-
-    text      = document["textContent"]
-    label_id  = None
-
-    # Resolve label_id from the predicted label name
     from services.model_service import LABEL2ID
-    label_id = LABEL2ID.get(prediction["predictedLabel"])
+    label_id = LABEL2ID.get(prediction["predicted_label"])
     if label_id is None:
         logger.error(
             "XAI job %s: unknown predicted label '%s'. Marking failed.",
-            job_id, prediction["predictedLabel"],
+            job_id, prediction["predicted_label"],
         )
         update_xai_job(job_id=job_id, status="failed")
         return
 
-    # --- 4. Run SHAP ---
+    # --- 3. Run SHAP ---
     logger.info(
         "Running SHAP for job %s: label='%s' (id=%d) text_len=%d",
-        job_id, prediction["predictedLabel"], label_id, len(text),
+        job_id, prediction["predicted_label"], label_id, len(text),
     )
 
     token_importances = shap_service.explain_safe(
@@ -128,12 +108,10 @@ def process_xai_job(job: dict) -> None:
         max_evals=MAX_EVALS,
     )
 
-    # --- 5. Update explanation row ---
+    # --- 4. Update explanation row (legacy store) and xai_job ---
     explanation = get_explanation_by_prediction(prediction_id=prediction_id)
 
     if explanation is None:
-        # Edge case: explanation row was never created (shouldn't happen in
-        # normal flow, but handle gracefully)
         logger.warning(
             "XAI job %s: no explanation row found for prediction %s. "
             "SHAP result will not be persisted.",
@@ -148,13 +126,12 @@ def process_xai_job(job: dict) -> None:
             shap_values=token_importances,
             status="completed",
         )
-        update_xai_job(job_id=job_id, status="completed")
+        update_xai_job(job_id=job_id, status="done")
         logger.info(
-            "XAI job %s completed: %d tokens explained for prediction %s.",
+            "XAI job %s done: %d tokens explained for prediction %s.",
             job_id, len(token_importances), prediction_id,
         )
     else:
-        # explain_safe returned None — SHAP failed internally, error already logged
         update_explanation(
             explanation_id=explanation["explanationId"],
             shap_values=[],
@@ -176,17 +153,15 @@ def run_worker() -> None:
     Main XAI worker loop.
 
     Loads the model once, then continuously polls the xai_jobs queue.
-    Jobs are processed one at a time (SHAP is memory-intensive; batching
-    SHAP across multiple documents simultaneously is not beneficial on CPU).
+    Jobs are processed one at a time (SHAP is memory-intensive).
 
     Runs until interrupted (Ctrl-C / SIGTERM).
     """
     logger.info("XAI worker starting up.")
-    logger.info("Model path   : %s", settings.MODEL_PATH)
+    logger.info("Model path    : %s", settings.MODEL_PATH)
     logger.info("SHAP max_evals: %d", MAX_EVALS)
     logger.info("Poll interval : %ds", POLL_INTERVAL_SECONDS)
 
-    # Load model once — SHAP needs it for forward passes
     logger.info("Loading InLegalBERT for SHAP...")
     model_service.load()
     logger.info("Model ready. Entering XAI poll loop.")
@@ -202,18 +177,16 @@ def run_worker() -> None:
 
             logger.info("Found %d pending XAI job(s).", len(pending))
 
-            # Process one job at a time — SHAP is CPU/memory intensive
             for job in pending:
                 try:
                     process_xai_job(job)
                 except Exception as exc:
-                    # Catch-all so one bad job never kills the loop
                     logger.exception(
                         "Unhandled error processing XAI job %s: %s",
-                        job.get("jobId"), exc,
+                        job.get("id"), exc,
                     )
                     try:
-                        update_xai_job(job_id=job["jobId"], status="failed")
+                        update_xai_job(job_id=job["id"], status="failed")
                     except Exception:
                         pass  # best-effort
 

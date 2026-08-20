@@ -76,16 +76,14 @@ _SAMPLE_LABEL_ID = 0  # Contract Law
 
 
 def _seed_prediction(text: str = _SAMPLE_TEXT, label: str = "Contract Law") -> dict:
-    """Insert a document + prediction into mock_db and return the prediction row."""
-    doc  = mock_db.create_document(text_content=text)
+    """Insert a prediction into mock_db using the real schema and return the row."""
     pred = mock_db.create_prediction(
-        document_id=doc["documentId"],
+        text_content=text,
         predicted_label=label,
-        confidence_score=0.92,
-        probability_distribution={label: 0.92},
-        routing_decision="NEEDS_EXPLANATION",
-        entropy=0.3,
-        margin=0.25,
+        label_id=0,
+        confidence=0.92,
+        all_probabilities={label: 0.92},
+        model_version="v1",
     )
     return pred
 
@@ -93,7 +91,6 @@ def _seed_prediction(text: str = _SAMPLE_TEXT, label: str = "Contract Law") -> d
 def _patch_shap(monkeypatch, return_value=None, raise_exc=None):
     """
     Patch shap_service.explain so it either returns return_value or raises raise_exc.
-    Patches both the module-level singleton and any newly created instances.
     """
     import services.shap_service as ss
 
@@ -270,7 +267,7 @@ class TestExplainTriggerEndpoint:
     def test_trigger_returns_202(self, client, monkeypatch):
         """POST /explain returns 202 Accepted and a job ID."""
         pred = _seed_prediction()
-        prediction_id = pred["predictionId"]
+        prediction_id = pred["id"]
 
         resp = client.post("/explain", json={"prediction_id": prediction_id})
 
@@ -284,7 +281,7 @@ class TestExplainTriggerEndpoint:
         """POST /explain adds one job to the xai_jobs queue."""
         pred = _seed_prediction()
 
-        client.post("/explain", json={"prediction_id": pred["predictionId"]})
+        client.post("/explain", json={"prediction_id": pred["id"]})
 
         assert len(mock_db._xai_jobs) == 1
 
@@ -292,7 +289,7 @@ class TestExplainTriggerEndpoint:
         """POST /explain creates a pending explanation row in mock_db."""
         pred = _seed_prediction()
 
-        client.post("/explain", json={"prediction_id": pred["predictionId"]})
+        client.post("/explain", json={"prediction_id": pred["id"]})
 
         assert len(mock_db._explanations) == 1
         exp = list(mock_db._explanations.values())[0]
@@ -302,18 +299,16 @@ class TestExplainTriggerEndpoint:
         """POST /explain for a prediction that already has an explanation
         returns the existing explanation without creating a duplicate job."""
         pred = _seed_prediction()
-        prediction_id = pred["predictionId"]
+        prediction_id = pred["id"]
 
-        # First trigger
         client.post("/explain", json={"prediction_id": prediction_id})
         assert len(mock_db._xai_jobs) == 1
 
-        # Second trigger — should NOT add another job
         resp = client.post("/explain", json={"prediction_id": prediction_id})
 
         assert resp.status_code == 202
-        assert len(mock_db._xai_jobs) == 1         # still just one job
-        assert len(mock_db._explanations) == 1     # still just one explanation
+        assert len(mock_db._xai_jobs) == 1
+        assert len(mock_db._explanations) == 1
 
     def test_trigger_unknown_prediction_returns_404(self, client):
         """POST /explain with a non-existent prediction_id returns 404."""
@@ -332,9 +327,8 @@ class TestGetExplanationEndpoint:
     def test_get_pending_explanation(self, client):
         """GET /explain/{id} returns status='pending' when SHAP is not done."""
         pred = _seed_prediction()
-        prediction_id = pred["predictionId"]
+        prediction_id = pred["id"]
 
-        # Create explanation row but don't complete it
         mock_db.create_explanation(prediction_id=prediction_id)
 
         resp = client.get(f"/explain/{prediction_id}")
@@ -347,7 +341,7 @@ class TestGetExplanationEndpoint:
     def test_get_completed_explanation(self, client):
         """GET /explain/{id} returns token_importances when SHAP is complete."""
         pred = _seed_prediction()
-        prediction_id = pred["predictionId"]
+        prediction_id = pred["id"]
 
         exp = mock_db.create_explanation(prediction_id=prediction_id)
         mock_db.update_explanation(
@@ -367,7 +361,7 @@ class TestGetExplanationEndpoint:
     def test_completed_explanation_has_correct_token_fields(self, client):
         """Each token_importance item has 'token' and 'importance' fields."""
         pred = _seed_prediction()
-        prediction_id = pred["predictionId"]
+        prediction_id = pred["id"]
 
         exp = mock_db.create_explanation(prediction_id=prediction_id)
         mock_db.update_explanation(
@@ -392,7 +386,7 @@ class TestGetExplanationEndpoint:
         """GET /explain/{id} when prediction exists but no explanation queued returns 404."""
         pred = _seed_prediction()
 
-        resp = client.get(f"/explain/{pred['predictionId']}")
+        resp = client.get(f"/explain/{pred['id']}")
 
         assert resp.status_code == 404
         assert "post /explain" in resp.json()["detail"].lower()
@@ -400,7 +394,7 @@ class TestGetExplanationEndpoint:
     def test_get_failed_explanation_returns_failed_status(self, client):
         """GET /explain/{id} returns status='failed' when SHAP worker failed."""
         pred = _seed_prediction()
-        prediction_id = pred["predictionId"]
+        prediction_id = pred["id"]
 
         exp = mock_db.create_explanation(prediction_id=prediction_id)
         mock_db.update_explanation(
