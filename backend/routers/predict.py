@@ -16,15 +16,13 @@ from fastapi import APIRouter, Header, HTTPException, status
 
 from models.request_models import PredictRequest
 from models.response_models import PredictJobResponse, PredictResponse
+from repositories import predictions as predictions_repo
+from repositories import xai_jobs as xai_jobs_repo
 from services.active_learning import active_learning_engine
 from services.model_service import model_service
 from services.supabase_service import (
-    create_document,
     create_explanation,
-    create_prediction,
-    enqueue_xai_job,
     get_prediction_job,
-    update_document_status,
 )
 
 logger = logging.getLogger(__name__)
@@ -56,21 +54,13 @@ async def predict(
     """
     Full prediction pipeline:
 
-      1. Create a legal_documents row (or use supplied document_id).
-      2. Run InLegalBERT inference (async, thread-pool executor).
-      3. Apply active learning engine → routing decision.
-      4. Persist prediction row.
-      5. Queue SHAP job if routing is not AUTO_ACCEPT.
-      6. Return PredictResponse immediately.
+      1. Run InLegalBERT inference (async, thread-pool executor).
+      2. Apply active learning engine → routing decision.
+      3. Persist prediction row via predictions repository.
+      4. Queue SHAP job if routing is not AUTO_ACCEPT.
+      5. Return PredictResponse immediately.
     """
-    # --- 1. Resolve / create document ---
-    if body.document_id:
-        document_id = body.document_id
-    else:
-        doc = create_document(text_content=body.text, status="pending")
-        document_id = doc["documentId"]
-
-    # --- 2. Run inference ---
+    # --- 1. Run inference ---
     try:
         inference = await model_service.predict_async(body.text)
     except RuntimeError as exc:
@@ -86,7 +76,7 @@ async def predict(
             detail=f"Inference error: {exc}",
         )
 
-    # --- 3. Active learning routing ---
+    # --- 2. Active learning routing ---
     al_result = active_learning_engine.evaluate(
         confidence=inference["confidence"],
         probabilities=inference["probabilities"],
@@ -95,44 +85,39 @@ async def predict(
     )
 
     logger.info(
-        "Prediction: label='%s' conf=%.4f routing=%s doc=%s",
+        "Prediction: label='%s' conf=%.4f routing=%s",
         inference["predicted_label"],
         inference["confidence"],
         al_result.routing_decision,
-        document_id,
     )
 
-    # --- 4. Persist prediction ---
-    pred_row = create_prediction(
-        document_id=document_id,
+    # --- 3. Persist prediction (repositories path — no document row needed) ---
+    pred_row = predictions_repo.insert(
+        text_content=body.text,
         predicted_label=inference["predicted_label"],
-        confidence_score=inference["confidence"],
-        probability_distribution=inference["probabilities"],
-        routing_decision=al_result.routing_decision,
-        entropy=inference["entropy"],
-        margin=inference["margin"],
+        label_id=inference["label_id"],
+        confidence=inference["confidence"],
+        all_probabilities=inference["probabilities"],
+        model_version=getattr(model_service, "model_version", "v1"),
     )
-    prediction_id: str = pred_row["predictionId"]
+    prediction_id: str = pred_row["id"]
 
-    # Update document status now that a prediction exists
-    update_document_status(document_id, "predicted")
-
-    # --- 5. Queue SHAP job if needed ---
+    # --- 4. Queue SHAP job if needed ---
     xai_job_id: Optional[str] = None
     if al_result.requires_shap:
-        # Create a pending explanation row first so GET /explain can return
+        # Create a pending explanation row first so GET /explain returns
         # 'pending' immediately without waiting for the worker
         create_explanation(prediction_id=prediction_id)
-        xai_job = enqueue_xai_job(prediction_id=prediction_id)
-        xai_job_id = xai_job["jobId"]
+        xai_job = xai_jobs_repo.insert(prediction_id=prediction_id)
+        xai_job_id = xai_job["id"]
         logger.info(
             "XAI job queued: job_id=%s pred_id=%s", xai_job_id, prediction_id
         )
 
-    # --- 6. Build and return response ---
+    # --- 5. Build and return response ---
     return PredictResponse(
         prediction_id=prediction_id,
-        document_id=document_id,
+        document_id=body.document_id,   # pass through; None if not supplied
         predicted_label=inference["predicted_label"],
         confidence=inference["confidence"],
         probabilities=inference["probabilities"],
@@ -179,7 +164,7 @@ async def get_prediction_job_status(job_id: str) -> PredictJobResponse:
             logger.error("Failed to deserialise job result for %s: %s", job_id, exc)
 
     return PredictJobResponse(
-        job_id=job["jobId"],
+        job_id=job["jobId"],   # legacy prediction_jobs table still uses jobId
         status=job["status"],
         result=result,
     )
