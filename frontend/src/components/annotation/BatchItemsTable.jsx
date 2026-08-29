@@ -2,7 +2,7 @@ import ConfidenceBadge from '../prediction/ConfidenceBadge.jsx'
 
 const PAGE_SIZE = 10
 
-function BatchItemsTable({ items, page, totalItems, isLoading, onPageChange, onExplain }) {
+function BatchItemsTable({ items, page, totalItems, isLoading, onPageChange, onExplain, onConcepts }) {
   const maxPage = Math.max(1, Math.ceil((totalItems || 0) / PAGE_SIZE))
 
   return (
@@ -63,9 +63,14 @@ function BatchItemsTable({ items, page, totalItems, isLoading, onPageChange, onE
                   <ConfidenceBadge confidence={item.confidence} />
                 </td>
                 <td className="px-4 py-4 text-right">
-                  <button type="button" className="btn-secondary" onClick={() => onExplain(item)}>
-                    Explain
-                  </button>
+                  <div className="flex justify-end gap-2">
+                    <button type="button" className="btn-secondary" onClick={() => onConcepts(item)}>
+                      Concepts
+                    </button>
+                    <button type="button" className="btn-secondary" onClick={() => onExplain(item)}>
+                      Explain
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

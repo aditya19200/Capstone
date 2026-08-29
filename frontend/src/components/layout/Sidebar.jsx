@@ -12,7 +12,6 @@ const navigationByRole = {
   annotator: [
     { label: 'Dashboard', to: '/dashboard' },
     { label: 'Annotate', to: '/annotate' },
-    { label: 'Predictions', to: '/predictions' },
     { label: 'Ontology', to: '/ontology' },
   ],
   reviewer: [
