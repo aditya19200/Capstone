@@ -3,6 +3,7 @@ import { getBatch, getBatchItems, submitBatchCsv, submitBatchPaste } from '../ap
 import BatchItemsTable from '../components/annotation/BatchItemsTable.jsx'
 import BatchProgress from '../components/annotation/BatchProgress.jsx'
 import LegalTextInput from '../components/annotation/LegalTextInput.jsx'
+import ExplainPanel from '../components/explanation/ExplainPanel.jsx'
 
 const POLL_INTERVAL_MS = 3000
 const MAX_POLL_MS = 5 * 60 * 1000
@@ -31,6 +32,7 @@ function AnnotatePage() {
   const [items, setItems] = useState([])
   const [page, setPage] = useState(1)
   const [isLoadingItems, setIsLoadingItems] = useState(false)
+  const [explainingItem, setExplainingItem] = useState(null)
 
   const pollStartRef = useRef(null)
 
@@ -162,8 +164,7 @@ function AnnotatePage() {
   }
 
   const handleExplain = (item) => {
-    // Wiring this up to requestExplain/getExplain is Task 3.
-    console.info('[Annotate] Explain wiring lands in Task 3.', item)
+    setExplainingItem(item)
   }
 
   const isSubmitting = phase === 'processing'
@@ -312,6 +313,8 @@ function AnnotatePage() {
           </div>
         </>
       ) : null}
+
+      <ExplainPanel item={explainingItem} onClose={() => setExplainingItem(null)} />
     </section>
   )
 }
