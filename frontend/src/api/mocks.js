@@ -323,6 +323,9 @@ export async function getLowConfidenceQueue() {
     const label = LEGAL_LABELS[index % LEGAL_LABELS.length]
     return {
       prediction_id: nextId('pred'),
+      // Required by submitAnnotation's real AnnotateRequest.document_id
+      // (not optional) — CLAUDE.md's original queue shape didn't include it.
+      document_id: nextId('doc'),
       text_preview: '(mock excerpt requiring human review)',
       predicted_label: label,
       confidence: Number((0.2 + Math.random() * 0.3).toFixed(4)),
