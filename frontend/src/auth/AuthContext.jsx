@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { setAuthToken } from '../api/axiosClient.js'
+import { setAuthRole, setAuthToken, setAuthUserId } from '../api/axiosClient.js'
 
 const AuthContext = createContext(null)
 
@@ -15,13 +15,16 @@ const parseJwtPayload = (token) => {
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(null)
   const [role, setRole] = useState(null)
+  const [userId, setUserId] = useState(null)
 
   const login = (nextToken) => {
     const payload = parseJwtPayload(nextToken)
     const nextRole = payload?.role || payload?.user_role || payload?.app_metadata?.role || null
+    const nextUserId = payload?.sub || payload?.user_id || payload?.id || null
 
     setToken(nextToken)
     setRole(nextRole)
+    setUserId(nextUserId)
   }
 
   const mockLogin = (mockRole = "annotator") => {
@@ -29,16 +32,20 @@ export function AuthProvider({ children }) {
 
   setToken(fakeToken)
   setRole(mockRole)
+  setUserId('mock-user-1')
   }
 
   const logout = () => {
     setToken(null)
     setRole(null)
+    setUserId(null)
   }
 
   useEffect(() => {
     setAuthToken(token)
-  }, [token])
+    setAuthRole(role)
+    setAuthUserId(userId)
+  }, [token, role, userId])
 
   const value = useMemo(
     () => ({
@@ -47,9 +54,10 @@ export function AuthProvider({ children }) {
       logout,
       role,
       token,
+      userId,
       mockLogin, // 👈 ADD THIS
     }),
-    [role, token],
+    [role, token, userId],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
