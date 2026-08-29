@@ -296,9 +296,13 @@ export async function getBatchItems(batchId, page = 1) {
   const items = Array.from({ length: pageSize }, (_, index) => {
     const label = LEGAL_LABELS[index % LEGAL_LABELS.length]
     const confidence = Number((0.4 + Math.random() * 0.55).toFixed(4))
+    const seq = (page - 1) * pageSize + index + 1
     return {
-      id: `${batchId}-item-${(page - 1) * pageSize + index + 1}`,
-      seq: (page - 1) * pageSize + index + 1,
+      id: `${batchId}-item-${seq}`,
+      // Deterministic (not nextId()) so revisiting the same page returns the
+      // same prediction_id — lets Task 3's per-prediction explain cache work.
+      prediction_id: `${batchId}-pred-${seq}`,
+      seq,
       text_content: '(mock legal text excerpt)',
       predicted_label: label,
       confidence,

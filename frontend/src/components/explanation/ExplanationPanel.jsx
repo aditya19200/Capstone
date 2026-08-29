@@ -12,12 +12,14 @@ function ExplanationPanel({ summary, shapValues }) {
       </div>
 
       <div className="mt-6 space-y-6">
-        <div className="rounded-2xl bg-indigo-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-700">
-            Summary
-          </p>
-          <p className="mt-2 text-sm leading-7 text-slate-700">{summary}</p>
-        </div>
+        {summary ? (
+          <div className="rounded-2xl bg-indigo-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-700">
+              Summary
+            </p>
+            <p className="mt-2 text-sm leading-7 text-slate-700">{summary}</p>
+          </div>
+        ) : null}
 
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
