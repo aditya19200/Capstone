@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { getBatch, getBatchItems, submitBatchCsv, submitBatchPaste } from '../api/client.js'
 import BatchItemsTable from '../components/annotation/BatchItemsTable.jsx'
 import BatchProgress from '../components/annotation/BatchProgress.jsx'
+import ConceptsPanel from '../components/annotation/ConceptsPanel.jsx'
 import LegalTextInput from '../components/annotation/LegalTextInput.jsx'
 import ExplainPanel from '../components/explanation/ExplainPanel.jsx'
 
@@ -33,6 +34,7 @@ function AnnotatePage() {
   const [page, setPage] = useState(1)
   const [isLoadingItems, setIsLoadingItems] = useState(false)
   const [explainingItem, setExplainingItem] = useState(null)
+  const [conceptsItem, setConceptsItem] = useState(null)
 
   const pollStartRef = useRef(null)
 
@@ -165,6 +167,10 @@ function AnnotatePage() {
 
   const handleExplain = (item) => {
     setExplainingItem(item)
+  }
+
+  const handleConcepts = (item) => {
+    setConceptsItem(item)
   }
 
   const isSubmitting = phase === 'processing'
@@ -305,6 +311,7 @@ function AnnotatePage() {
             isLoading={isLoadingItems}
             onPageChange={handlePageChange}
             onExplain={handleExplain}
+            onConcepts={handleConcepts}
           />
           <div className="flex justify-end">
             <button type="button" onClick={resetToIdle} className="btn-secondary">
@@ -315,6 +322,7 @@ function AnnotatePage() {
       ) : null}
 
       <ExplainPanel item={explainingItem} onClose={() => setExplainingItem(null)} />
+      <ConceptsPanel item={conceptsItem} onClose={() => setConceptsItem(null)} />
     </section>
   )
 }

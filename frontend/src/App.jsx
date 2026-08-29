@@ -8,7 +8,6 @@ import DashboardPage from './pages/Dashboard.jsx'
 import LoginPage from './pages/Login.jsx'
 import MetricsPage from './pages/Metrics.jsx'
 import OntologyPage from './pages/Ontology.jsx'
-import PredictionsPage from './pages/Predictions.jsx'
 import RegisterPage from './pages/Register.jsx'
 import RetrainPage from './pages/Retrain.jsx'
 import ReviewPage from './pages/Review.jsx'
@@ -38,15 +37,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/predictions"
-            element={
-              <ProtectedRoute allowedRoles={['annotator']}>
-                <PredictionsPage />
-              </ProtectedRoute>
-            }
-          />
-
           <Route
             path="/review"
             element={
