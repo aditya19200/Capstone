@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { getBatch, getBatchItems, submitBatchCsv, submitBatchPaste } from '../api/client.js'
+import { exportBatchUrl, getBatch, getBatchItems, submitBatchCsv, submitBatchPaste } from '../api/client.js'
 import BatchItemsTable from '../components/annotation/BatchItemsTable.jsx'
 import BatchProgress from '../components/annotation/BatchProgress.jsx'
 import ConceptsPanel from '../components/annotation/ConceptsPanel.jsx'
@@ -35,6 +35,7 @@ function AnnotatePage() {
   const [isLoadingItems, setIsLoadingItems] = useState(false)
   const [explainingItem, setExplainingItem] = useState(null)
   const [conceptsItem, setConceptsItem] = useState(null)
+  const [exportUrl, setExportUrl] = useState(null)
 
   const pollStartRef = useRef(null)
 
@@ -73,6 +74,7 @@ function AnnotatePage() {
     setPasteText('')
     setSelectedFile(null)
     setErrorMessage('')
+    setExportUrl(null)
   }
 
   const handleSubmit = async () => {
@@ -147,6 +149,21 @@ function AnnotatePage() {
     }, POLL_INTERVAL_MS)
 
     return () => clearInterval(interval)
+  }, [phase, batchId])
+
+  useEffect(() => {
+    if (phase !== 'done' || !batchId) {
+      return
+    }
+
+    ;(async () => {
+      try {
+        const url = await exportBatchUrl(batchId)
+        setExportUrl(url)
+      } catch (error) {
+        console.error('[Annotate] exportBatchUrl failed', error)
+      }
+    })()
   }, [phase, batchId])
 
   const handlePageChange = async (nextPage) => {
@@ -312,6 +329,7 @@ function AnnotatePage() {
             onPageChange={handlePageChange}
             onExplain={handleExplain}
             onConcepts={handleConcepts}
+            exportUrl={exportUrl}
           />
           <div className="flex justify-end">
             <button type="button" onClick={resetToIdle} className="btn-secondary">

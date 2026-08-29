@@ -2,7 +2,16 @@ import ConfidenceBadge from '../prediction/ConfidenceBadge.jsx'
 
 const PAGE_SIZE = 10
 
-function BatchItemsTable({ items, page, totalItems, isLoading, onPageChange, onExplain, onConcepts }) {
+function BatchItemsTable({
+  items,
+  page,
+  totalItems,
+  isLoading,
+  onPageChange,
+  onExplain,
+  onConcepts,
+  exportUrl,
+}) {
   const maxPage = Math.max(1, Math.ceil((totalItems || 0) / PAGE_SIZE))
 
   return (
@@ -13,6 +22,11 @@ function BatchItemsTable({ items, page, totalItems, isLoading, onPageChange, onE
           <h3 className="mt-2 text-xl font-semibold text-slate-900">Classified documents</h3>
         </div>
         <div className="flex items-center gap-3">
+          {exportUrl ? (
+            <a href={exportUrl} download className="btn-secondary">
+              Export CSV
+            </a>
+          ) : null}
           <button
             type="button"
             className="btn-secondary"
