@@ -94,6 +94,7 @@ create table if not exists batch_items (
     attempts           smallint not null default 0,
     locked_at          timestamptz,
     error_message      text,
+    created_at         timestamptz not null default now(),
     unique (batch_id, seq)
 );
 
