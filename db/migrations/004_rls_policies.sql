@@ -23,6 +23,6 @@ alter table retrain_jobs         enable row level security;
 -- the service role (which bypasses RLS) can touch these tables.
 --
 -- If the frontend ever needs direct Supabase reads (e.g. a future
--- Realtime subscription instead of polling GET /explain/{job_id}),
+-- Realtime subscription instead of polling GET /explain/{prediction_id}),
 -- add a narrowly-scoped `for select ... to authenticated` policy on
 -- that one table rather than opening things up broadly.
