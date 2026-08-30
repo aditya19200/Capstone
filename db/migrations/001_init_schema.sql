@@ -19,7 +19,7 @@ create table if not exists dataset_versions (
 
 -- ============================================================
 -- model_versions — one row per trained model checkpoint
--- is_active is the rollback mechanism (see 003_activate_model_version.sql)
+-- is_active is the rollback mechanism (see 003_activate_model_version_and_conflict.sql)
 -- ============================================================
 create table if not exists model_versions (
     id                   uuid primary key default gen_random_uuid(),
