@@ -101,7 +101,7 @@ create table if not exists batch_items (
 -- claim_batch_items(n) scans for the oldest n 'pending' rows — composite
 -- index satisfies the filter AND the ordering in a single index scan.
 create index if not exists idx_batch_items_claim
-    on batch_items (status, id);
+    on batch_items (status, created_at, id);
 -- GET /batches/{id}/items and CSV export both filter by batch_id
 create index if not exists idx_batch_items_batch_id
     on batch_items (batch_id);
