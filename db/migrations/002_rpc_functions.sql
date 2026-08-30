@@ -50,7 +50,7 @@ begin
         select id
         from xai_jobs
         where status = 'pending'
-        order by id
+        order by created_at, id
         limit 1
         for update skip locked
     )
