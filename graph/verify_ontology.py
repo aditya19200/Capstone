@@ -25,50 +25,52 @@ EXPECTED_LABELS = [
 
 def main():
     driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
-    with driver.session(database=NEO4J_DATABASE) as session:
-        rows = session.run(
-            "MATCH (n:OntologyNode) RETURN n.label AS label ORDER BY n.label"
-        )
-        labels = sorted(r["label"] for r in rows)
-        expected_sorted = sorted(EXPECTED_LABELS)
-        assert labels == expected_sorted, (
-            f"Label mismatch.\n  got:      {labels}\n  expected: {expected_sorted}"
-        )
-        print(f"OK  — {len(labels)}/10 OntologyNode labels present and match id2label.")
+    try:
+        with driver.session(database=NEO4J_DATABASE) as session:
+            rows = session.run(
+                "MATCH (n:OntologyNode) RETURN n.label AS label ORDER BY n.label"
+            )
+            labels = sorted(r["label"] for r in rows)
+            expected_sorted = sorted(EXPECTED_LABELS)
+            assert labels == expected_sorted, (
+                f"Label mismatch.\n  got:      {labels}\n  expected: {expected_sorted}"
+            )
+            print(f"OK  — {len(labels)}/10 OntologyNode labels present and match id2label.")
 
-        result = session.run(
-            """
-            MATCH (n:OntologyNode {label: $label})-[:RELATED_TO]->(r)
-            RETURN r.label AS label ORDER BY r.label
-            """,
-            label="Civil Procedure / Other",
-        )
-        related = [r["label"] for r in result]
-        expected_related = sorted([
-            "Contract Law", "Family Law", "Labour & Employment Law",
-            "Property / Real Estate Law",
-        ])
-        assert related == expected_related, (
-            f"RELATED_TO mismatch for 'Civil Procedure / Other'.\n"
-            f"  got:      {related}\n  expected: {expected_related}"
-        )
-        print("OK  — RELATED_TO edges for 'Civil Procedure / Other' match the mock.")
+            result = session.run(
+                """
+                MATCH (n:OntologyNode {label: $label})-[:RELATED_TO]->(r)
+                RETURN r.label AS label ORDER BY r.label
+                """,
+                label="Civil Procedure / Other",
+            )
+            related = [r["label"] for r in result]
+            expected_related = sorted([
+                "Contract Law", "Family Law", "Labour & Employment Law",
+                "Property / Real Estate Law",
+            ])
+            assert related == expected_related, (
+                f"RELATED_TO mismatch for 'Civil Procedure / Other'.\n"
+                f"  got:      {related}\n  expected: {expected_related}"
+            )
+            print("OK  — RELATED_TO edges for 'Civil Procedure / Other' match the mock.")
 
-        exists = session.run(
-            "MATCH (n:OntologyNode {label: $label}) RETURN count(n) > 0 AS exists",
-            label="Taxation Law",
-        ).single()["exists"]
-        assert exists is True
-        print("OK  — label_exists() query returns True for a known label.")
+            exists = session.run(
+                "MATCH (n:OntologyNode {label: $label}) RETURN count(n) > 0 AS exists",
+                label="Taxation Law",
+            ).single()["exists"]
+            assert exists is True
+            print("OK  — label_exists() query returns True for a known label.")
 
-        not_exists = session.run(
-            "MATCH (n:OntologyNode {label: $label}) RETURN count(n) > 0 AS exists",
-            label="Made Up Law",
-        ).single()["exists"]
-        assert not_exists is False
-        print("OK  — label_exists() query returns False for an unknown label.")
+            not_exists = session.run(
+                "MATCH (n:OntologyNode {label: $label}) RETURN count(n) > 0 AS exists",
+                label="Made Up Law",
+            ).single()["exists"]
+            assert not_exists is False
+            print("OK  — label_exists() query returns False for an unknown label.")
+    finally:
+        driver.close()
 
-    driver.close()
     print("\nAll checks passed. Graph matches services/mock_db.py's ONTOLOGY dict.")
     print("Safe to tell Aditya the swap-from-mock checklist can proceed.")
 
