@@ -40,16 +40,15 @@ def _statements(script: str):
 
 
 def run_seed():
-    driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
     script = SEED_FILE.read_text()
 
     count = 0
-    with driver.session(database=NEO4J_DATABASE) as session:
-        for stmt in _statements(script):
-            session.run(stmt)
-            count += 1
+    with GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD)) as driver:
+        with driver.session(database=NEO4J_DATABASE) as session:
+            for stmt in _statements(script):
+                session.run(stmt)
+                count += 1
 
-    driver.close()
     print(f"Ontology seeded: {count} statements executed against {NEO4J_URI} (database={NEO4J_DATABASE}).")
 
 
