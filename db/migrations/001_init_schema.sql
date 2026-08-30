@@ -129,7 +129,7 @@ create index if not exists idx_xai_jobs_prediction_id
 
 -- ============================================================
 -- annotations — human corrections, feeds retraining
--- (has_conflict is added in 004_annotations_has_conflict.sql)
+-- (has_conflict is added in 003_activate_model_version_and_conflict.sql)
 -- ============================================================
 create table if not exists annotations (
     id               uuid primary key default gen_random_uuid(),
