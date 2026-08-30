@@ -1,5 +1,5 @@
 -- 001_init_schema.sql
--- XAI Legal Annotation Framework — core Postgres schema (7 tables)
+-- XAI Legal Annotation Framework — core Postgres schema (8 tables)
 -- Built against docs/SCHEMA_REQUEST.md and CLAUDE.md's schema block —
 -- treat those as the frozen interface; if anything here doesn't match,
 -- the docs win and this file needs fixing, not the other way round.
