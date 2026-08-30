@@ -23,7 +23,7 @@ begin
         select id
         from batch_items
         where status = 'pending'
-        order by id
+        order by created_at, id
         limit n
         for update skip locked
     )
