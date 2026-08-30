@@ -122,7 +122,7 @@ create table if not exists xai_jobs (
 
 -- claim_xai_job() scans for the oldest pending row
 create index if not exists idx_xai_jobs_claim
-    on xai_jobs (status, id);
+    on xai_jobs (status, created_at, id);
 -- GET /explain/{job_id} looks up by prediction_id, polled every 3s by the frontend
 create index if not exists idx_xai_jobs_prediction_id
     on xai_jobs (prediction_id);
