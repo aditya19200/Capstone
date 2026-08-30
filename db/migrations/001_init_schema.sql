@@ -1,5 +1,5 @@
 -- 001_init_schema.sql
--- XAI Legal Annotation Framework — core Postgres schema (7 tables)
+-- XAI Legal Annotation Framework — core Postgres schema (8 tables)
 -- Built against docs/SCHEMA_REQUEST.md and CLAUDE.md's schema block —
 -- treat those as the frozen interface; if anything here doesn't match,
 -- the docs win and this file needs fixing, not the other way round.
@@ -19,7 +19,7 @@ create table if not exists dataset_versions (
 
 -- ============================================================
 -- model_versions — one row per trained model checkpoint
--- is_active is the rollback mechanism (see 003_activate_model_version.sql)
+-- is_active is the rollback mechanism (see 003_activate_model_version_and_conflict.sql)
 -- ============================================================
 create table if not exists model_versions (
     id                   uuid primary key default gen_random_uuid(),
@@ -94,13 +94,14 @@ create table if not exists batch_items (
     attempts           smallint not null default 0,
     locked_at          timestamptz,
     error_message      text,
+    created_at         timestamptz not null default now(),
     unique (batch_id, seq)
 );
 
 -- claim_batch_items(n) scans for the oldest n 'pending' rows — composite
 -- index satisfies the filter AND the ordering in a single index scan.
 create index if not exists idx_batch_items_claim
-    on batch_items (status, id);
+    on batch_items (status, created_at, id);
 -- GET /batches/{id}/items and CSV export both filter by batch_id
 create index if not exists idx_batch_items_batch_id
     on batch_items (batch_id);
@@ -117,19 +118,20 @@ create table if not exists xai_jobs (
     summary           text,
     attempts          smallint not null default 0,
     locked_at         timestamptz,
-    error_message     text
+    error_message     text,
+    created_at        timestamptz not null default now()
 );
 
 -- claim_xai_job() scans for the oldest pending row
 create index if not exists idx_xai_jobs_claim
-    on xai_jobs (status, id);
+    on xai_jobs (status, created_at, id);
 -- GET /explain/{job_id} looks up by prediction_id, polled every 3s by the frontend
 create index if not exists idx_xai_jobs_prediction_id
     on xai_jobs (prediction_id);
 
 -- ============================================================
 -- annotations — human corrections, feeds retraining
--- (has_conflict is added in 004_annotations_has_conflict.sql)
+-- (has_conflict is added in 003_activate_model_version_and_conflict.sql)
 -- ============================================================
 create table if not exists annotations (
     id               uuid primary key default gen_random_uuid(),
