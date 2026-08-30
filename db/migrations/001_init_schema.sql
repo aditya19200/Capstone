@@ -118,7 +118,8 @@ create table if not exists xai_jobs (
     summary           text,
     attempts          smallint not null default 0,
     locked_at         timestamptz,
-    error_message     text
+    error_message     text,
+    created_at        timestamptz not null default now()
 );
 
 -- claim_xai_job() scans for the oldest pending row
