@@ -179,6 +179,14 @@ export async function getAdminMetrics() {
   return mocks.getAdminMetrics()
 }
 
+// Speculative shape — GET /annotate has no has_conflict filter and its
+// response item doesn't carry predicted_label or a text excerpt. See
+// mocks.getConflicts for the exact gap.
+export async function getConflicts() {
+  warnMockOnly('getConflicts')
+  return mocks.getConflicts()
+}
+
 export async function activateModelVersion(versionId) {
   warnMockOnly('activateModelVersion')
   return mocks.activateModelVersion(versionId)

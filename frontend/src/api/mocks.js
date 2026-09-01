@@ -352,6 +352,35 @@ export async function getLowConfidenceQueue() {
   })
 }
 
+// Speculative — the real AnnotationListItem shape has none of these fields
+// (no predicted_label, no text excerpt, no second-annotator concept). This
+// is closer to a UI mockup than a contract preview; see Conflicts.jsx notes.
+//
+// Only annotator_vs_annotator rows — model_vs_human isn't actionable (it
+// fires on every ordinary correction; the human's submission already is
+// the resolution), so this page only surfaces genuine two-human disputes.
+export async function getConflicts() {
+  await delay()
+  return Array.from({ length: 5 }, (_, index) => ({
+    annotation_id: nextId('ann'),
+    document_id: nextId('doc'),
+    prediction_id: nextId('pred'),
+    text_preview: '(mock excerpt with a flagged annotation conflict)',
+    predicted_label: LEGAL_LABELS[index % LEGAL_LABELS.length],
+    final_label: LEGAL_LABELS[(index + 1) % LEGAL_LABELS.length],
+    user_id: 'annotator-1',
+    annotation_status: 'validated',
+    annotated_at: new Date(Date.now() - index * 3600_000).toISOString(),
+    has_conflict: true,
+    conflict_type: 'annotator_vs_annotator',
+    second_annotation: {
+      user_id: 'annotator-2',
+      final_label: LEGAL_LABELS[(index + 2) % LEGAL_LABELS.length],
+      annotated_at: new Date(Date.now() - index * 3600_000 + 1800_000).toISOString(),
+    },
+  }))
+}
+
 export async function getAdminMetrics() {
   await delay()
   return {
