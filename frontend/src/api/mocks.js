@@ -181,6 +181,7 @@ export async function triggerRetrain({ notes, minAnnotations = 50 } = {}) {
     started_at: new Date().toISOString(),
     completed_at: null,
     message: `Retraining job queued (min_annotations=${minAnnotations}${notes ? `, notes="${notes}"` : ''}).`,
+    pollCount: 0,
   }
   return {
     retrain_job_id: mockRetrainJob.retrain_job_id,
@@ -189,6 +190,9 @@ export async function triggerRetrain({ notes, minAnnotations = 50 } = {}) {
   }
 }
 
+// client.js passes a jobId (to match the real GET /retrain/status?job_id=
+// contract) but this mock only ever tracks one job at a time, so it's
+// harmlessly dropped here rather than accepted as an unused parameter.
 export async function getRetrainStatus() {
   await delay()
   if (!mockRetrainJob) {
@@ -202,6 +206,21 @@ export async function getRetrainStatus() {
       message: 'No retraining job has been triggered yet.',
     }
   }
+
+  // Simulate progress: flips to 'complete' after a couple of polls so the
+  // page's polling loop has something to observe, same idea as getExplain's
+  // callCount-based transition above.
+  if (mockRetrainJob.status === 'running') {
+    mockRetrainJob.pollCount += 1
+    if (mockRetrainJob.pollCount >= 2) {
+      mockRetrainJob.status = 'complete'
+      mockRetrainJob.model_version = nextId('model-v')
+      mockRetrainJob.accuracy = Number((0.85 + Math.random() * 0.1).toFixed(4))
+      mockRetrainJob.completed_at = new Date().toISOString()
+      mockRetrainJob.message = `Retraining completed. New model version id: '${mockRetrainJob.model_version}'.`
+    }
+  }
+
   return mockRetrainJob
 }
 
@@ -339,8 +358,8 @@ export async function getAdminMetrics() {
     f1_per_class: Object.fromEntries(LEGAL_LABELS.map((label) => [label, Number((0.6 + Math.random() * 0.35).toFixed(3))])),
     annotation_counts_by_status: { pending: 42, validated: 318, rejected: 12 },
     model_versions: [
-      { version_id: 'v1', accuracy: 0.874, trained_at: '2026-06-01T00:00:00Z', is_active: true },
-      { version_id: 'v2-candidate', accuracy: 0.891, trained_at: '2026-08-20T00:00:00Z', is_active: false },
+      { version_id: 'v1', accuracy: 0.748, trained_at: '2026-06-01T00:00:00Z', is_active: true },
+      { version_id: 'v2-candidate', accuracy: 0.762, trained_at: '2026-08-20T00:00:00Z', is_active: false },
     ],
   }
 }
