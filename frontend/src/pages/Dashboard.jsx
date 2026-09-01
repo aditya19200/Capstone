@@ -9,10 +9,24 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
+import { useAuth } from '../auth/AuthContext.jsx'
 import ActivityList from '../components/dashboard/ActivityList.jsx'
 import QuickActions from '../components/dashboard/QuickActions.jsx'
 import StatsCard from '../components/dashboard/StatsCard.jsx'
 import WorkflowSteps from '../components/dashboard/WorkflowSteps.jsx'
+
+// Mirrors Sidebar.jsx's navigationByRole pattern — each role only sees
+// shortcuts to routes it can actually reach, instead of one static list
+// that silently bounces roles that don't match a given route.
+const quickActionsByRole = {
+  annotator: [{ label: 'Upload Dataset', to: '/annotate' }],
+  reviewer: [{ label: 'Review Queue', to: '/review' }],
+  admin: [
+    { label: 'Manage Models', to: '/admin' },
+    { label: 'View Metrics', to: '/metrics', variant: 'secondary' },
+    { label: 'Trigger Retrain', to: '/retrain', variant: 'secondary' },
+  ],
+}
 
 const stats = [
   {
@@ -119,12 +133,12 @@ const topLabels = [
 
 function DashboardPage() {
   const navigate = useNavigate()
+  const { role } = useAuth()
 
-  const quickActions = [
-    { label: 'Upload Dataset', onClick: () => navigate('/annotate') },
-    { label: 'View Predictions', onClick: () => navigate('/predictions'), variant: 'secondary' },
-    { label: 'Explore Ontology', onClick: () => navigate('/ontology'), variant: 'secondary' },
-  ]
+  const quickActions = (quickActionsByRole[role] || quickActionsByRole.annotator).map((action) => ({
+    ...action,
+    onClick: () => navigate(action.to),
+  }))
 
   return (
     <section className="space-y-6">
