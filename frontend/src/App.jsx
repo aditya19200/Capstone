@@ -7,7 +7,6 @@ import ConflictsPage from './pages/Conflicts.jsx'
 import DashboardPage from './pages/Dashboard.jsx'
 import LoginPage from './pages/Login.jsx'
 import MetricsPage from './pages/Metrics.jsx'
-import OntologyPage from './pages/Ontology.jsx'
 import RegisterPage from './pages/Register.jsx'
 import RetrainPage from './pages/Retrain.jsx'
 import ReviewPage from './pages/Review.jsx'
@@ -67,14 +66,6 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <MetricsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/ontology"
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'annotator']}>
-                <OntologyPage />
               </ProtectedRoute>
             }
           />
