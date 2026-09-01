@@ -94,9 +94,11 @@ export async function triggerRetrain({ notes, minAnnotations } = {}) {
   return data
 }
 
-export async function getRetrainStatus() {
-  if (USE_MOCKS) return mocks.getRetrainStatus()
-  const { data } = await axiosClient.get('/retrain/status')
+export async function getRetrainStatus(jobId) {
+  if (USE_MOCKS) return mocks.getRetrainStatus(jobId)
+  const { data } = await axiosClient.get('/retrain/status', {
+    params: jobId ? { job_id: jobId } : undefined,
+  })
   return data
 }
 
