@@ -156,6 +156,12 @@ function AnnotatePage() {
       return
     }
 
+    // exportBatchUrl is mock-only until the backend /batches/{id}/export route exists.
+    if (import.meta.env.VITE_USE_MOCKS !== 'true') {
+      setExportUrl(null)
+      return
+    }
+
     ;(async () => {
       try {
         const url = await exportBatchUrl(batchId)
