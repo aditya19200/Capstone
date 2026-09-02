@@ -28,7 +28,7 @@ function ModelVersionsTable({ versions, activatingId, onActivate }) {
                   {version.version_id}
                 </td>
                 <td className="px-4 py-4 text-sm text-slate-700">
-                  {(version.accuracy * 100).toFixed(1)}%
+                  {typeof version.accuracy === 'number' ? `${(version.accuracy * 100).toFixed(1)}%` : '—'}
                 </td>
                 <td className="px-4 py-4 text-sm text-slate-600">
                   {new Date(version.trained_at).toLocaleDateString()}
