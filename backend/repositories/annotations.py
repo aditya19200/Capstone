@@ -113,3 +113,29 @@ def count_validated() -> int:
         .execute()
     )
     return result.count or 0
+
+
+def count_by_status() -> Dict[str, int]:
+    """
+    Return a dict of status -> count across all annotations.
+
+    Used by GET /admin/metrics. Statuses per the real schema:
+    'pending', 'validated', 'rejected'.
+    """
+    if not is_configured():
+        from services import mock_db
+        return mock_db.count_annotations_by_status()
+
+    counts: Dict[str, int] = {}
+    for s in ("pending", "validated", "rejected"):
+        result = (
+            get_client()
+            .table("annotations")
+            .select("id", count="exact")
+            .eq("status", s)
+            .execute()
+        )
+        n = result.count or 0
+        if n:
+            counts[s] = n
+    return counts

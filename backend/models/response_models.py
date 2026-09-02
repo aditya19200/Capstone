@@ -144,7 +144,6 @@ class AnnotateResponse(BaseModel):
     """
 
     annotation_id: str
-    document_id: str
     prediction_id: str
     final_label: str
     action: Literal["accept", "modify", "reject"]
@@ -160,10 +159,12 @@ class AnnotationListItem(BaseModel):
     """Single item in the GET /annotations list."""
 
     annotation_id: str
-    document_id: Optional[str]
     user_id: Optional[str]
     final_label: str
     annotation_status: AnnotationStatus
+    has_conflict: bool
+    predicted_label: str
+    text_excerpt: str
     annotated_at: str
 
 
@@ -172,6 +173,113 @@ class AnnotationListResponse(BaseModel):
 
     total: int
     annotations: List[AnnotationListItem]
+
+
+# ---------------------------------------------------------------------------
+# /batches
+# ---------------------------------------------------------------------------
+
+class BatchCreateResponse(BaseModel):
+    """Returned immediately from POST /batches/paste and POST /batches/csv."""
+
+    batch_id: str
+    total_items: int
+
+
+class BatchStatusResponse(BaseModel):
+    """Returned from GET /batches/{id}."""
+
+    batch_id: str
+    status: Literal["pending", "processing", "done", "failed"]
+    total_items: int
+    completed_items: int
+
+
+class BatchItemOut(BaseModel):
+    """Single item in the GET /batches/{id}/items list."""
+
+    id: str
+    seq: int
+    text_content: str
+    predicted_label: Optional[str] = None
+    confidence: Optional[float] = None
+    status: str
+    validated_label: Optional[str] = None
+
+
+class BatchItemsResponse(BaseModel):
+    """Returned from GET /batches/{id}/items."""
+
+    batch_id: str
+    total: int
+    page: int
+    page_size: int
+    items: List[BatchItemOut]
+
+
+# ---------------------------------------------------------------------------
+# /queue
+# ---------------------------------------------------------------------------
+
+class LowConfidenceItem(BaseModel):
+    """Single item in the GET /queue/low-confidence list."""
+
+    prediction_id: str
+    text_excerpt: str
+    predicted_label: str
+    confidence: float
+    created_at: str
+
+
+class LowConfidenceQueueResponse(BaseModel):
+    """Returned from GET /queue/low-confidence."""
+
+    total: int
+    page: int
+    page_size: int
+    items: List[LowConfidenceItem]
+
+
+# ---------------------------------------------------------------------------
+# /admin
+# ---------------------------------------------------------------------------
+
+class ModelVersionOut(BaseModel):
+    """A single model_versions row, returned by POST /admin/models/{id}/activate."""
+
+    id: str
+    version_number: str
+    accuracy: float
+    f1_per_class: Dict[str, float]
+    file_path: str
+    is_active: bool
+    trained_at: str
+
+
+class BatchThroughputItem(BaseModel):
+    """One batch's throughput summary, part of GET /admin/metrics."""
+
+    batch_id: str
+    source: str
+    status: str
+    total_items: int
+    completed_items: int
+    created_at: str
+
+
+class AdminMetricsResponse(BaseModel):
+    """Returned from GET /admin/metrics."""
+
+    active_model_version: Optional[str] = Field(
+        default=None,
+        description="version_number of the currently active model, or None if none is active.",
+    )
+    f1_per_class: Dict[str, float] = Field(default_factory=dict)
+    annotation_counts: Dict[str, int] = Field(
+        default_factory=dict,
+        description="Annotation count keyed by status ('pending', 'validated', 'rejected').",
+    )
+    batch_throughput: List[BatchThroughputItem] = Field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
