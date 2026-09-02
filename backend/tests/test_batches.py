@@ -9,6 +9,7 @@ underneath:
   3. The POST/GET /batches/* routes end-to-end.
 """
 
+import csv
 import io
 
 import pytest
@@ -17,6 +18,7 @@ from fastapi.testclient import TestClient
 from main import app
 from repositories import batch_items as batch_items_repo
 from repositories import batches as batches_repo
+from routers.batches import sanitize_csv_cell
 from services import mock_db
 
 
@@ -253,6 +255,17 @@ class TestSubmitBatchCsv:
         assert resp.status_code == 202
         assert resp.json()["total_items"] == 3
 
+    def test_empty_cell_dropped_row_count_correct(self, client):
+        """An empty cell in the text column becomes NaN and must be dropped
+        (not counted), without affecting the other, genuinely-populated rows."""
+        csv_content = "text,other\nfirst row,x\n,y\nsecond row,z\n"
+        resp = client.post(
+            "/batches/csv",
+            files={"file": ("in.csv", io.BytesIO(csv_content.encode()), "text/csv")},
+        )
+        assert resp.status_code == 202
+        assert resp.json()["total_items"] == 2
+
     def test_ambiguous_multi_column_without_text_returns_422(self, client):
         csv_content = "foo,bar\nrow one,x\nrow two,y\n"
         resp = client.post(
@@ -335,6 +348,31 @@ class TestListBatchItems:
 # GET /batches/{id}/export
 # ===========================================================================
 
+class TestSanitizeCsvCell:
+
+    def test_equals_prefix_gets_quoted(self):
+        assert sanitize_csv_cell("=SUM(A1:A9)") == "'=SUM(A1:A9)"
+
+    def test_plus_prefix_gets_quoted(self):
+        assert sanitize_csv_cell("+1234") == "'+1234"
+
+    def test_minus_prefix_gets_quoted(self):
+        assert sanitize_csv_cell("-1234") == "'-1234"
+
+    def test_at_prefix_gets_quoted(self):
+        assert sanitize_csv_cell("@mention") == "'@mention"
+
+    def test_ordinary_text_is_unchanged(self):
+        assert sanitize_csv_cell("The parties agree to the terms.") == (
+            "The parties agree to the terms."
+        )
+
+    def test_formula_char_mid_string_is_unchanged(self):
+        """Only a *leading* trigger character is dangerous — one elsewhere
+        in the text is not a formula and must not be altered."""
+        assert sanitize_csv_cell("Section 5 = damages") == "Section 5 = damages"
+
+
 class TestExportBatch:
 
     def test_unknown_batch_returns_404(self, client):
@@ -351,3 +389,18 @@ class TestExportBatch:
         assert resp.headers["content-type"].startswith("text/csv")
         assert f'batch_{batch_id}.csv' in resp.headers["content-disposition"]
         assert "export me" in resp.text
+
+    def test_formula_injection_is_neutralized(self, client):
+        """A text_content value starting with '=' must come back prefixed
+        with a literal quote in the exported CSV, not as a raw formula."""
+        create_resp = client.post("/batches/paste", json={"texts": ["=SUM(A1:A9)"]})
+        batch_id = create_resp.json()["batch_id"]
+
+        resp = client.get(f"/batches/{batch_id}/export")
+
+        rows = list(csv.reader(io.StringIO(resp.text)))
+        header, data_row = rows[0], rows[1]
+        text_content_cell = data_row[header.index("text_content")]
+
+        assert text_content_cell == "'=SUM(A1:A9)"
+        assert not text_content_cell.startswith("=")

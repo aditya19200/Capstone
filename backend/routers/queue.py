@@ -4,11 +4,13 @@ routers/queue.py — Human review queue endpoints.
 GET /queue/low-confidence
   Wraps repositories.predictions.list_low_confidence(REVIEW_THRESHOLD) so
   reviewers can see predictions the active-learning engine routed to them.
+  Reviewer/Admin only — returns prediction text excerpts.
 """
 
 import logging
+from typing import Optional
 
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, Header, HTTPException, Query, status
 
 from config.settings import settings
 from models.response_models import LowConfidenceItem, LowConfidenceQueueResponse
@@ -18,6 +20,16 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 _EXCERPT_LENGTH = 200
+_ROLES_ALLOWED = {"reviewer", "admin"}
+
+
+def _require_reviewer(x_role: Optional[str]) -> None:
+    role = (x_role or "").lower()
+    if role not in _ROLES_ALLOWED:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Role '{x_role}' is not permitted here. Required: reviewer or admin.",
+        )
 
 
 @router.get(
@@ -29,7 +41,10 @@ _EXCERPT_LENGTH = 200
 async def get_low_confidence_queue(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=50, ge=1, le=200),
+    x_role: Optional[str] = Header(default=None, alias="X-Role"),
 ) -> LowConfidenceQueueResponse:
+    _require_reviewer(x_role)
+
     all_rows = predictions_repo.list_low_confidence(settings.REVIEW_THRESHOLD)
 
     offset = (page - 1) * page_size

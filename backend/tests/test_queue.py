@@ -27,6 +27,10 @@ def client():
         yield c
 
 
+REVIEWER_HEADERS = {"X-Role": "reviewer"}
+ADMIN_HEADERS = {"X-Role": "admin"}
+
+
 def _make_prediction(confidence: float, label: str = "Contract Law"):
     return mock_db.create_prediction(
         text_content=f"Some legal text at confidence {confidence}.",
@@ -58,7 +62,7 @@ class TestLowConfidenceQueueRoute:
         below = _make_prediction(settings.REVIEW_THRESHOLD - 0.1)
         _make_prediction(settings.REVIEW_THRESHOLD + 0.1)
 
-        resp = client.get("/queue/low-confidence")
+        resp = client.get("/queue/low-confidence", headers=REVIEWER_HEADERS)
 
         assert resp.status_code == 200
         data = resp.json()
@@ -68,7 +72,7 @@ class TestLowConfidenceQueueRoute:
     def test_item_shape(self, client):
         _make_prediction(0.2, label="Criminal Law")
 
-        resp = client.get("/queue/low-confidence")
+        resp = client.get("/queue/low-confidence", headers=REVIEWER_HEADERS)
 
         item = resp.json()["items"][0]
         assert item["predicted_label"] == "Criminal Law"
@@ -80,7 +84,11 @@ class TestLowConfidenceQueueRoute:
         for i in range(3):
             _make_prediction(0.1 + i * 0.01)
 
-        resp = client.get("/queue/low-confidence", params={"page": 1, "page_size": 2})
+        resp = client.get(
+            "/queue/low-confidence",
+            params={"page": 1, "page_size": 2},
+            headers=REVIEWER_HEADERS,
+        )
 
         data = resp.json()
         assert data["total"] == 3
@@ -89,6 +97,25 @@ class TestLowConfidenceQueueRoute:
         assert len(data["items"]) == 2
 
     def test_empty_queue_returns_empty_list(self, client):
-        resp = client.get("/queue/low-confidence")
+        resp = client.get("/queue/low-confidence", headers=REVIEWER_HEADERS)
         assert resp.status_code == 200
         assert resp.json() == {"total": 0, "page": 1, "page_size": 50, "items": []}
+
+
+class TestLowConfidenceQueueRoleCheck:
+
+    def test_missing_role_returns_403(self, client):
+        resp = client.get("/queue/low-confidence")
+        assert resp.status_code == 403
+
+    def test_wrong_role_returns_403(self, client):
+        resp = client.get("/queue/low-confidence", headers={"X-Role": "annotator"})
+        assert resp.status_code == 403
+
+    def test_reviewer_role_returns_200(self, client):
+        resp = client.get("/queue/low-confidence", headers=REVIEWER_HEADERS)
+        assert resp.status_code == 200
+
+    def test_admin_role_returns_200(self, client):
+        resp = client.get("/queue/low-confidence", headers=ADMIN_HEADERS)
+        assert resp.status_code == 200
