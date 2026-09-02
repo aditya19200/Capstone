@@ -41,10 +41,14 @@ function ConflictListItem({ item, isSubmitting, onResolve }) {
 
       <div className="mt-4 flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <label className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+          <label
+            className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500"
+            htmlFor={`conflict-label-${item.annotation_id}`}
+          >
             Resolve with final label
           </label>
           <select
+            id={`conflict-label-${item.annotation_id}`}
             value={selectedLabel}
             onChange={(event) => setSelectedLabel(event.target.value)}
             disabled={isSubmitting}
