@@ -541,9 +541,18 @@ def create_batch_items(batch_id: str, texts: List[str]) -> List[Dict]:
     """
     Bulk-insert one batch_items row per text (seq 1-based) and return all
     created rows in order.
+
+    seq continues from the highest existing seq for this batch_id (0 if
+    none exist yet) rather than always restarting at 1, so a second insert
+    call into the same batch doesn't collide with or reorder earlier items.
     """
+    existing_seqs = [
+        item["seq"] for item in _batch_items.values() if item["batch_id"] == batch_id
+    ]
+    start_seq = max(existing_seqs, default=0) + 1
+
     rows = []
-    for seq, text in enumerate(texts, start=1):
+    for seq, text in enumerate(texts, start=start_seq):
         item = {
             "id": _new_id(),
             "batch_id": batch_id,

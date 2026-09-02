@@ -167,7 +167,8 @@ async def submit_annotation(
     status_code=status.HTTP_200_OK,
     summary="List annotations",
     description=(
-        "Return a paginated list of annotations. "
+        "Return every annotation matching the given filters (no pagination — "
+        "the full matching set is returned in one response). "
         "Annotators see only their own annotations (filtered by X-User-Id). "
         "Reviewers and Admins can see all annotations and apply additional filters."
     ),

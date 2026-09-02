@@ -99,6 +99,33 @@ class TestMockDbBatches:
         assert items[0]["text_content"] == "first text"
         assert items[0]["status"] == "pending"
 
+    def test_second_insert_call_continues_seq_without_colliding(self):
+        """Two separate insert calls into the same batch must not both
+        start at seq=1 — the second call continues from the highest
+        existing seq for that batch_id."""
+        batch = mock_db.create_batch(source="paste", total_items=5)
+
+        first_call = mock_db.create_batch_items(batch["id"], ["a", "b"])
+        second_call = mock_db.create_batch_items(batch["id"], ["c", "d", "e"])
+
+        assert [i["seq"] for i in first_call] == [1, 2]
+        assert [i["seq"] for i in second_call] == [3, 4, 5]
+
+        all_seqs = [i["seq"] for i in mock_db.list_all_batch_items(batch["id"])]
+        assert sorted(all_seqs) == [1, 2, 3, 4, 5]
+        assert len(all_seqs) == len(set(all_seqs))  # no collisions
+
+    def test_seq_continuation_scoped_per_batch(self):
+        """A second batch's items must start at seq=1 regardless of what
+        seq values exist in an unrelated batch."""
+        batch_a = mock_db.create_batch(source="paste", total_items=2)
+        mock_db.create_batch_items(batch_a["id"], ["a", "b"])
+
+        batch_b = mock_db.create_batch(source="paste", total_items=1)
+        items_b = mock_db.create_batch_items(batch_b["id"], ["c"])
+
+        assert [i["seq"] for i in items_b] == [1]
+
     def test_get_batch_item_returns_stored_row(self):
         batch = mock_db.create_batch(source="paste", total_items=1)
         [item] = mock_db.create_batch_items(batch["id"], ["only text"])
@@ -182,6 +209,88 @@ class TestBatchItemsRepo:
         page = batch_items_repo.list_by_batch(batch["id"], offset=1, limit=1)
         assert len(page) == 1
         assert page[0]["seq"] == 2
+
+    def test_real_branch_seq_continues_across_calls_and_isolated_per_batch(self, monkeypatch):
+        """
+        Fake the real-Supabase client chain (same pattern as
+        test_admin.py's count_by_status parity test) to prove insert_many's
+        real branch computes start_seq from MAX(seq) instead of always
+        restarting at 1 — which would violate the unique (batch_id, seq)
+        constraint on a second insert into the same batch.
+        """
+        store: list = []
+
+        class _FakeResult:
+            def __init__(self, data):
+                self.data = data
+
+        class _FakeQuery:
+            def __init__(self, store):
+                self._store = store
+                self._filters = {}
+                self._order_field = None
+                self._order_desc = False
+                self._limit = None
+                self._insert_payload = None
+
+            def table(self, name):
+                return self
+
+            def select(self, *args, **kwargs):
+                return self
+
+            def eq(self, field, value):
+                self._filters[field] = value
+                return self
+
+            def order(self, field, desc=False):
+                self._order_field = field
+                self._order_desc = desc
+                return self
+
+            def limit(self, n):
+                self._limit = n
+                return self
+
+            def insert(self, payload):
+                self._insert_payload = payload
+                return self
+
+            def execute(self):
+                if self._insert_payload is not None:
+                    inserted = []
+                    for row in self._insert_payload:
+                        new_row = {**row, "id": f"id-{len(self._store)}"}
+                        self._store.append(new_row)
+                        inserted.append(new_row)
+                    return _FakeResult(inserted)
+
+                rows = [
+                    r for r in self._store
+                    if all(r.get(k) == v for k, v in self._filters.items())
+                ]
+                rows.sort(key=lambda r: r[self._order_field], reverse=self._order_desc)
+                if self._limit is not None:
+                    rows = rows[: self._limit]
+                return _FakeResult(rows)
+
+        monkeypatch.setattr("repositories.batch_items.is_configured", lambda: True)
+        monkeypatch.setattr(
+            "repositories.batch_items.get_client", lambda: _FakeQuery(store)
+        )
+
+        first = batch_items_repo.insert_many("batch-a", ["a", "b"])
+        assert [r["seq"] for r in first] == [1, 2]
+
+        second = batch_items_repo.insert_many("batch-a", ["c", "d", "e"])
+        assert [r["seq"] for r in second] == [3, 4, 5]
+
+        batch_a_seqs = [r["seq"] for r in store if r["batch_id"] == "batch-a"]
+        assert sorted(batch_a_seqs) == [1, 2, 3, 4, 5]
+        assert len(batch_a_seqs) == len(set(batch_a_seqs))  # no collisions
+
+        other_batch = batch_items_repo.insert_many("batch-b", ["x"])
+        assert [r["seq"] for r in other_batch] == [1]
 
     def test_list_all_by_batch_returns_everything_unpaginated(self):
         batch = batches_repo.insert(source="paste", total_items=3)
@@ -361,6 +470,11 @@ class TestSanitizeCsvCell:
 
     def test_at_prefix_gets_quoted(self):
         assert sanitize_csv_cell("@mention") == "'@mention"
+
+    def test_leading_whitespace_then_formula_is_quoted(self):
+        """Some spreadsheet importers strip leading whitespace before
+        evaluating a formula, so ' =SUM(...)' must be sanitized too."""
+        assert sanitize_csv_cell("  =SUM(A1:A9)") == "'  =SUM(A1:A9)"
 
     def test_ordinary_text_is_unchanged(self):
         assert sanitize_csv_cell("The parties agree to the terms.") == (
