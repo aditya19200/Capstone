@@ -6,6 +6,7 @@ const navigationByRole = {
     { label: 'Dashboard', to: '/dashboard' },
     { label: 'Admin', to: '/admin' },
     { label: 'Metrics', to: '/metrics' },
+    { label: 'Conflicts', to: '/conflicts' },
     { label: 'Retrain', to: '/retrain' },
   ],
   annotator: [

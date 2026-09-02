@@ -18,8 +18,12 @@ import * as mocks from './mocks.js'
 
 const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true'
 
+// Polling routes (getBatch, getBatchItems) call this every 3s — warn once
+// per function per session instead of flooding the console on every call.
+const warnedFns = new Set()
 const warnMockOnly = (fnName) => {
-  if (import.meta.env.DEV) {
+  if (import.meta.env.DEV && !warnedFns.has(fnName)) {
+    warnedFns.add(fnName)
     console.warn(`[client] ${fnName}: no backend endpoint yet — always mocked`)
   }
 }

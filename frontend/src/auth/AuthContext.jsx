@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { setAuthRole, setAuthToken, setAuthUserId } from '../api/axiosClient.js'
 
 const AuthContext = createContext(null)
@@ -22,7 +22,11 @@ export function AuthProvider({ children }) {
   const [role, setRole] = useState(null)
   const [userId, setUserId] = useState(null)
 
-  const login = (nextToken) => {
+  // useCallback with an empty deps array — these only call the setState
+  // setters (guaranteed stable by React), so they never need to change
+  // identity. That's what lets them sit correctly in the useMemo deps
+  // below without invalidating the memo on every render.
+  const login = useCallback((nextToken) => {
     const payload = parseJwtPayload(nextToken)
     const nextRole = payload?.role || payload?.user_role || payload?.app_metadata?.role || null
     const nextUserId = payload?.sub || payload?.user_id || payload?.id || null
@@ -30,21 +34,21 @@ export function AuthProvider({ children }) {
     setToken(nextToken)
     setRole(nextRole)
     setUserId(nextUserId)
-  }
+  }, [])
 
-  const mockLogin = (mockRole = "annotator") => {
-  const fakeToken = "mock.token.value"
+  const mockLogin = useCallback((mockRole = "annotator") => {
+    const fakeToken = "mock.token.value"
 
-  setToken(fakeToken)
-  setRole(mockRole)
-  setUserId('mock-user-1')
-  }
+    setToken(fakeToken)
+    setRole(mockRole)
+    setUserId('mock-user-1')
+  }, [])
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setToken(null)
     setRole(null)
     setUserId(null)
-  }
+  }, [])
 
   useEffect(() => {
     setAuthToken(token)
@@ -60,9 +64,9 @@ export function AuthProvider({ children }) {
       role,
       token,
       userId,
-      mockLogin, // 👈 ADD THIS
+      mockLogin,
     }),
-    [role, token, userId],
+    [role, token, userId, login, logout, mockLogin],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

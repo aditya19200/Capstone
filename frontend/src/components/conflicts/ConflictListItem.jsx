@@ -6,7 +6,13 @@ function formatWhen(isoString) {
 }
 
 function ConflictListItem({ item, isSubmitting, onResolve }) {
-  const [selectedLabel, setSelectedLabel] = useState(item.second_annotation.final_label)
+  // Guard against a real endpoint ever returning a row without
+  // second_annotation — today's mock always includes it (getConflicts is
+  // filtered to annotator_vs_annotator only), but nothing enforces that
+  // shape once this is backed by a real GET /annotate response.
+  const [selectedLabel, setSelectedLabel] = useState(
+    item.second_annotation?.final_label ?? item.final_label,
+  )
 
   return (
     <div className="dashboard-card">
@@ -26,17 +32,19 @@ function ConflictListItem({ item, isSubmitting, onResolve }) {
           <p className="mt-2 text-sm font-medium text-slate-800">{item.final_label}</p>
           <p className="mt-1 text-xs text-slate-500">{formatWhen(item.annotated_at)}</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-            {item.second_annotation.user_id}
-          </p>
-          <p className="mt-2 text-sm font-medium text-slate-800">
-            {item.second_annotation.final_label}
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            {formatWhen(item.second_annotation.annotated_at)}
-          </p>
-        </div>
+        {item.second_annotation ? (
+          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+              {item.second_annotation.user_id}
+            </p>
+            <p className="mt-2 text-sm font-medium text-slate-800">
+              {item.second_annotation.final_label}
+            </p>
+            <p className="mt-1 text-xs text-slate-500">
+              {formatWhen(item.second_annotation.annotated_at)}
+            </p>
+          </div>
+        ) : null}
       </div>
 
       <div className="mt-4 flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
