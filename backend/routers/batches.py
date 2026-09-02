@@ -45,14 +45,15 @@ def sanitize_csv_cell(value: str) -> str:
     """
     Neutralise CSV formula injection.
 
-    A cell starting with =, +, -, or @ is interpreted as a formula by
-    Excel/Sheets when the file is opened — ranging from a misleading link
-    to data exfiltration via a crafted =WEBSERVICE(...)-style formula.
-    Prefixing with a single quote forces spreadsheet software to treat the
-    cell as literal text; it's a no-op for anything parsing the CSV
-    programmatically (csv/pandas readers don't strip leading quotes).
+    A cell starting with =, +, -, or @ (after any leading whitespace — some
+    spreadsheet importers strip it before evaluating) is interpreted as a
+    formula by Excel/Sheets when the file is opened — ranging from a
+    misleading link to data exfiltration via a crafted =WEBSERVICE(...)-style
+    formula. Prefixing with a single quote forces spreadsheet software to
+    treat the cell as literal text; it's a no-op for anything parsing the
+    CSV programmatically (csv/pandas readers don't strip leading quotes).
     """
-    if value.startswith(_FORMULA_TRIGGER_CHARS):
+    if value.lstrip().startswith(_FORMULA_TRIGGER_CHARS):
         return "'" + value
     return value
 

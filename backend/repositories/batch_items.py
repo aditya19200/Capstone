@@ -14,11 +14,25 @@ def insert_many(batch_id: str, texts: List[str]) -> List[Dict]:
     """
     Bulk-insert one row per text, returning all created rows.
 
-    seq is 1-based so the original order is recoverable after async processing.
+    seq continues from the highest existing seq for this batch_id (0 if none
+    exist yet) rather than always starting at 1 — batch_items has a unique
+    (batch_id, seq) constraint, so a second insert call into the same batch
+    that restarted at 1 would hard-fail. Mirrors mock_db.create_batch_items().
     """
     if not is_configured():
         from services import mock_db
         return mock_db.create_batch_items(batch_id=batch_id, texts=texts)
+
+    existing = (
+        get_client()
+        .table("batch_items")
+        .select("seq")
+        .eq("batch_id", batch_id)
+        .order("seq", desc=True)
+        .limit(1)
+        .execute()
+    )
+    start_seq = (existing.data[0]["seq"] if existing.data else 0) + 1
 
     payload = [
         {
@@ -28,7 +42,7 @@ def insert_many(batch_id: str, texts: List[str]) -> List[Dict]:
             "status": "pending",
             "attempts": 0,
         }
-        for seq, text in enumerate(texts, start=1)
+        for seq, text in enumerate(texts, start=start_seq)
     ]
     result = get_client().table("batch_items").insert(payload).execute()
     return result.data
