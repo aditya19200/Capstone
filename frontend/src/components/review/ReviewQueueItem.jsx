@@ -19,7 +19,11 @@ function ReviewQueueItem({ item, isSubmitting, onSubmit }) {
         </div>
 
         <div className="flex w-full flex-col gap-3 sm:w-64">
+          <label className="sr-only" htmlFor={`review-label-${item.prediction_id}`}>
+            Select final label
+          </label>
           <select
+            id={`review-label-${item.prediction_id}`}
             value={selectedLabel}
             onChange={(event) => setSelectedLabel(event.target.value)}
             disabled={isSubmitting}
