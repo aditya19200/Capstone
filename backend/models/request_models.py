@@ -4,7 +4,7 @@ models/request_models.py — Pydantic schemas for all incoming API request bodie
 Every router imports from here. No raw dicts are accepted at the API boundary.
 """
 
-from typing import Literal, Optional
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -67,10 +67,6 @@ class AnnotateRequest(BaseModel):
     Annotators can accept the model's label, modify it, or reject it entirely.
     """
 
-    document_id: str = Field(
-        ...,
-        description="ID of the document being annotated.",
-    )
     prediction_id: str = Field(
         ...,
         description="ID of the prediction this annotation is responding to.",
@@ -98,6 +94,33 @@ class AnnotateRequest(BaseModel):
     def validate_label(cls, v: str) -> str:
         """Normalise label casing; actual ontology validation is done in the router."""
         return v.strip()
+
+
+# ---------------------------------------------------------------------------
+# /batches
+# ---------------------------------------------------------------------------
+
+class BatchPasteRequest(BaseModel):
+    """
+    Body for POST /batches/paste — ingest a batch of texts pasted directly
+    in the UI. No classification happens in the request path; texts are
+    inserted as 'pending' batch_items for the classify worker to pick up.
+    """
+
+    texts: List[str] = Field(
+        ...,
+        min_length=1,
+        description="Raw legal texts to enqueue for classification.",
+    )
+
+    @field_validator("texts")
+    @classmethod
+    def strip_and_drop_blank(cls, v: List[str]) -> List[str]:
+        """Strip whitespace, drop blank entries, and reject if nothing remains."""
+        non_blank = [t.strip() for t in v if t.strip()]
+        if not non_blank:
+            raise ValueError("texts must contain at least one non-empty string.")
+        return non_blank
 
 
 # ---------------------------------------------------------------------------

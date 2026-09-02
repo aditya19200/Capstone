@@ -259,7 +259,7 @@ def list_annotations(
     prediction_id: Optional[str] = None,
     annotator_id: Optional[str] = None,
     status: Optional[str] = None,
-    document_id: Optional[str] = None,
+    has_conflict: Optional[bool] = None,
 ) -> List[Dict]:
     """List annotations with optional AND-combined filters."""
     rows = list(_annotations.values())
@@ -269,8 +269,8 @@ def list_annotations(
         rows = [r for r in rows if r.get("annotator_id") == annotator_id]
     if status:
         rows = [r for r in rows if r["status"] == status]
-    if document_id:
-        rows = [r for r in rows if r.get("document_id") == document_id]
+    if has_conflict is not None:
+        rows = [r for r in rows if r.get("has_conflict", False) == has_conflict]
     return [deepcopy(r) for r in rows]
 
 
@@ -300,6 +300,14 @@ def set_annotation_has_conflict(annotation_id: str, has_conflict: bool) -> Optio
 def count_validated_annotations() -> int:
     """Return the count of annotations with status='validated'."""
     return sum(1 for a in _annotations.values() if a["status"] == "validated")
+
+
+def count_annotations_by_status() -> Dict[str, int]:
+    """Return a dict of status -> count across all annotations."""
+    counts: Dict[str, int] = {}
+    for a in _annotations.values():
+        counts[a["status"]] = counts.get(a["status"], 0) + 1
+    return counts
 
 
 # ===========================================================================
@@ -445,6 +453,140 @@ def update_retrain_job(
                 job["completed_at"] = completed_at
             return deepcopy(job)
     return None
+
+
+# ===========================================================================
+# BATCHES / BATCH_ITEMS
+# ===========================================================================
+
+_batches: Dict[str, Dict] = {}
+"""
+batches: {
+    id → {
+        id, source ('paste'|'csv'|'pdf'), filename (str|None),
+        status ('pending'|'processing'|'done'|'failed'),
+        total_items, completed_items, created_at
+    }
+}
+"""
+
+_batch_items: Dict[str, Dict] = {}
+"""
+batch_items: {
+    id → {
+        id, batch_id, seq, text_content,
+        predicted_label (str|None), label_id (int|None), confidence (float|None),
+        all_probabilities (dict|None), validated_label (str|None),
+        status ('pending'|'processing'|'classified'|'validated'|'failed'),
+        attempts, locked_at (str|None), error_message (str|None),
+        prediction_id (str|None), created_at
+    }
+}
+"""
+
+
+def create_batch(
+    source: str,
+    total_items: int,
+    filename: Optional[str] = None,
+) -> Dict:
+    """Insert a batches row (status='pending', completed_items=0) and return it."""
+    batch = {
+        "id": _new_id(),
+        "source": source,
+        "filename": filename,
+        "status": "pending",
+        "total_items": total_items,
+        "completed_items": 0,
+        "created_at": _now_iso(),
+    }
+    _batches[batch["id"]] = batch
+    return deepcopy(batch)
+
+
+def get_batch(batch_id: str) -> Optional[Dict]:
+    """Fetch a batches row by id."""
+    return deepcopy(_batches.get(batch_id))
+
+
+def update_batch_status(batch_id: str, status: str) -> Optional[Dict]:
+    """Flip the status field on a batch."""
+    batch = _batches.get(batch_id)
+    if batch is None:
+        return None
+    batch["status"] = status
+    return deepcopy(batch)
+
+
+def increment_batch_completed(batch_id: str) -> Optional[Dict]:
+    """Atomically increment completed_items by 1 (safe: mock_db is single-threaded)."""
+    batch = _batches.get(batch_id)
+    if batch is None:
+        return None
+    batch["completed_items"] += 1
+    return deepcopy(batch)
+
+
+def list_batches(limit: Optional[int] = None) -> List[Dict]:
+    """Return batches ordered by created_at descending, optionally capped at limit."""
+    rows = sorted(
+        [deepcopy(b) for b in _batches.values()],
+        key=lambda b: b["created_at"],
+        reverse=True,
+    )
+    return rows[:limit] if limit is not None else rows
+
+
+def create_batch_items(batch_id: str, texts: List[str]) -> List[Dict]:
+    """
+    Bulk-insert one batch_items row per text (seq 1-based) and return all
+    created rows in order.
+    """
+    rows = []
+    for seq, text in enumerate(texts, start=1):
+        item = {
+            "id": _new_id(),
+            "batch_id": batch_id,
+            "seq": seq,
+            "text_content": text,
+            "predicted_label": None,
+            "label_id": None,
+            "confidence": None,
+            "all_probabilities": None,
+            "validated_label": None,
+            "status": "pending",
+            "attempts": 0,
+            "locked_at": None,
+            "error_message": None,
+            "prediction_id": None,
+            "created_at": _now_iso(),
+        }
+        _batch_items[item["id"]] = item
+        rows.append(deepcopy(item))
+    return rows
+
+
+def get_batch_item(item_id: str) -> Optional[Dict]:
+    """Fetch a single batch_items row by id."""
+    return deepcopy(_batch_items.get(item_id))
+
+
+def list_batch_items(batch_id: str, offset: int = 0, limit: int = 50) -> List[Dict]:
+    """Paginated listing of items within a batch, ordered by seq."""
+    rows = sorted(
+        [b for b in _batch_items.values() if b["batch_id"] == batch_id],
+        key=lambda b: b["seq"],
+    )
+    return [deepcopy(r) for r in rows[offset : offset + limit]]
+
+
+def list_all_batch_items(batch_id: str) -> List[Dict]:
+    """Return every item in a batch, ordered by seq (no pagination — used by export)."""
+    rows = sorted(
+        [b for b in _batch_items.values() if b["batch_id"] == batch_id],
+        key=lambda b: b["seq"],
+    )
+    return [deepcopy(r) for r in rows]
 
 
 # ===========================================================================

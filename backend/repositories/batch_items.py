@@ -18,19 +18,7 @@ def insert_many(batch_id: str, texts: List[str]) -> List[Dict]:
     """
     if not is_configured():
         from services import mock_db
-        rows = []
-        for seq, text in enumerate(texts, start=1):
-            rows.append({
-                "id": mock_db._new_id(),
-                "batch_id": batch_id,
-                "seq": seq,
-                "text_content": text,
-                "status": "pending",
-                "attempts": 0,
-                "locked_at": None,
-                "created_at": mock_db._now_iso(),
-            })
-        return rows
+        return mock_db.create_batch_items(batch_id=batch_id, texts=texts)
 
     payload = [
         {
@@ -49,7 +37,8 @@ def insert_many(batch_id: str, texts: List[str]) -> List[Dict]:
 def get(item_id: str) -> Optional[Dict]:
     """Fetch a single batch_item by id."""
     if not is_configured():
-        return None
+        from services import mock_db
+        return mock_db.get_batch_item(item_id)
 
     result = (
         get_client()
@@ -68,7 +57,8 @@ def list_by_batch(
 ) -> List[Dict]:
     """Paginated listing of items within a batch, ordered by seq."""
     if not is_configured():
-        return []
+        from services import mock_db
+        return mock_db.list_batch_items(batch_id, offset=offset, limit=limit)
 
     result = (
         get_client()
@@ -77,6 +67,23 @@ def list_by_batch(
         .eq("batch_id", batch_id)
         .order("seq")
         .range(offset, offset + limit - 1)
+        .execute()
+    )
+    return result.data
+
+
+def list_all_by_batch(batch_id: str) -> List[Dict]:
+    """Return every item in a batch, ordered by seq (no pagination — used by CSV export)."""
+    if not is_configured():
+        from services import mock_db
+        return mock_db.list_all_batch_items(batch_id)
+
+    result = (
+        get_client()
+        .table("batch_items")
+        .select("*")
+        .eq("batch_id", batch_id)
+        .order("seq")
         .execute()
     )
     return result.data

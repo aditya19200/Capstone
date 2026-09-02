@@ -6,7 +6,7 @@ POST /annotate
   prediction. Runs conflict detection automatically.
 
 GET  /annotate
-  List annotations, optionally filtered by document, user, or status.
+  List annotations, optionally filtered by status or conflict flag.
   Accessible to Annotators (own annotations), Reviewers (all), and Admins (all).
 """
 
@@ -37,7 +37,7 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 
 _ROLES_ALL = {"reviewer", "admin"}          # can see all annotations
-_ROLES_ANNOTATE = {"annotator", "reviewer", "admin"}
+_ROLES_ANNOTATE = {"annotator", "reviewer", "admin"}   # known roles for POST/GET /annotate
 
 
 # ---------------------------------------------------------------------------
@@ -119,7 +119,6 @@ async def submit_annotation(
         validated_label=body.final_label,
         annotator_id=x_user_id,
         status=annotation_status,
-        document_id=body.document_id,   # passthrough for API compat; not in real schema
     )
     annotation_id: str = annotation["id"]
 
@@ -149,7 +148,6 @@ async def submit_annotation(
 
     return AnnotateResponse(
         annotation_id=annotation_id,
-        document_id=body.document_id,
         prediction_id=body.prediction_id,
         final_label=body.final_label,
         action=body.action,
@@ -175,11 +173,14 @@ async def submit_annotation(
     ),
 )
 async def list_annotations_endpoint(
-    document_id: Optional[str] = Query(default=None, description="Filter by document ID."),
     annotation_status: Optional[str] = Query(
         default=None,
         alias="status",
         description="Filter by status: pending, validated, rejected.",
+    ),
+    has_conflict: Optional[bool] = Query(
+        default=None,
+        description="Filter by conflict flag, e.g. ?has_conflict=true for the reviewer queue.",
     ),
     x_user_id: Optional[str] = Header(default=None, alias="X-User-Id"),
     x_role: Optional[str] = Header(default=None, alias="X-Role"),
@@ -188,30 +189,58 @@ async def list_annotations_endpoint(
     List annotations with optional filters.
 
     Role-based scoping:
-      annotator → filtered to own annotator_id automatically
+      annotator → filtered to own annotator_id automatically (X-User-Id required)
       reviewer / admin → can query all annotations
     """
     role = (x_role or "").lower()
 
-    filter_annotator_id = None if role in _ROLES_ALL else x_user_id
+    if role not in _ROLES_ANNOTATE:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=(
+                f"Role '{x_role}' is not permitted to list annotations. "
+                "Required: annotator, reviewer, or admin."
+            ),
+        )
+
+    if role in _ROLES_ALL:
+        filter_annotator_id = None
+    else:
+        if not x_user_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="X-User-Id header is required for role 'annotator'.",
+            )
+        filter_annotator_id = x_user_id
 
     rows = list_annotations(
         annotator_id=filter_annotator_id,
         status=annotation_status,
-        document_id=document_id,
+        has_conflict=has_conflict,
     )
 
-    items = [
-        AnnotationListItem(
-            annotation_id=r["id"],
-            document_id=r.get("document_id"),
-            user_id=r.get("annotator_id"),
-            final_label=r["validated_label"],
-            annotation_status=r["status"],
-            annotated_at=r["annotated_at"],
+    # N+1 by design: one get_prediction() lookup per annotation to fetch
+    # predicted_label/text_excerpt. This router is mock-backed only (see
+    # CLAUDE.md audit note); not worth batching until it's on a real client.
+    items = []
+    for r in rows:
+        prediction = get_prediction(prediction_id=r["prediction_id"])
+        predicted_label = prediction["predicted_label"] if prediction else ""
+        text_content = prediction["text_content"] if prediction else ""
+        excerpt = text_content[:200] + ("..." if len(text_content) > 200 else "")
+
+        items.append(
+            AnnotationListItem(
+                annotation_id=r["id"],
+                user_id=r.get("annotator_id"),
+                final_label=r["validated_label"],
+                annotation_status=r["status"],
+                has_conflict=r.get("has_conflict", False),
+                predicted_label=predicted_label,
+                text_excerpt=excerpt,
+                annotated_at=r["annotated_at"],
+            )
         )
-        for r in rows
-    ]
 
     return AnnotationListResponse(total=len(items), annotations=items)
 

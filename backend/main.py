@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config.settings import settings
-from routers import predict, explain, annotate, retrain, ontology
+from routers import admin, annotate, batches, explain, ontology, predict, queue, retrain
 from services.model_service import model_service
 
 
@@ -65,6 +65,9 @@ app.include_router(explain.router,   prefix="/explain",   tags=["Explainability"
 app.include_router(annotate.router,  prefix="/annotate",  tags=["Annotation"])
 app.include_router(retrain.router,   prefix="/retrain",   tags=["Retraining"])
 app.include_router(ontology.router,  prefix="/ontology",  tags=["Ontology"])
+app.include_router(batches.router,   prefix="/batches",   tags=["Batches"])
+app.include_router(queue.router,     prefix="/queue",     tags=["Queue"])
+app.include_router(admin.router,     prefix="/admin",     tags=["Admin"])
 
 
 # ---------------------------------------------------------------------------
