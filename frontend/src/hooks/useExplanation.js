@@ -60,7 +60,7 @@ async function poll(predictionId) {
   try {
     const result = await getExplain(predictionId)
 
-    if (result.status === 'done') {
+    if (result.status === 'done' || result.status === 'completed') {
       stopPolling(predictionId)
       setEntry(predictionId, {
         status: 'done',
