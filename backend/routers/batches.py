@@ -38,6 +38,24 @@ from repositories import batches as batches_repo
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+_FORMULA_TRIGGER_CHARS = ("=", "+", "-", "@")
+
+
+def sanitize_csv_cell(value: str) -> str:
+    """
+    Neutralise CSV formula injection.
+
+    A cell starting with =, +, -, or @ is interpreted as a formula by
+    Excel/Sheets when the file is opened — ranging from a misleading link
+    to data exfiltration via a crafted =WEBSERVICE(...)-style formula.
+    Prefixing with a single quote forces spreadsheet software to treat the
+    cell as literal text; it's a no-op for anything parsing the CSV
+    programmatically (csv/pandas readers don't strip leading quotes).
+    """
+    if value.startswith(_FORMULA_TRIGGER_CHARS):
+        return "'" + value
+    return value
+
 
 # ---------------------------------------------------------------------------
 # POST /batches/paste
@@ -101,8 +119,9 @@ async def submit_batch_csv(file: UploadFile = File(...)) -> BatchCreateResponse:
                 ),
             )
 
-    texts = [str(t).strip() for t in df[text_column].tolist()]
-    texts = [t for t in texts if t and t.lower() != "nan"]
+    texts = df[text_column].dropna().astype(str).tolist()
+    texts = [t.strip() for t in texts]
+    texts = [t for t in texts if t]
     if not texts:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -215,10 +234,18 @@ async def export_batch(batch_id: str) -> StreamingResponse:
         [
             {
                 "seq": r["seq"],
-                "text_content": r["text_content"],
-                "predicted_label": r.get("predicted_label"),
+                "text_content": sanitize_csv_cell(r["text_content"]),
+                "predicted_label": (
+                    sanitize_csv_cell(r["predicted_label"])
+                    if r.get("predicted_label") is not None
+                    else None
+                ),
                 "confidence": r.get("confidence"),
-                "validated_label": r.get("validated_label"),
+                "validated_label": (
+                    sanitize_csv_cell(r["validated_label"])
+                    if r.get("validated_label") is not None
+                    else None
+                ),
                 "status": r["status"],
             }
             for r in rows
