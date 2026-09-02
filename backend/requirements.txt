@@ -20,6 +20,10 @@ numpy==1.26.4
 supabase==2.4.6             # Supabase Python client
 neo4j==5.20.0               # Official Neo4j driver
 
+# ── Batch ingestion / export ────────────────────────────────────────────────
+pandas==2.2.2                # CSV parsing (POST /batches/csv) and export building only
+python-multipart==0.0.9      # required by FastAPI for UploadFile / multipart form parsing
+
 # ── Testing ────────────────────────────────────────────────────────────────
 pytest==8.2.0
 pytest-asyncio==0.23.6

@@ -156,7 +156,7 @@ def list_annotations(
     prediction_id: Optional[str] = None,
     annotator_id: Optional[str] = None,
     status: Optional[str] = None,
-    document_id: Optional[str] = None,
+    has_conflict: Optional[bool] = None,
 ) -> List[Dict]:
     """
     List annotations with optional AND-combined filters.
@@ -167,7 +167,7 @@ def list_annotations(
         prediction_id=prediction_id,
         annotator_id=annotator_id,
         status=status,
-        document_id=document_id,
+        has_conflict=has_conflict,
     )
     return sorted(rows, key=lambda r: r.get("annotated_at", ""), reverse=True)
 

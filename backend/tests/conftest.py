@@ -12,19 +12,12 @@ import types
 from unittest.mock import MagicMock
 
 # ---------------------------------------------------------------------------
-# Stub: numpy
-# We stub only the submodules/attributes actually referenced at import time.
-# Tests that need real numpy import it locally after the conftest has run.
+# numpy is NOT stubbed: pandas (routers/batches.py) needs a real numpy at
+# import time, and shap_service.py does real array math (np.abs/np.argsort)
+# that a MagicMock stub can't reproduce correctly. numpy itself is a small,
+# pure-C-extension dependency with prebuilt wheels — unlike torch/transformers
+# below, there's no weights/GPU cost to installing the real thing.
 # ---------------------------------------------------------------------------
-
-numpy_stub = MagicMock(name="numpy")
-numpy_stub.ndarray = object   # used in type hints
-numpy_stub.array = MagicMock(return_value=[])
-numpy_stub.abs = MagicMock(side_effect=lambda x: x)
-numpy_stub.argsort = MagicMock(return_value=[])
-sys.modules["numpy"] = numpy_stub
-sys.modules["numpy.core"] = MagicMock()
-sys.modules["numpy.core.multiarray"] = MagicMock()
 
 # ---------------------------------------------------------------------------
 # Stub: torch
