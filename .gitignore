@@ -25,10 +25,6 @@ dist/
 .env.local
 .env.*.local
 
-instructions/
-CLAUDE.md
-CLAUDE.local.md
-
 # ---------------------------------------------------------------------------
 # Model weights — far over GitHub's 100 MB per-file limit.
 # These are distributed out of band (shared drive), not through git.
