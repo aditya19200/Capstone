@@ -25,10 +25,6 @@ dist/
 .env.local
 .env.*.local
 
-# AI assistant instruction files — kept outside prototype-v1/ and out of the
-# repo entirely. CLAUDE.md is the team's shared architecture contract and
-# CLAUDE.local.md is each developer's personal scope file; neither belongs in
-# the shipped prototype.
 instructions/
 CLAUDE.md
 CLAUDE.local.md
