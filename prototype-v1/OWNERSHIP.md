@@ -17,8 +17,7 @@ work would mean turning each area into a separately installable package —
 a real refactor, and one that buys nothing while the app is this size.
 
 So the code stays organised by **component** (which is how it runs), and
-ownership is written down here (which is how we work). `.github/CODEOWNERS` (repo root, where GitHub reads it) makes
-GitHub enforce it automatically on pull requests.
+ownership is written down here (which is how we work).
 
 ---
 
