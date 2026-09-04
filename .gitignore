@@ -1,0 +1,66 @@
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Virtual environments (backend/venv alone is ~5 GB)
+venv/
+.venv/
+env/
+
+# ---------------------------------------------------------------------------
+# Node / frontend
+# ---------------------------------------------------------------------------
+node_modules/
+dist/
+.vite/
+
+# ---------------------------------------------------------------------------
+# Secrets — .env holds the Supabase service_role key. Never commit it.
+# ---------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+
+# AI assistant instruction files — kept outside prototype-v1/ and out of the
+# repo entirely. CLAUDE.md is the team's shared architecture contract and
+# CLAUDE.local.md is each developer's personal scope file; neither belongs in
+# the shipped prototype.
+instructions/
+CLAUDE.md
+CLAUDE.local.md
+
+# ---------------------------------------------------------------------------
+# Model weights — far over GitHub's 100 MB per-file limit.
+# These are distributed out of band (shared drive), not through git.
+# NOTE: backend/models/ also holds request_models.py / response_models.py,
+# which ARE tracked — so the ignores below are deliberately specific.
+# ---------------------------------------------------------------------------
+prototype-v1/backend/models/LegalModelShared
+prototype-v1/backend/models/LegalModelShared/
+prototype-v1/backend/models/v-*/
+
+# Per-retrain metrics are generated output, but baseline_metrics.json is a
+# measured result the API reads at startup to register the deployed model —
+# without it every checkout opens with an empty admin table, so it ships.
+prototype-v1/backend/metrics/*
+!prototype-v1/backend/metrics/baseline_metrics.json
+
+# Local model dumps and scratch copies sitting in the working folder
+LegalModel/
+FinalWindows/
+ILC/
+archive/
+archive.zip
+
+# ---------------------------------------------------------------------------
+# Logs and runtime output
+# ---------------------------------------------------------------------------
+*.log
+backend.log
+prediction_worker.log
+xai_worker.log
+batch_worker.log

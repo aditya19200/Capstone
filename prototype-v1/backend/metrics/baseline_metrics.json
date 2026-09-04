@@ -1,0 +1,42 @@
+{
+  "version_number": "baseline-LegalModelShared",
+  "evaluated_at": "2026-09-04T07:05:35.620419+00:00",
+  "model_path": "./models/LegalModelShared",
+  "dataset": "datasets/v1.csv",
+  "sample_count": 1701,
+  "accuracy": 0.7072,
+  "mean_confidence": 0.8535,
+  "f1_per_class": {
+    "Contract Law": 0.6447,
+    "Criminal Law": 0.6459,
+    "Constitutional Law": 0.7241,
+    "Corporate / Company Law": 0.7055,
+    "Property / Real Estate Law": 0.7748,
+    "Family Law": 0.6899,
+    "Labour & Employment Law": 0.7102,
+    "Intellectual Property Law": 0.8943,
+    "Taxation Law": 0.7302,
+    "Civil Procedure / Other": 0.5587
+  },
+  "support_per_class": {
+    "Corporate / Company Law": 208,
+    "Intellectual Property Law": 196,
+    "Criminal Law": 200,
+    "Labour & Employment Law": 185,
+    "Constitutional Law": 120,
+    "Family Law": 136,
+    "Property / Real Estate Law": 146,
+    "Taxation Law": 150,
+    "Contract Law": 140,
+    "Civil Procedure / Other": 220
+  },
+  "accuracy_by_source": {
+    "milpac_cci": 0.4186,
+    "original": 1.0,
+    "ilc": 0.5241,
+    "synthetic": 0.9308,
+    "milpac_ip": 1.0,
+    "pdf": 0.5979
+  },
+  "caveat": "Scored on datasets/v1.csv, which is the training set of the v1 model. Whether the deployed checkpoint was trained on this same data is unknown \u2014 its provenance was never recorded. Treat this as an upper bound, not a held-out result."
+}
