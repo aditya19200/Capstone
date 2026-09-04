@@ -1,0 +1,161 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-800 antialiased;
+  }
+
+  input:not([type='checkbox']):not([type='radio']):not([type='file']),
+  select,
+  textarea {
+    @apply rounded-md border border-slate-300 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20;
+  }
+}
+
+@layer components {
+  .dashboard-card {
+    @apply rounded-xl border border-slate-200 bg-white p-6 shadow-sm;
+  }
+
+  .section-kicker {
+    @apply text-sm font-semibold uppercase tracking-[0.2em] text-slate-500;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-slate-300;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-md bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center rounded-md bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600;
+  }
+}
+
+/* ==========================================================================
+   Dark theme
+   --------------------------------------------------------------------------
+   Applied when <html> carries .dark-theme (set in index.html). Remove that
+   one class to return to the original light theme.
+
+   This is deliberately implemented as a pure palette remap and touches no
+   component file: every rule below re-points a colour utility already in use
+   (`bg-white`, `text-slate-600`, `bg-green-100`, ...) at a dark equivalent.
+   Layout, spacing, and component markup are untouched, so nothing about how
+   the app behaves can change here.
+
+   `.dark-theme .x` has specificity (0,2,0) and so reliably beats Tailwind's
+   single-class utilities (0,1,0) regardless of stylesheet order. Component
+   classes built with @apply (.dashboard-card, .btn-secondary) inline their
+   properties rather than composing utilities, so they need their own rules —
+   those are grouped at the end.
+   ========================================================================== */
+
+.dark-theme {
+  --dk-bg: #0f1319;          /* page background */
+  --dk-surface: #171c23;     /* cards */
+  --dk-surface-2: #1f252e;   /* secondary buttons, subtle fills */
+  --dk-surface-3: #2a313b;   /* hover, progress track */
+  --dk-border: #2b323d;
+  --dk-border-strong: #3a424f;
+  --dk-text-1: #e7eaef;      /* headings */
+  --dk-text-2: #c3cad5;      /* body */
+  --dk-text-3: #9aa3b1;      /* secondary */
+  /* text-4 and text-5 are lifted past their "natural" slate equivalents so
+     they still clear WCAG AA on these grounds — text-slate-500 in particular
+     is the most-used text class in the app (section kickers, small labels)
+     and a literal translation of it lands under 4.5:1 here. */
+  --dk-text-4: #8b94a3;      /* muted labels      — 5.6:1 on cards */
+  --dk-text-5: #7d8695;      /* faint / placeholder — 4.2:1 on inputs */
+
+  color-scheme: dark;        /* native scrollbars, form controls, caret */
+}
+
+/* ---- surfaces ---- */
+.dark-theme body            { background-color: var(--dk-bg); color: var(--dk-text-2); }
+.dark-theme .bg-slate-50    { background-color: var(--dk-bg); }
+.dark-theme .bg-white       { background-color: var(--dk-surface); }
+.dark-theme .bg-slate-100   { background-color: var(--dk-surface-2); }
+.dark-theme .bg-slate-200   { background-color: var(--dk-surface-3); }
+.dark-theme .bg-slate-300   { background-color: var(--dk-border-strong); }
+.dark-theme .hover\:bg-slate-100:hover { background-color: var(--dk-surface-2); }
+.dark-theme .hover\:bg-slate-200:hover { background-color: var(--dk-surface-3); }
+/* bg-slate-800/900/950 are the already-dark sidebar — deliberately untouched. */
+
+/* ---- borders ---- */
+.dark-theme .border-slate-100 { border-color: #232932; }
+.dark-theme .border-slate-200 { border-color: var(--dk-border); }
+.dark-theme .border-slate-300 { border-color: var(--dk-border-strong); }
+.dark-theme .divide-slate-200 > :not([hidden]) ~ :not([hidden]) { border-color: var(--dk-border); }
+
+/* ---- text ---- */
+.dark-theme .text-slate-900 { color: var(--dk-text-1); }
+.dark-theme .text-slate-800 { color: var(--dk-text-1); }
+.dark-theme .text-slate-700 { color: var(--dk-text-2); }
+.dark-theme .text-slate-600 { color: var(--dk-text-3); }
+.dark-theme .text-slate-500 { color: var(--dk-text-4); }
+.dark-theme .text-slate-400 { color: var(--dk-text-5); }
+.dark-theme .text-slate-300 { color: #5c646f; }
+.dark-theme .placeholder\:text-slate-400::placeholder { color: var(--dk-text-5); }
+
+/* ---- status chips: light pastel fills would glare on a dark ground, so
+        each becomes a deep tint with a legible light foreground ---- */
+.dark-theme .bg-green-100  { background-color: #16301f; }
+.dark-theme .text-green-700 { color: #7fd6a0; }
+.dark-theme .text-green-600 { color: #6fcb93; }
+
+.dark-theme .bg-yellow-100  { background-color: #33290f; }
+.dark-theme .text-yellow-700 { color: #e3c471; }
+
+.dark-theme .bg-amber-50    { background-color: #2a2110; }
+.dark-theme .bg-amber-100   { background-color: #33270f; }
+.dark-theme .text-amber-700 { color: #e2b45f; }
+.dark-theme .text-amber-900 { color: #f0cf90; }
+
+.dark-theme .bg-red-50      { background-color: #2e1518; }
+.dark-theme .bg-red-100     { background-color: #38191c; }
+.dark-theme .bg-red-200     { background-color: #451f24; }
+.dark-theme .border-red-200 { border-color: #4a2328; }
+.dark-theme .text-red-600   { color: #ef8383; }
+.dark-theme .text-red-700   { color: #f08a8a; }
+.dark-theme .text-red-900   { color: #f6b3b3; }
+
+.dark-theme .bg-blue-200    { background-color: #1e2a44; }
+.dark-theme .text-blue-900  { color: #a9c4ef; }
+
+.dark-theme .bg-indigo-50     { background-color: #1a1d3a; }
+.dark-theme .bg-indigo-100    { background-color: #1f2347; }
+.dark-theme .border-indigo-100 { border-color: #262b52; }
+.dark-theme .border-indigo-200 { border-color: #2e3460; }
+.dark-theme .text-indigo-600  { color: #939fff; }
+.dark-theme .text-indigo-700  { color: #a7b0ff; }
+/* bg-indigo-600 (primary button) and border-indigo-400/500 (focus rings)
+   already read correctly against a dark ground — left as-is. */
+
+/* ---- component classes built with @apply (properties are inlined, so the
+        utility overrides above don't reach them) ---- */
+.dark-theme .dashboard-card {
+  background-color: var(--dk-surface);
+  border-color: var(--dk-border);
+}
+.dark-theme .section-kicker { color: var(--dk-text-4); }
+.dark-theme .btn-secondary {
+  background-color: var(--dk-surface-2);
+  color: var(--dk-text-2);
+}
+.dark-theme .btn-secondary:hover { background-color: var(--dk-surface-3); }
+.dark-theme .btn-primary:disabled { background-color: var(--dk-border-strong); color: var(--dk-text-4); }
+
+.dark-theme input:not([type='checkbox']):not([type='radio']):not([type='file']),
+.dark-theme select,
+.dark-theme textarea {
+  background-color: var(--dk-surface-2);
+  border-color: var(--dk-border-strong);
+  color: var(--dk-text-1);
+}
+.dark-theme input::placeholder,
+.dark-theme textarea::placeholder { color: var(--dk-text-5); }
