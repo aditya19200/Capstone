@@ -3,8 +3,7 @@
 seed_retrain_data.py — one-time prep script for presentation day.
 
 The Retrain button needs 50+ validated annotations before it will actually
-run (that's a real, correct safety gate, not a bug). Clicking through 50
-review items by hand isn't realistic before presenting, so this submits a
+run (safety gate). Clicking through 50 review items by hand isn't realistic before presenting, so this submits a
 batch of real legal text through the real API, waits for it to classify,
 then submits a real validated annotation for each one (agreeing with the
 model's own label) — exactly the same POST /annotate call the Review
