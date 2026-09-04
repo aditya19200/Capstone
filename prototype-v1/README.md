@@ -63,7 +63,7 @@ python3 seed_retrain_data.py
 
 `Ctrl+C` in terminal 1 stops everything.
 
-**Try it:** log in as **Annotator** → Annotate → upload `demo_batch_tough.csv` (45
+**Try it:** log in as **Annotator** → Annotate → upload `sample-data/demo_batch_tough.csv` (45
 rows, deliberately spread across confidence bands — 60% high, 29% medium,
 11% low, so every page has uncertain cases to talk about) → click **Explain** on a
 row → switch to **Reviewer** to correct the uncertain ones → switch to
@@ -80,10 +80,19 @@ row → switch to **Reviewer** to correct the uncertain ones → switch to
 | `db/` | Postgres schema, migrations, RPC functions |
 | `graph/` | Neo4j legal-concept ontology |
 | `datasets/v1.csv` | 1701 labelled training samples |
-| `demo_batch_easy.csv` | 50 rows, 94% high confidence — safe, uneventful run |
-| `demo_batch_tough.csv` | 45 rows, 60/29/11 confidence mix — the one to demo |
-| `stress_test.csv` | 225 labelled rows for measuring accuracy, not for demoing |
+| `sample-data/` | Demo batches and the evaluation set — see below |
 | `OWNERSHIP.md` | Who owns which files |
+
+### `sample-data/`
+
+| File | Rows | Confidence mix | Use for |
+|------|-----:|----------------|---------|
+| `demo_batch_tough.csv` | 45 | 60% high / 29% med / 11% low | **The demo.** Colour on every page, 5 items reach the review queue |
+| `demo_batch_easy.csv` | 50 | 94% high / 4% / 2% | Safe fallback — but pages 2-4 are entirely green |
+| `stress_test.csv` | 225 | — | Measuring accuracy. Real labelled court text with a `gold_label` answer key. 15 pages, ~75s to classify — not for live use |
+
+The uploader reads only the `text` column, so `stress_test.csv`'s answer-key
+columns never reach the model.
 
 ---
 
