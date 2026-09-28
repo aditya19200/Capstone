@@ -37,6 +37,16 @@ instead of being trusted. A reviewer confirms or corrects them, and those
 corrections become training data. Once 50+ corrections exist, retraining can
 run.
 
+**The second detector.** Confidence-based routing can only escalate what the
+model doubts, which makes it blind to predictions that are confident *and*
+wrong — those are auto-accepted and never corrected. The ontology consistency
+check reads the legal-concept vocabulary in a document and flags it when that
+vocabulary contradicts the label, regardless of confidence. It catches about a
+third of real errors, and 88% of what it flags is a genuine mistake. Markers
+are mined from the corpus's human gold labels by `graph/mine_concept_markers.py`
+— never from model predictions, since a detector built on the model's own
+output would inherit the blind spot it exists to catch.
+
 **The safety rail.** A retrained model is **always** saved inactive. Nothing
 promotes a model automatically — a human looks at the numbers and decides. If
 a new model scores more than 5 points below the active one, it's still saved
@@ -63,11 +73,22 @@ python3 seed_retrain_data.py
 
 `Ctrl+C` in terminal 1 stops everything.
 
-**Try it:** log in as **Annotator** → Annotate → upload `sample-data/demo_batch_tough.csv` (45
-rows, deliberately spread across confidence bands — 60% high, 29% medium,
-11% low, so every page has uncertain cases to talk about) → click **Explain** on a
-row → switch to **Reviewer** to correct the uncertain ones → switch to
-**Admin** to trigger a retrain and activate the result.
+**Try it:**
+
+1. **Annotator** → Annotate → upload `sample-data/demo_registry_intake.csv`
+2. **Reviewer** → Review — 27 items, most flagged by ontology conflict rather
+   than low confidence. Each shows the concept evidence on both sides and
+   arrives with the suggested label pre-selected, so correcting one is a single
+   click. Correct at least 15
+3. **Annotator** → upload `sample-data/demo_probe_set.csv` — 8 documents the
+   system has never been corrected on. This is the "before"
+4. **Admin** → Retrain → Activate
+5. **Annotator** → upload `demo_probe_set.csv` again
+6. **Admin** → Compare → pick the two probe batches
+
+Seven or eight of the eight change from Family Law to Criminal Law, and none of
+them were ever corrected. 15 corrections is the measured minimum for all eight;
+5 and 10 both give 7/8.
 
 ---
 
@@ -87,7 +108,10 @@ row → switch to **Reviewer** to correct the uncertain ones → switch to
 
 | File | Rows | Confidence mix | Use for |
 |------|-----:|----------------|---------|
-| `demo_batch_tough.csv` | 45 | 60% high / 29% med / 11% low | **The demo.** Colour on every page, 5 items reach the review queue |
+| `demo_registry_intake.csv` | 53 | mixed, all 10 domains | **The demo.** 26 classify correctly, 5 are genuinely low confidence, 22 are confident and wrong. Four of those are real court documents failing on unrelated confusions |
+| `demo_probe_set.csv` | 8 | confident and wrong | Held out for before/after. Upload once before retraining and again after, then compare. Never correct these |
+| `demo_confident_errors.csv` | 25 | confident and wrong | The teaching set on its own, if you want it without the surrounding batch |
+| `demo_batch_tough.csv` | 45 | 60% high / 29% med / 11% low | Older demo batch. Colour on every page, 5 items reach the review queue |
 | `demo_batch_easy.csv` | 50 | 94% high / 4% / 2% | Safe fallback — but pages 2-4 are entirely green |
 | `stress_test.csv` | 225 | — | Measuring accuracy. Real labelled court text with a `gold_label` answer key. 15 pages, ~75s to classify — not for live use |
 
