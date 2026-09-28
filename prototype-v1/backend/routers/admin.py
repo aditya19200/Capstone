@@ -2,8 +2,9 @@
 routers/admin.py — Admin dashboard and model-rollback endpoints.
 
 POST /admin/models/{version_id}/activate
-  Flip is_active onto the given model_versions row (rollback mechanism).
-  Wraps the activate_model_version(target_id) Postgres RPC.
+  Flip is_active onto the given model_versions row (rollback mechanism), then
+  load that version's weights into the running model service so it actually
+  serves predictions. Wraps the activate_model_version(target_id) Postgres RPC.
 
 GET  /admin/metrics
   Dashboard payload: per-class F1 from the active model version, annotation
@@ -24,6 +25,7 @@ from models.response_models import (
 from repositories import annotations as annotations_repo
 from repositories import batches as batches_repo
 from repositories import model_versions as model_versions_repo
+from services.model_service import model_service
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -56,6 +58,10 @@ async def activate_model_version(
 ) -> ModelVersionOut:
     _require_admin(x_role)
 
+    # Remembered before the flip so a failed weight load can be rolled back —
+    # otherwise the table would claim a version is active that never loaded.
+    previous = model_versions_repo.get_active()
+
     try:
         row = model_versions_repo.set_active(version_id)
     except Exception as exc:
@@ -72,7 +78,35 @@ async def activate_model_version(
             detail=f"Model version '{version_id}' not found.",
         )
 
-    logger.info("Model version activated: id=%s", version_id)
+    # Activation is only real once the weights are actually serving. load()
+    # builds the new model before swapping it in, so on failure the previously
+    # loaded model is still resident — we just have to undo the is_active flip.
+    try:
+        model_service.load(
+            model_path=row["file_path"],
+            version_number=row["version_number"],
+        )
+    except Exception as exc:
+        logger.exception("Activation failed to load weights for %s", version_id)
+        if previous and previous["id"] != version_id:
+            try:
+                model_versions_repo.set_active(previous["id"])
+                logger.info("Rolled is_active back to %s", previous["id"])
+            except Exception:
+                logger.exception("Rollback of is_active to %s failed", previous["id"])
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=(
+                f"Model version '{version_id}' could not be loaded from "
+                f"'{row['file_path']}': {exc}. The previously active model is "
+                "still serving."
+            ),
+        )
+
+    logger.info(
+        "Model version activated and loaded: id=%s version=%s path=%s",
+        version_id, row["version_number"], row["file_path"],
+    )
 
     return ModelVersionOut(
         id=row["id"],

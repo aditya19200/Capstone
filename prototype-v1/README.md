@@ -134,5 +134,10 @@ layer uses an in-memory store rather than a live Postgres/Neo4j connection.
 
 **That means all data resets when the backend restarts.** Fine for a demo,
 and the reason `seed_retrain_data.py` exists. Connecting the real database is
-tracked as outstanding work, along with a reload step so an activated model
-version actually replaces the one in memory.
+tracked as outstanding work.
+
+Activating a version now loads its weights into the running service, so the
+next prediction really does come from the model you promoted — check
+`GET /health`, which reports the version actually resident rather than the one
+configured. If the weights fail to load, the previously loaded model keeps
+serving and `is_active` is rolled back.

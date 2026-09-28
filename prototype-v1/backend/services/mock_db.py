@@ -352,12 +352,18 @@ def set_active_model_version(version_id: str) -> Optional[Dict]:
     In mock mode this is two sequential in-memory writes (safe because mock_db
     is single-threaded).  The real Supabase path uses the
     activate_model_version(target_id uuid) RPC to do this in one transaction.
+
+    The existence check comes FIRST. Deactivating everything before confirming
+    the target exists left no version active at all whenever the id was bad —
+    the caller got its 404, but the admin table then showed nothing active and
+    a restart had no active version to restore. The RPC is transactional and
+    never had this problem; the mock has to order the writes itself.
     """
-    for mv in _model_versions.values():
-        mv["is_active"] = False
     target = _model_versions.get(version_id)
     if target is None:
         return None
+    for mv in _model_versions.values():
+        mv["is_active"] = False
     target["is_active"] = True
     return deepcopy(target)
 
