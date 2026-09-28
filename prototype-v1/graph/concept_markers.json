@@ -252,14 +252,14 @@
     "score": 1.7918
    },
    {
-    "term": "meets",
+    "term": "meets the",
     "precision": 1.0,
     "support": 5,
     "sources": 2,
     "score": 1.7918
    },
    {
-    "term": "meets the",
+    "term": "meets",
     "precision": 1.0,
     "support": 5,
     "sources": 2,
@@ -1091,14 +1091,14 @@
     "score": 1.7918
    },
    {
-    "term": "taxpayer",
+    "term": "the taxpayer",
     "precision": 0.8,
     "support": 8,
     "sources": 2,
     "score": 1.7578
    },
    {
-    "term": "the taxpayer",
+    "term": "taxpayer",
     "precision": 0.8,
     "support": 8,
     "sources": 2,
@@ -1331,14 +1331,14 @@
     "score": 1.1198
    },
    {
-    "term": "the consolidation",
+    "term": "consolidation",
     "precision": 0.75,
     "support": 3,
     "sources": 2,
     "score": 1.0397
    },
    {
-    "term": "consolidation",
+    "term": "the consolidation",
     "precision": 0.75,
     "support": 3,
     "sources": 2,
@@ -1352,14 +1352,14 @@
     "score": 1.0397
    },
    {
-    "term": "handing over",
+    "term": "handing",
     "precision": 0.75,
     "support": 3,
     "sources": 2,
     "score": 1.0397
    },
    {
-    "term": "handing",
+    "term": "handing over",
     "precision": 0.75,
     "support": 3,
     "sources": 2,
@@ -1592,14 +1592,14 @@
     "score": 1.213
    },
    {
-    "term": "registration no",
+    "term": "liability of",
     "precision": 0.6,
     "support": 6,
     "sources": 2,
     "score": 1.1675
    },
    {
-    "term": "liability of",
+    "term": "registration no",
     "precision": 0.6,
     "support": 6,
     "sources": 2,
@@ -1867,14 +1867,14 @@
     "score": 1.5941
    },
    {
-    "term": "employee is",
+    "term": "gratuity",
     "precision": 0.8333,
     "support": 5,
     "sources": 2,
     "score": 1.4931
    },
    {
-    "term": "gratuity",
+    "term": "employee is",
     "precision": 0.8333,
     "support": 5,
     "sources": 2,
@@ -2037,14 +2037,14 @@
     "score": 1.9642
    },
    {
-    "term": "interim maintenance",
+    "term": "adoption and",
     "precision": 1.0,
     "support": 6,
     "sources": 2,
     "score": 1.9459
    },
    {
-    "term": "adoption and",
+    "term": "interim maintenance",
     "precision": 1.0,
     "support": 6,
     "sources": 2,
@@ -2664,14 +2664,14 @@
     "score": 1.0397
    },
    {
-    "term": "duration and",
+    "term": "any third",
     "precision": 0.75,
     "support": 3,
     "sources": 3,
     "score": 1.0397
    },
    {
-    "term": "any third",
+    "term": "duration and",
     "precision": 0.75,
     "support": 3,
     "sources": 3,
@@ -2699,14 +2699,14 @@
     "score": 0.9197
    },
    {
-    "term": "of loan",
+    "term": "repay",
     "precision": 0.6,
     "support": 3,
     "sources": 2,
     "score": 0.8318
    },
    {
-    "term": "repay",
+    "term": "of loan",
     "precision": 0.6,
     "support": 3,
     "sources": 2,
