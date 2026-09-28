@@ -241,13 +241,24 @@ class BatchItemsResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 class LowConfidenceItem(BaseModel):
-    """Single item in the GET /queue/low-confidence list."""
+    """
+    Single item in the GET /queue/low-confidence list.
+
+    The flag_* fields are optional and default to the confidence-based
+    behaviour, so existing clients that ignore them are unaffected. They are
+    populated when an item reached the queue by ontology conflict rather than
+    by low confidence — see services/ontology_check.py.
+    """
 
     prediction_id: str
     text_excerpt: str
     predicted_label: str
     confidence: float
     created_at: str
+    flag_reason: Literal["low_confidence", "ontology_conflict"] = "low_confidence"
+    suggested_label: Optional[str] = None
+    matched_terms: Optional[List[str]] = None
+    flag_detail: Optional[str] = None
 
 
 class LowConfidenceQueueResponse(BaseModel):

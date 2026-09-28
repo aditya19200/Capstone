@@ -45,6 +45,10 @@ ownership is written down here (which is how we work).
 | `backend/services/supabase_service.py` | **Aditya** | Legacy data-access layer |
 | `backend/services/neo4j_service.py` | **Aditya** | Ontology access (currently mock-backed) |
 | `backend/services/mock_db.py` | **Aditya** | In-memory stand-in for Postgres |
+| `backend/services/ontology_check.py` | **Ankush** | Ontology consistency check — catches confidently-wrong predictions |
+| `graph/mine_concept_markers.py` | **Ankush** | Derives domain concept markers from the corpus's gold labels |
+| `graph/concept_markers.json` | **Ankush** | Generated output of the miner — re-runnable, not hand-edited |
+| `backend/tests/test_ontology_check.py` | **Ankush** | Tests for the consistency check |
 | `backend/workers/retrain_worker.py` | **Ankush** | Retraining pipeline |
 | `backend/workers/batch_worker.py` | **Ankush** | Batch classification — see note below |
 | `backend/workers/xai_worker.py` | **Aditya** | SHAP job queue worker |
@@ -72,6 +76,9 @@ Flagging them explicitly rather than burying them in the diff:
 | `backend/main.py` | Aditya | Starts in-thread workers when no real DB is configured; honours the active model version at startup |
 | `backend/routers/admin.py` | Aditya | Activation now loads the version's weights, with rollback of `is_active` if they fail to load |
 | `backend/services/mock_db.py` | Aditya | `set_active_model_version()` checked the target existed *after* deactivating every version, so a bad id left nothing active — reordered |
+| `backend/routers/queue.py` | Aditya | Review queue now admits items flagged by ontology conflict, not only low confidence. Falls back to the previous behaviour when no markers file is present |
+| `backend/models/response_models.py` | Aditya | `LowConfidenceItem` gained four optional `flag_*` fields — additive, existing clients unaffected |
+| `graph/` | Arjun | Two new files added to the ontology folder (miner + generated markers). The Neo4j seed and loader are untouched |
 | `frontend/src/api/client.js` | Bidisha | Wired seven functions to real endpoints that had since been built |
 | `frontend/src/pages/*.jsx`, `components/**` | Bidisha | Pagination fix, Recent Batches list, Explain in review queue, retrain counter |
 | `frontend/src/index.css`, `index.html` | Bidisha | Dark theme (pure palette remap, no component changes) |
