@@ -98,6 +98,8 @@ async def get_low_confidence_queue(
             suggested_label=(conflict or {}).get("suggested_label"),
             matched_terms=(conflict or {}).get("matched_terms"),
             flag_detail=(conflict or {}).get("reason"),
+            evidence_score=(conflict or {}).get("evidence_score"),
+            predicted_label_score=(conflict or {}).get("predicted_label_score"),
         )
         for r, reason, conflict in page_rows
     ]

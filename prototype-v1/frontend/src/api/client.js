@@ -230,6 +230,17 @@ export async function getLowConfidenceQueue() {
     text_preview: item.text_excerpt,
     predicted_label: item.predicted_label,
     confidence: item.confidence,
+    // Why this item is in the queue. Items can arrive here on low confidence
+    // (the model doubted itself) or on ontology_conflict (the model was
+    // confident but the legal vocabulary in the text points elsewhere).
+    // Without these the screen cannot explain why a 0.99-confidence
+    // prediction is sitting in a review queue, which looks like a bug.
+    flag_reason: item.flag_reason ?? 'low_confidence',
+    suggested_label: item.suggested_label ?? null,
+    matched_terms: item.matched_terms ?? null,
+    flag_detail: item.flag_detail ?? null,
+    evidence_score: item.evidence_score ?? null,
+    predicted_label_score: item.predicted_label_score ?? null,
   }))
 }
 

@@ -259,6 +259,10 @@ class LowConfidenceItem(BaseModel):
     suggested_label: Optional[str] = None
     matched_terms: Optional[List[str]] = None
     flag_detail: Optional[str] = None
+    # The two sides of the comparison that raised the flag, so a reviewer can
+    # see the working rather than take the verdict on trust.
+    evidence_score: Optional[float] = None
+    predicted_label_score: Optional[float] = None
 
 
 class LowConfidenceQueueResponse(BaseModel):
