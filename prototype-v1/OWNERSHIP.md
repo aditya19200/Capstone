@@ -49,6 +49,7 @@ ownership is written down here (which is how we work).
 | `graph/mine_concept_markers.py` | **Ankush** | Derives domain concept markers from the corpus's gold labels |
 | `graph/concept_markers.json` | **Ankush** | Generated output of the miner — re-runnable, not hand-edited |
 | `backend/tests/test_ontology_check.py` | **Ankush** | Tests for the consistency check |
+| `frontend/src/pages/Compare.jsx` | **Ankush** | Before/after view of two runs of the same documents |
 | `backend/workers/retrain_worker.py` | **Ankush** | Retraining pipeline |
 | `backend/workers/batch_worker.py` | **Ankush** | Batch classification — see note below |
 | `backend/workers/xai_worker.py` | **Aditya** | SHAP job queue worker |
@@ -82,6 +83,11 @@ Flagging them explicitly rather than burying them in the diff:
 | `frontend/src/api/client.js` | Bidisha | Wired seven functions to real endpoints that had since been built |
 | `frontend/src/pages/*.jsx`, `components/**` | Bidisha | Pagination fix, Recent Batches list, Explain in review queue, retrain counter |
 | `frontend/src/index.css`, `index.html` | Bidisha | Dark theme (pure palette remap, no component changes) |
+| `frontend/src/components/review/ReviewQueueItem.jsx` | Bidisha | Shows why an item was queued — ontology banner, concept evidence on both sides, matched terms — and pre-selects the suggested label when the ontology raised the flag |
+| `frontend/src/pages/Review.jsx` | Bidisha | Header shows the split between the two flag reasons; title no longer says "Low-Confidence", which stopped being accurate once confident predictions started arriving |
+| `frontend/src/api/client.js` | Bidisha | Queue mapper was whitelisting four fields and dropping the flag data; now passes it through. Added the two comparison calls |
+| `frontend/src/App.jsx`, `components/layout/Sidebar.jsx` | Bidisha | `/compare` route and its admin nav entry |
+| `run_local_demo.sh` | Ankush | Echoes the backend's startup checks to the terminal instead of burying them in backend.log |
 
 Full reasoning for each is in the session changelog.
 
