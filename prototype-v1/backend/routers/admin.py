@@ -12,20 +12,26 @@ GET  /admin/metrics
 """
 
 import logging
-from typing import Optional
+from typing import Dict, List, Optional
 
 from fastapi import APIRouter, Header, HTTPException, status
 
 from models.response_models import (
     AdminMetricsResponse,
+    BatchComparisonResponse,
+    BatchSummary,
     BatchThroughputItem,
+    ComparisonRow,
     ModelVersionOut,
     ModelVersionSummary,
 )
 from repositories import annotations as annotations_repo
+from repositories import batch_items as batch_items_repo
 from repositories import batches as batches_repo
+from repositories import predictions as predictions_repo
 from repositories import model_versions as model_versions_repo
 from services.model_service import model_service
+from utils.text import normalize
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -164,4 +170,138 @@ async def get_admin_metrics(
             )
             for b in recent_batches
         ],
+    )
+
+
+# ---------------------------------------------------------------------------
+# GET /admin/batches  and  GET /admin/compare
+# ---------------------------------------------------------------------------
+
+_COMPARE_EXCERPT = 160
+
+
+def _batch_predictions(batch_id: str) -> List[Dict]:
+    """Every prediction belonging to a batch, via its items."""
+    rows: List[Dict] = []
+    offset = 0
+    while True:
+        items = batch_items_repo.list_by_batch(batch_id, offset=offset, limit=200)
+        if not items:
+            break
+        for item in items:
+            pid = item.get("prediction_id")
+            if not pid:
+                continue
+            pred = predictions_repo.get(pid)
+            if pred:
+                rows.append(pred)
+        if len(items) < 200:
+            break
+        offset += 200
+    return rows
+
+
+@router.get(
+    "/batches",
+    response_model=List[BatchSummary],
+    status_code=status.HTTP_200_OK,
+    summary="Batches available for comparison, newest first",
+)
+async def list_comparable_batches(
+    x_role: Optional[str] = Header(default=None, alias="X-Role"),
+) -> List[BatchSummary]:
+    _require_admin(x_role)
+
+    out: List[BatchSummary] = []
+    for batch in batches_repo.list_all():
+        preds = _batch_predictions(batch["id"])
+        if not preds:
+            continue
+        versions = sorted({p.get("model_version") or "unknown" for p in preds})
+        out.append(BatchSummary(
+            batch_id=batch["id"],
+            created_at=batch.get("created_at", ""),
+            item_count=len(preds),
+            model_versions=versions,
+        ))
+    return out
+
+
+@router.get(
+    "/compare",
+    response_model=BatchComparisonResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Compare two batches of the same documents, classified by different models",
+)
+async def compare_batches(
+    batch_a: str,
+    batch_b: str,
+    changed_only: bool = False,
+    x_role: Optional[str] = Header(default=None, alias="X-Role"),
+) -> BatchComparisonResponse:
+    """
+    Line up two runs of the same documents so the effect of a retrain is
+    visible rather than asserted.
+
+    Rows are matched on normalised text — the same normalise() every
+    prediction path already applies — so the same file uploaded twice lines
+    up even when the batches differ in order or length. Documents present in
+    only one batch are skipped rather than shown as a change, since there is
+    nothing to compare them against.
+    """
+    _require_admin(x_role)
+
+    for label, bid in (("batch_a", batch_a), ("batch_b", batch_b)):
+        if batches_repo.get(bid) is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"{label} '{bid}' not found.",
+            )
+    if batch_a == batch_b:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="batch_a and batch_b are the same batch — nothing to compare.",
+        )
+
+    preds_a = _batch_predictions(batch_a)
+    preds_b = _batch_predictions(batch_b)
+    by_text_b = {normalize(p["text_content"]): p for p in preds_b}
+
+    rows: List[ComparisonRow] = []
+    changed = 0
+    for pa in preds_a:
+        pb = by_text_b.get(normalize(pa["text_content"]))
+        if pb is None:
+            continue
+        did_change = pa["predicted_label"] != pb["predicted_label"]
+        if did_change:
+            changed += 1
+        if changed_only and not did_change:
+            continue
+        text = pa["text_content"]
+        rows.append(ComparisonRow(
+            text_excerpt=text[:_COMPARE_EXCERPT] + ("..." if len(text) > _COMPARE_EXCERPT else ""),
+            label_a=pa["predicted_label"],
+            confidence_a=pa["confidence"],
+            label_b=pb["predicted_label"],
+            confidence_b=pb["confidence"],
+            changed=did_change,
+        ))
+
+    # Changed rows first — the whole reason to open this screen.
+    rows.sort(key=lambda r: (not r.changed, r.text_excerpt))
+
+    def _version(preds: List[Dict]) -> Optional[str]:
+        versions = {p.get("model_version") for p in preds if p.get("model_version")}
+        return ", ".join(sorted(versions)) if versions else None
+
+    matched = sum(1 for pa in preds_a if normalize(pa["text_content"]) in by_text_b)
+    return BatchComparisonResponse(
+        batch_a=batch_a,
+        batch_b=batch_b,
+        model_version_a=_version(preds_a),
+        model_version_b=_version(preds_b),
+        matched=matched,
+        changed=changed,
+        rows=rows,
     )

@@ -473,3 +473,48 @@ class HealthResponse(BaseModel):
     status: Literal["ok", "degraded"]
     model_loaded: bool
     model_path: str
+
+
+# ---------------------------------------------------------------------------
+# Batch comparison — GET /admin/compare
+# ---------------------------------------------------------------------------
+
+class BatchSummary(BaseModel):
+    """One selectable batch in the comparison picker."""
+
+    batch_id: str
+    created_at: str
+    item_count: int
+    model_versions: List[str] = Field(
+        default_factory=list,
+        description="Distinct model versions that produced this batch's predictions.",
+    )
+
+
+class ComparisonRow(BaseModel):
+    """
+    One document, classified twice.
+
+    Rows are matched across the two batches on normalised text, so the same
+    document uploaded twice lines up even if the batches differ in order or
+    length.
+    """
+
+    text_excerpt: str
+    label_a: str
+    confidence_a: float
+    label_b: str
+    confidence_b: float
+    changed: bool
+
+
+class BatchComparisonResponse(BaseModel):
+    """Returned from GET /admin/compare."""
+
+    batch_a: str
+    batch_b: str
+    model_version_a: Optional[str] = None
+    model_version_b: Optional[str] = None
+    matched: int = Field(description="Documents present in both batches.")
+    changed: int = Field(description="Of those, how many changed label.")
+    rows: List[ComparisonRow] = Field(default_factory=list)
