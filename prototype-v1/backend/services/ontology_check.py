@@ -9,6 +9,24 @@ confidently wrong. Those are auto-accepted, never reach a reviewer, never
 become training data, and so the error persists indefinitely — the model's
 own confidence is the thing deciding whether anyone checks its work.
 
+Where the concepts live
+-----------------------
+The concept layer is modelled in the ontology itself —
+graph/concept_seed.cypher defines each term as
+
+    (:Concept {term, precision, support})
+        -[:INDICATES {weight}]-> (:OntologyNode {label})
+
+and a term may indicate several domains at different weights ("violence"
+genuinely points at both Family and Criminal Law), which is why it is a
+graph rather than a lookup table. graph/concept_markers.json, read below, is
+the flat mirror of that same model, generated in the same run so the two
+cannot drift. Reading the mirror is the arrangement the rest of the graph
+layer already uses: ontology_seed.cypher mirrors mock_db's ONTOLOGY exactly
+so that swapping to a live Neo4j is a query-for-query replacement with no
+behaviour change. No instance is stood up yet; when one is, this service
+reads the same edges over bolt instead of from the export.
+
 This check is deliberately independent of the model. It reads the text for
 legal-concept markers (graph/concept_markers.json, mined from the corpus's
 human gold labels — never from model predictions) and asks a different
