@@ -1,0 +1,2780 @@
+{
+ "source_dataset": "datasets/v1.csv",
+ "sample_count": 1701,
+ "min_docs": 4,
+ "min_precision": 0.55,
+ "min_sources": 2,
+ "markers": {
+  "Corporate / Company Law": [
+   {
+    "term": "cci",
+    "precision": 0.9855,
+    "support": 68,
+    "sources": 2,
+    "score": 4.1727
+   },
+   {
+    "term": "combination",
+    "precision": 0.9242,
+    "support": 61,
+    "sources": 3,
+    "score": 3.8145
+   },
+   {
+    "term": "competition",
+    "precision": 0.8438,
+    "support": 27,
+    "sources": 3,
+    "score": 2.8115
+   },
+   {
+    "term": "lesser",
+    "precision": 0.8846,
+    "support": 23,
+    "sources": 2,
+    "score": 2.8114
+   },
+   {
+    "term": "the competition",
+    "precision": 0.9048,
+    "support": 19,
+    "sources": 3,
+    "score": 2.7104
+   },
+   {
+    "term": "the commission",
+    "precision": 0.6438,
+    "support": 47,
+    "sources": 4,
+    "score": 2.4924
+   },
+   {
+    "term": "merger",
+    "precision": 0.9286,
+    "support": 13,
+    "sources": 3,
+    "score": 2.4506
+   },
+   {
+    "term": "the lesser",
+    "precision": 0.9286,
+    "support": 13,
+    "sources": 2,
+    "score": 2.4506
+   },
+   {
+    "term": "please",
+    "precision": 0.8,
+    "support": 20,
+    "sources": 3,
+    "score": 2.4356
+   },
+   {
+    "term": "for reference",
+    "precision": 0.875,
+    "support": 14,
+    "sources": 2,
+    "score": 2.3695
+   },
+   {
+    "term": "available at",
+    "precision": 0.8333,
+    "support": 15,
+    "sources": 2,
+    "score": 2.3105
+   },
+   {
+    "term": "yes",
+    "precision": 0.7826,
+    "support": 18,
+    "sources": 3,
+    "score": 2.3043
+   },
+   {
+    "term": "the fund",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 2,
+    "score": 2.3026
+   },
+   {
+    "term": "voting",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 2,
+    "score": 2.3026
+   },
+   {
+    "term": "regulations",
+    "precision": 0.6119,
+    "support": 41,
+    "sources": 2,
+    "score": 2.2872
+   },
+   {
+    "term": "competition act",
+    "precision": 0.8667,
+    "support": 13,
+    "sources": 2,
+    "score": 2.2872
+   },
+   {
+    "term": "regime",
+    "precision": 0.9167,
+    "support": 11,
+    "sources": 2,
+    "score": 2.2778
+   },
+   {
+    "term": "enterprise",
+    "precision": 0.76,
+    "support": 19,
+    "sources": 4,
+    "score": 2.2768
+   },
+   {
+    "term": "ring",
+    "precision": 0.8571,
+    "support": 12,
+    "sources": 2,
+    "score": 2.1985
+   },
+   {
+    "term": "ibc",
+    "precision": 0.9091,
+    "support": 10,
+    "sources": 2,
+    "score": 2.1799
+   },
+   {
+    "term": "green",
+    "precision": 0.9,
+    "support": 9,
+    "sources": 2,
+    "score": 2.0723
+   },
+   {
+    "term": "turnover",
+    "precision": 0.8,
+    "support": 12,
+    "sources": 3,
+    "score": 2.052
+   },
+   {
+    "term": "invest",
+    "precision": 0.8333,
+    "support": 10,
+    "sources": 2,
+    "score": 1.9982
+   },
+   {
+    "term": "the insolvency",
+    "precision": 0.8333,
+    "support": 10,
+    "sources": 3,
+    "score": 1.9982
+   },
+   {
+    "term": "whichever is",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 2,
+    "score": 1.9459
+   },
+   {
+    "term": "act against",
+    "precision": 0.75,
+    "support": 12,
+    "sources": 2,
+    "score": 1.9237
+   },
+   {
+    "term": "december 2021",
+    "precision": 0.8182,
+    "support": 9,
+    "sources": 2,
+    "score": 1.8839
+   },
+   {
+    "term": "2021 issued",
+    "precision": 0.7333,
+    "support": 11,
+    "sources": 2,
+    "score": 1.8223
+   },
+   {
+    "term": "the cci",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 2,
+    "score": 1.8195
+   },
+   {
+    "term": "commission is",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 2,
+    "score": 1.8195
+   },
+   {
+    "term": "of reduction",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 2,
+    "score": 1.8195
+   },
+   {
+    "term": "act 2002",
+    "precision": 0.6842,
+    "support": 13,
+    "sources": 2,
+    "score": 1.8057
+   },
+   {
+    "term": "insolvency",
+    "precision": 0.6842,
+    "support": 13,
+    "sources": 4,
+    "score": 1.8057
+   },
+   {
+    "term": "is responsible",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 2,
+    "score": 1.7918
+   },
+   {
+    "term": "fund manager",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 2,
+    "score": 1.7918
+   },
+   {
+    "term": "meets",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 2,
+    "score": 1.7918
+   },
+   {
+    "term": "meets the",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 2,
+    "score": 1.7918
+   },
+   {
+    "term": "be led",
+    "precision": 0.8,
+    "support": 8,
+    "sources": 2,
+    "score": 1.7578
+   },
+   {
+    "term": "of directors",
+    "precision": 0.8571,
+    "support": 6,
+    "sources": 3,
+    "score": 1.6679
+   },
+   {
+    "term": "whichever",
+    "precision": 0.8571,
+    "support": 6,
+    "sources": 2,
+    "score": 1.6679
+   }
+  ],
+  "Intellectual Property Law": [
+   {
+    "term": "trademark",
+    "precision": 0.9464,
+    "support": 53,
+    "sources": 5,
+    "score": 3.7753
+   },
+   {
+    "term": "copyright",
+    "precision": 0.9608,
+    "support": 49,
+    "sources": 5,
+    "score": 3.7586
+   },
+   {
+    "term": "infringement",
+    "precision": 0.9184,
+    "support": 45,
+    "sources": 5,
+    "score": 3.5161
+   },
+   {
+    "term": "the copyright",
+    "precision": 1.0,
+    "support": 28,
+    "sources": 4,
+    "score": 3.3673
+   },
+   {
+    "term": "copyright act",
+    "precision": 1.0,
+    "support": 24,
+    "sources": 4,
+    "score": 3.2189
+   },
+   {
+    "term": "the patent",
+    "precision": 1.0,
+    "support": 17,
+    "sources": 3,
+    "score": 2.8904
+   },
+   {
+    "term": "design",
+    "precision": 0.95,
+    "support": 19,
+    "sources": 4,
+    "score": 2.8459
+   },
+   {
+    "term": "sued",
+    "precision": 0.95,
+    "support": 19,
+    "sources": 2,
+    "score": 2.8459
+   },
+   {
+    "term": "patent",
+    "precision": 0.8049,
+    "support": 33,
+    "sources": 4,
+    "score": 2.8383
+   },
+   {
+    "term": "trade marks",
+    "precision": 1.0,
+    "support": 16,
+    "sources": 3,
+    "score": 2.8332
+   },
+   {
+    "term": "marks act",
+    "precision": 1.0,
+    "support": 15,
+    "sources": 3,
+    "score": 2.7726
+   },
+   {
+    "term": "patents",
+    "precision": 1.0,
+    "support": 15,
+    "sources": 3,
+    "score": 2.7726
+   },
+   {
+    "term": "mark",
+    "precision": 0.8056,
+    "support": 29,
+    "sources": 5,
+    "score": 2.7399
+   },
+   {
+    "term": "the trademark",
+    "precision": 0.9048,
+    "support": 19,
+    "sources": 5,
+    "score": 2.7104
+   },
+   {
+    "term": "copyright infringement",
+    "precision": 1.0,
+    "support": 14,
+    "sources": 3,
+    "score": 2.7081
+   },
+   {
+    "term": "the trade",
+    "precision": 0.8696,
+    "support": 20,
+    "sources": 5,
+    "score": 2.6474
+   },
+   {
+    "term": "designs act",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 2,
+    "score": 2.5649
+   },
+   {
+    "term": "invention",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 3,
+    "score": 2.5649
+   },
+   {
+    "term": "patents act",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 2,
+    "score": 2.5649
+   },
+   {
+    "term": "the patents",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 2,
+    "score": 2.5649
+   },
+   {
+    "term": "passing off",
+    "precision": 0.9333,
+    "support": 14,
+    "sources": 4,
+    "score": 2.5275
+   },
+   {
+    "term": "brand",
+    "precision": 0.8889,
+    "support": 16,
+    "sources": 5,
+    "score": 2.5184
+   },
+   {
+    "term": "designs",
+    "precision": 0.9286,
+    "support": 13,
+    "sources": 3,
+    "score": 2.4506
+   },
+   {
+    "term": "the design",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 3,
+    "score": 2.3979
+   },
+   {
+    "term": "artistic",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 4,
+    "score": 2.3979
+   },
+   {
+    "term": "the designs",
+    "precision": 0.9231,
+    "support": 12,
+    "sources": 3,
+    "score": 2.3676
+   },
+   {
+    "term": "patented",
+    "precision": 0.9231,
+    "support": 12,
+    "sources": 3,
+    "score": 2.3676
+   },
+   {
+    "term": "the mark",
+    "precision": 0.8667,
+    "support": 13,
+    "sources": 3,
+    "score": 2.2872
+   },
+   {
+    "term": "trademark infringement",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 4,
+    "score": 2.1972
+   },
+   {
+    "term": "infringement suit",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 2,
+    "score": 2.1972
+   },
+   {
+    "term": "generic",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 2,
+    "score": 2.1972
+   },
+   {
+    "term": "patentee",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 2,
+    "score": 2.1972
+   },
+   {
+    "term": "the patentee",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 2,
+    "score": 2.1972
+   },
+   {
+    "term": "author",
+    "precision": 0.8462,
+    "support": 11,
+    "sources": 4,
+    "score": 2.1026
+   },
+   {
+    "term": "recordings",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 3,
+    "score": 2.0794
+   },
+   {
+    "term": "literary",
+    "precision": 0.9,
+    "support": 9,
+    "sources": 4,
+    "score": 2.0723
+   },
+   {
+    "term": "registered trademark",
+    "precision": 0.9,
+    "support": 9,
+    "sources": 3,
+    "score": 2.0723
+   },
+   {
+    "term": "intellectual",
+    "precision": 0.7647,
+    "support": 13,
+    "sources": 5,
+    "score": 2.0181
+   },
+   {
+    "term": "intellectual property",
+    "precision": 0.7647,
+    "support": 13,
+    "sources": 5,
+    "score": 2.0181
+   },
+   {
+    "term": "copyrighted",
+    "precision": 0.8889,
+    "support": 8,
+    "sources": 3,
+    "score": 1.9531
+   }
+  ],
+  "Criminal Law": [
+   {
+    "term": "accused",
+    "precision": 0.6454,
+    "support": 91,
+    "sources": 3,
+    "score": 2.9183
+   },
+   {
+    "term": "indian penal",
+    "precision": 0.7089,
+    "support": 56,
+    "sources": 2,
+    "score": 2.866
+   },
+   {
+    "term": "the prosecution",
+    "precision": 0.7246,
+    "support": 50,
+    "sources": 2,
+    "score": 2.8491
+   },
+   {
+    "term": "penal code",
+    "precision": 0.7,
+    "support": 56,
+    "sources": 2,
+    "score": 2.8301
+   },
+   {
+    "term": "the accused",
+    "precision": 0.6634,
+    "support": 67,
+    "sources": 3,
+    "score": 2.7991
+   },
+   {
+    "term": "ipc",
+    "precision": 0.6667,
+    "support": 64,
+    "sources": 2,
+    "score": 2.7829
+   },
+   {
+    "term": "criminal",
+    "precision": 0.5939,
+    "support": 98,
+    "sources": 4,
+    "score": 2.7292
+   },
+   {
+    "term": "penal",
+    "precision": 0.6706,
+    "support": 57,
+    "sources": 2,
+    "score": 2.7229
+   },
+   {
+    "term": "punishable",
+    "precision": 0.74,
+    "support": 37,
+    "sources": 2,
+    "score": 2.6918
+   },
+   {
+    "term": "punishable under",
+    "precision": 0.75,
+    "support": 33,
+    "sources": 2,
+    "score": 2.6448
+   },
+   {
+    "term": "the offence",
+    "precision": 0.7091,
+    "support": 39,
+    "sources": 3,
+    "score": 2.6158
+   },
+   {
+    "term": "bail",
+    "precision": 0.6579,
+    "support": 50,
+    "sources": 2,
+    "score": 2.5867
+   },
+   {
+    "term": "prosecution",
+    "precision": 0.6463,
+    "support": 53,
+    "sources": 4,
+    "score": 2.5782
+   },
+   {
+    "term": "438",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 2,
+    "score": 2.5649
+   },
+   {
+    "term": "section 438",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 2,
+    "score": 2.5649
+   },
+   {
+    "term": "offence",
+    "precision": 0.6129,
+    "support": 57,
+    "sources": 4,
+    "score": 2.4887
+   },
+   {
+    "term": "fir",
+    "precision": 0.5926,
+    "support": 64,
+    "sources": 2,
+    "score": 2.4737
+   },
+   {
+    "term": "of criminal",
+    "precision": 0.7073,
+    "support": 29,
+    "sources": 2,
+    "score": 2.4057
+   },
+   {
+    "term": "crime",
+    "precision": 0.6889,
+    "support": 31,
+    "sources": 2,
+    "score": 2.3875
+   },
+   {
+    "term": "conviction",
+    "precision": 0.6667,
+    "support": 34,
+    "sources": 2,
+    "score": 2.3702
+   },
+   {
+    "term": "reasonable doubt",
+    "precision": 0.875,
+    "support": 14,
+    "sources": 2,
+    "score": 2.3695
+   },
+   {
+    "term": "under sections",
+    "precision": 0.587,
+    "support": 54,
+    "sources": 3,
+    "score": 2.3521
+   },
+   {
+    "term": "438 of",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 2,
+    "score": 2.3026
+   },
+   {
+    "term": "doubt",
+    "precision": 0.6744,
+    "support": 29,
+    "sources": 2,
+    "score": 2.2938
+   },
+   {
+    "term": "an accused",
+    "precision": 0.9167,
+    "support": 11,
+    "sources": 3,
+    "score": 2.2778
+   },
+   {
+    "term": "criminal procedure",
+    "precision": 0.697,
+    "support": 23,
+    "sources": 2,
+    "score": 2.215
+   },
+   {
+    "term": "bail is",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 2,
+    "score": 2.1972
+   },
+   {
+    "term": "offence under",
+    "precision": 0.7143,
+    "support": 20,
+    "sources": 2,
+    "score": 2.1747
+   },
+   {
+    "term": "offence punishable",
+    "precision": 0.7391,
+    "support": 17,
+    "sources": 2,
+    "score": 2.1364
+   },
+   {
+    "term": "the evidence",
+    "precision": 0.5676,
+    "support": 42,
+    "sources": 4,
+    "score": 2.1347
+   },
+   {
+    "term": "imprisonment for",
+    "precision": 0.72,
+    "support": 18,
+    "sources": 2,
+    "score": 2.12
+   },
+   {
+    "term": "the bail",
+    "precision": 0.72,
+    "support": 18,
+    "sources": 2,
+    "score": 2.12
+   },
+   {
+    "term": "the victim",
+    "precision": 0.641,
+    "support": 25,
+    "sources": 2,
+    "score": 2.0885
+   },
+   {
+    "term": "the fir",
+    "precision": 0.5862,
+    "support": 34,
+    "sources": 2,
+    "score": 2.0842
+   },
+   {
+    "term": "victim",
+    "precision": 0.6087,
+    "support": 28,
+    "sources": 2,
+    "score": 2.0497
+   },
+   {
+    "term": "sessions",
+    "precision": 0.6136,
+    "support": 27,
+    "sources": 2,
+    "score": 2.0448
+   },
+   {
+    "term": "arrest",
+    "precision": 0.6389,
+    "support": 23,
+    "sources": 3,
+    "score": 2.0304
+   },
+   {
+    "term": "murder",
+    "precision": 0.7647,
+    "support": 13,
+    "sources": 2,
+    "score": 2.0181
+   },
+   {
+    "term": "relative",
+    "precision": 0.8333,
+    "support": 10,
+    "sources": 2,
+    "score": 1.9982
+   },
+   {
+    "term": "committing",
+    "precision": 0.7143,
+    "support": 15,
+    "sources": 2,
+    "score": 1.9804
+   }
+  ],
+  "Taxation Law": [
+   {
+    "term": "the assessee",
+    "precision": 0.9074,
+    "support": 49,
+    "sources": 2,
+    "score": 3.5498
+   },
+   {
+    "term": "assessing officer",
+    "precision": 0.92,
+    "support": 46,
+    "sources": 2,
+    "score": 3.5421
+   },
+   {
+    "term": "assessee",
+    "precision": 0.8947,
+    "support": 51,
+    "sources": 2,
+    "score": 3.5353
+   },
+   {
+    "term": "the assessing",
+    "precision": 0.902,
+    "support": 46,
+    "sources": 2,
+    "score": 3.4727
+   },
+   {
+    "term": "tax",
+    "precision": 0.7685,
+    "support": 83,
+    "sources": 3,
+    "score": 3.4052
+   },
+   {
+    "term": "assessing",
+    "precision": 0.8545,
+    "support": 47,
+    "sources": 3,
+    "score": 3.3081
+   },
+   {
+    "term": "capital gains",
+    "precision": 1.0,
+    "support": 14,
+    "sources": 3,
+    "score": 2.7081
+   },
+   {
+    "term": "the ao",
+    "precision": 0.8519,
+    "support": 23,
+    "sources": 2,
+    "score": 2.7072
+   },
+   {
+    "term": "the itat",
+    "precision": 0.85,
+    "support": 17,
+    "sources": 2,
+    "score": 2.4568
+   },
+   {
+    "term": "itat",
+    "precision": 0.8095,
+    "support": 17,
+    "sources": 2,
+    "score": 2.3398
+   },
+   {
+    "term": "gains",
+    "precision": 0.8333,
+    "support": 15,
+    "sources": 3,
+    "score": 2.3105
+   },
+   {
+    "term": "taxed",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 2,
+    "score": 2.1972
+   },
+   {
+    "term": "income",
+    "precision": 0.5584,
+    "support": 43,
+    "sources": 3,
+    "score": 2.1132
+   },
+   {
+    "term": "cgst",
+    "precision": 0.8462,
+    "support": 11,
+    "sources": 2,
+    "score": 2.1026
+   },
+   {
+    "term": "tax act",
+    "precision": 0.75,
+    "support": 15,
+    "sources": 2,
+    "score": 2.0794
+   },
+   {
+    "term": "gains tax",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 2,
+    "score": 2.0794
+   },
+   {
+    "term": "to tax",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 3,
+    "score": 2.0794
+   },
+   {
+    "term": "the cgst",
+    "precision": 0.9,
+    "support": 9,
+    "sources": 2,
+    "score": 2.0723
+   },
+   {
+    "term": "taxable",
+    "precision": 0.8333,
+    "support": 10,
+    "sources": 3,
+    "score": 1.9982
+   },
+   {
+    "term": "treated the",
+    "precision": 0.8889,
+    "support": 8,
+    "sources": 2,
+    "score": 1.9531
+   },
+   {
+    "term": "gst",
+    "precision": 0.7857,
+    "support": 11,
+    "sources": 2,
+    "score": 1.9524
+   },
+   {
+    "term": "disallowed",
+    "precision": 0.7857,
+    "support": 11,
+    "sources": 3,
+    "score": 1.9524
+   },
+   {
+    "term": "disallowance",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 2,
+    "score": 1.9459
+   },
+   {
+    "term": "the assessment",
+    "precision": 0.7,
+    "support": 14,
+    "sources": 3,
+    "score": 1.8956
+   },
+   {
+    "term": "capital",
+    "precision": 0.5854,
+    "support": 24,
+    "sources": 4,
+    "score": 1.8842
+   },
+   {
+    "term": "income tax",
+    "precision": 0.6,
+    "support": 21,
+    "sources": 2,
+    "score": 1.8546
+   },
+   {
+    "term": "assessment",
+    "precision": 0.5682,
+    "support": 25,
+    "sources": 4,
+    "score": 1.8512
+   },
+   {
+    "term": "taxes",
+    "precision": 0.7333,
+    "support": 11,
+    "sources": 3,
+    "score": 1.8223
+   },
+   {
+    "term": "the tax",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 3,
+    "score": 1.8195
+   },
+   {
+    "term": "assessee had",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 2,
+    "score": 1.8195
+   },
+   {
+    "term": "cgst act",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 2,
+    "score": 1.8195
+   },
+   {
+    "term": "business income",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 2,
+    "score": 1.7918
+   },
+   {
+    "term": "capital receipt",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 2,
+    "score": 1.7918
+   },
+   {
+    "term": "tax is",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 2,
+    "score": 1.7918
+   },
+   {
+    "term": "taxpayer",
+    "precision": 0.8,
+    "support": 8,
+    "sources": 2,
+    "score": 1.7578
+   },
+   {
+    "term": "the taxpayer",
+    "precision": 0.8,
+    "support": 8,
+    "sources": 2,
+    "score": 1.7578
+   },
+   {
+    "term": "profit",
+    "precision": 0.7143,
+    "support": 10,
+    "sources": 3,
+    "score": 1.7128
+   },
+   {
+    "term": "tax the",
+    "precision": 0.8571,
+    "support": 6,
+    "sources": 3,
+    "score": 1.6679
+   },
+   {
+    "term": "income the",
+    "precision": 0.7778,
+    "support": 7,
+    "sources": 2,
+    "score": 1.6173
+   },
+   {
+    "term": "assessment order",
+    "precision": 0.7778,
+    "support": 7,
+    "sources": 2,
+    "score": 1.6173
+   }
+  ],
+  "Property / Real Estate Law": [
+   {
+    "term": "builder",
+    "precision": 0.8889,
+    "support": 8,
+    "sources": 2,
+    "score": 1.9531
+   },
+   {
+    "term": "the builder",
+    "precision": 0.8889,
+    "support": 8,
+    "sources": 2,
+    "score": 1.9531
+   },
+   {
+    "term": "partition",
+    "precision": 0.75,
+    "support": 12,
+    "sources": 4,
+    "score": 1.9237
+   },
+   {
+    "term": "the partition",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 3,
+    "score": 1.8195
+   },
+   {
+    "term": "of land",
+    "precision": 0.6522,
+    "support": 15,
+    "sources": 3,
+    "score": 1.8082
+   },
+   {
+    "term": "partition deed",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 3,
+    "score": 1.7918
+   },
+   {
+    "term": "landlord",
+    "precision": 0.75,
+    "support": 9,
+    "sources": 3,
+    "score": 1.7269
+   },
+   {
+    "term": "lease",
+    "precision": 0.65,
+    "support": 13,
+    "sources": 4,
+    "score": 1.7154
+   },
+   {
+    "term": "of immovable",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 2,
+    "score": 1.6094
+   },
+   {
+    "term": "title to",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 2,
+    "score": 1.6094
+   },
+   {
+    "term": "such property",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 2,
+    "score": 1.6094
+   },
+   {
+    "term": "mineral",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 2,
+    "score": 1.6094
+   },
+   {
+    "term": "tenancy",
+    "precision": 0.7273,
+    "support": 8,
+    "sources": 2,
+    "score": 1.598
+   },
+   {
+    "term": "immovable property",
+    "precision": 0.6923,
+    "support": 9,
+    "sources": 4,
+    "score": 1.5941
+   },
+   {
+    "term": "in possession",
+    "precision": 0.625,
+    "support": 10,
+    "sources": 3,
+    "score": 1.4987
+   },
+   {
+    "term": "deed was",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 2,
+    "score": 1.4931
+   },
+   {
+    "term": "the landlord",
+    "precision": 0.7,
+    "support": 7,
+    "sources": 3,
+    "score": 1.4556
+   },
+   {
+    "term": "immovable",
+    "precision": 0.5882,
+    "support": 10,
+    "sources": 4,
+    "score": 1.4105
+   },
+   {
+    "term": "of possession",
+    "precision": 0.6154,
+    "support": 8,
+    "sources": 2,
+    "score": 1.3521
+   },
+   {
+    "term": "for declaration",
+    "precision": 0.6667,
+    "support": 6,
+    "sources": 2,
+    "score": 1.2973
+   },
+   {
+    "term": "partition of",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 2,
+    "score": 1.2876
+   },
+   {
+    "term": "for partition",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 2,
+    "score": 1.2876
+   },
+   {
+    "term": "co owners",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 3,
+    "score": 1.2876
+   },
+   {
+    "term": "mining",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 2,
+    "score": 1.2876
+   },
+   {
+    "term": "the title",
+    "precision": 0.7143,
+    "support": 5,
+    "sources": 3,
+    "score": 1.2798
+   },
+   {
+    "term": "tenant",
+    "precision": 0.5833,
+    "support": 7,
+    "sources": 3,
+    "score": 1.213
+   },
+   {
+    "term": "land and",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 2,
+    "score": 1.1675
+   },
+   {
+    "term": "lease agreement",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 2,
+    "score": 1.1198
+   },
+   {
+    "term": "the consolidation",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "consolidation",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "stipulated time",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "handing over",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "handing",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "rent agreement",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "possession it",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "joint family",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "possession is",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "encumbrance",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "the tenant",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "partition suit",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   }
+  ],
+  "Civil Procedure / Other": [
+   {
+    "term": "insurance",
+    "precision": 0.65,
+    "support": 26,
+    "sources": 2,
+    "score": 2.1423
+   },
+   {
+    "term": "plaint",
+    "precision": 0.6429,
+    "support": 18,
+    "sources": 2,
+    "score": 1.8929
+   },
+   {
+    "term": "the plaint",
+    "precision": 0.625,
+    "support": 15,
+    "sources": 2,
+    "score": 1.7329
+   },
+   {
+    "term": "the securities",
+    "precision": 0.65,
+    "support": 13,
+    "sources": 2,
+    "score": 1.7154
+   },
+   {
+    "term": "application by",
+    "precision": 0.625,
+    "support": 10,
+    "sources": 2,
+    "score": 1.4987
+   },
+   {
+    "term": "executor",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 2,
+    "score": 1.4931
+   },
+   {
+    "term": "the executor",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 2,
+    "score": 1.4931
+   },
+   {
+    "term": "attorney",
+    "precision": 0.6429,
+    "support": 9,
+    "sources": 3,
+    "score": 1.4802
+   },
+   {
+    "term": "the compensation",
+    "precision": 0.5714,
+    "support": 12,
+    "sources": 2,
+    "score": 1.4657
+   },
+   {
+    "term": "accessing",
+    "precision": 0.75,
+    "support": 6,
+    "sources": 2,
+    "score": 1.4594
+   },
+   {
+    "term": "remedy for",
+    "precision": 0.75,
+    "support": 6,
+    "sources": 2,
+    "score": 1.4594
+   },
+   {
+    "term": "of attorney",
+    "precision": 0.7,
+    "support": 7,
+    "sources": 2,
+    "score": 1.4556
+   },
+   {
+    "term": "not satisfied",
+    "precision": 0.7,
+    "support": 7,
+    "sources": 2,
+    "score": 1.4556
+   },
+   {
+    "term": "information as",
+    "precision": 0.5789,
+    "support": 11,
+    "sources": 2,
+    "score": 1.4386
+   },
+   {
+    "term": "insurer",
+    "precision": 0.6364,
+    "support": 7,
+    "sources": 2,
+    "score": 1.3233
+   },
+   {
+    "term": "appears that",
+    "precision": 0.6364,
+    "support": 7,
+    "sources": 2,
+    "score": 1.3233
+   },
+   {
+    "term": "convenience",
+    "precision": 0.6667,
+    "support": 6,
+    "sources": 2,
+    "score": 1.2973
+   },
+   {
+    "term": "speed",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 2,
+    "score": 1.2876
+   },
+   {
+    "term": "by limitation",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 2,
+    "score": 1.2876
+   },
+   {
+    "term": "as compensation",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 2,
+    "score": 1.2876
+   },
+   {
+    "term": "litigant",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 2,
+    "score": 1.2876
+   },
+   {
+    "term": "territorial jurisdiction",
+    "precision": 0.7143,
+    "support": 5,
+    "sources": 2,
+    "score": 1.2798
+   },
+   {
+    "term": "the hearing",
+    "precision": 0.5714,
+    "support": 8,
+    "sources": 3,
+    "score": 1.2556
+   },
+   {
+    "term": "out in",
+    "precision": 0.5714,
+    "support": 8,
+    "sources": 3,
+    "score": 1.2556
+   },
+   {
+    "term": "providing the",
+    "precision": 0.5833,
+    "support": 7,
+    "sources": 4,
+    "score": 1.213
+   },
+   {
+    "term": "registration no",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 2,
+    "score": 1.1675
+   },
+   {
+    "term": "liability of",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 2,
+    "score": 1.1675
+   },
+   {
+    "term": "the insurer",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 2,
+    "score": 1.1675
+   },
+   {
+    "term": "accidents",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 2,
+    "score": 1.1198
+   },
+   {
+    "term": "resulting in",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 2,
+    "score": 1.1198
+   },
+   {
+    "term": "documentary",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 2,
+    "score": 1.1198
+   },
+   {
+    "term": "dismiss",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 2,
+    "score": 1.1198
+   },
+   {
+    "term": "vii rule",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 2,
+    "score": 1.073
+   },
+   {
+    "term": "of first",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 3,
+    "score": 1.073
+   },
+   {
+    "term": "was requested",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 2,
+    "score": 1.073
+   },
+   {
+    "term": "to dismiss",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 2,
+    "score": 1.073
+   },
+   {
+    "term": "100 of",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 2,
+    "score": 1.073
+   },
+   {
+    "term": "except in",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "interest was",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "is observed",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   }
+  ],
+  "Labour & Employment Law": [
+   {
+    "term": "selection",
+    "precision": 0.8065,
+    "support": 25,
+    "sources": 2,
+    "score": 2.6275
+   },
+   {
+    "term": "labour",
+    "precision": 0.875,
+    "support": 14,
+    "sources": 3,
+    "score": 2.3695
+   },
+   {
+    "term": "the labour",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 2,
+    "score": 2.1972
+   },
+   {
+    "term": "labour court",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 2,
+    "score": 2.1972
+   },
+   {
+    "term": "the employee",
+    "precision": 0.8125,
+    "support": 13,
+    "sources": 2,
+    "score": 2.1442
+   },
+   {
+    "term": "duties",
+    "precision": 0.7273,
+    "support": 16,
+    "sources": 2,
+    "score": 2.0605
+   },
+   {
+    "term": "employee",
+    "precision": 0.6,
+    "support": 30,
+    "sources": 5,
+    "score": 2.0604
+   },
+   {
+    "term": "the selection",
+    "precision": 0.8,
+    "support": 12,
+    "sources": 2,
+    "score": 2.052
+   },
+   {
+    "term": "employment",
+    "precision": 0.6923,
+    "support": 18,
+    "sources": 4,
+    "score": 2.0385
+   },
+   {
+    "term": "employer",
+    "precision": 0.6452,
+    "support": 20,
+    "sources": 5,
+    "score": 1.9642
+   },
+   {
+    "term": "wage",
+    "precision": 0.8889,
+    "support": 8,
+    "sources": 2,
+    "score": 1.9531
+   },
+   {
+    "term": "worker",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 2,
+    "score": 1.9459
+   },
+   {
+    "term": "advertisement",
+    "precision": 0.6818,
+    "support": 15,
+    "sources": 2,
+    "score": 1.8904
+   },
+   {
+    "term": "retirement",
+    "precision": 0.8182,
+    "support": 9,
+    "sources": 2,
+    "score": 1.8839
+   },
+   {
+    "term": "to work",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 2,
+    "score": 1.8195
+   },
+   {
+    "term": "disciplinary",
+    "precision": 0.7059,
+    "support": 12,
+    "sources": 2,
+    "score": 1.8106
+   },
+   {
+    "term": "an employee",
+    "precision": 0.7059,
+    "support": 12,
+    "sources": 4,
+    "score": 1.8106
+   },
+   {
+    "term": "the employer",
+    "precision": 0.6842,
+    "support": 13,
+    "sources": 3,
+    "score": 1.8057
+   },
+   {
+    "term": "salary",
+    "precision": 0.6154,
+    "support": 16,
+    "sources": 3,
+    "score": 1.7435
+   },
+   {
+    "term": "workers",
+    "precision": 0.7143,
+    "support": 10,
+    "sources": 3,
+    "score": 1.7128
+   },
+   {
+    "term": "promoted",
+    "precision": 0.6316,
+    "support": 12,
+    "sources": 2,
+    "score": 1.62
+   },
+   {
+    "term": "industrial dispute",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 2,
+    "score": 1.6094
+   },
+   {
+    "term": "the workmen",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 2,
+    "score": 1.6094
+   },
+   {
+    "term": "teacher",
+    "precision": 0.6923,
+    "support": 9,
+    "sources": 2,
+    "score": 1.5941
+   },
+   {
+    "term": "employee is",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 2,
+    "score": 1.4931
+   },
+   {
+    "term": "gratuity",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 2,
+    "score": 1.4931
+   },
+   {
+    "term": "equal pay",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 2,
+    "score": 1.4931
+   },
+   {
+    "term": "for equal",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 2,
+    "score": 1.4931
+   },
+   {
+    "term": "equal work",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 2,
+    "score": 1.4931
+   },
+   {
+    "term": "of employment",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 3,
+    "score": 1.4931
+   },
+   {
+    "term": "an employer",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 3,
+    "score": 1.4931
+   },
+   {
+    "term": "the committee",
+    "precision": 0.6667,
+    "support": 8,
+    "sources": 3,
+    "score": 1.4648
+   },
+   {
+    "term": "pay for",
+    "precision": 0.75,
+    "support": 6,
+    "sources": 2,
+    "score": 1.4594
+   },
+   {
+    "term": "appointments",
+    "precision": 0.75,
+    "support": 6,
+    "sources": 2,
+    "score": 1.4594
+   },
+   {
+    "term": "selected",
+    "precision": 0.6,
+    "support": 9,
+    "sources": 3,
+    "score": 1.3816
+   },
+   {
+    "term": "the advertisement",
+    "precision": 0.6154,
+    "support": 8,
+    "sources": 2,
+    "score": 1.3521
+   },
+   {
+    "term": "wages",
+    "precision": 0.6154,
+    "support": 8,
+    "sources": 3,
+    "score": 1.3521
+   },
+   {
+    "term": "is pending",
+    "precision": 0.6667,
+    "support": 6,
+    "sources": 2,
+    "score": 1.2973
+   },
+   {
+    "term": "an advertisement",
+    "precision": 0.6667,
+    "support": 6,
+    "sources": 2,
+    "score": 1.2973
+   },
+   {
+    "term": "workman",
+    "precision": 0.6667,
+    "support": 6,
+    "sources": 2,
+    "score": 1.2973
+   }
+  ],
+  "Family Law": [
+   {
+    "term": "divorce",
+    "precision": 0.8387,
+    "support": 26,
+    "sources": 3,
+    "score": 2.7643
+   },
+   {
+    "term": "spouse",
+    "precision": 0.875,
+    "support": 14,
+    "sources": 3,
+    "score": 2.3695
+   },
+   {
+    "term": "child",
+    "precision": 0.6667,
+    "support": 28,
+    "sources": 3,
+    "score": 2.2449
+   },
+   {
+    "term": "separation",
+    "precision": 0.9091,
+    "support": 10,
+    "sources": 3,
+    "score": 2.1799
+   },
+   {
+    "term": "violence",
+    "precision": 0.8462,
+    "support": 11,
+    "sources": 2,
+    "score": 2.1026
+   },
+   {
+    "term": "marriage",
+    "precision": 0.5522,
+    "support": 37,
+    "sources": 3,
+    "score": 2.0088
+   },
+   {
+    "term": "adoption",
+    "precision": 0.8333,
+    "support": 10,
+    "sources": 3,
+    "score": 1.9982
+   },
+   {
+    "term": "the marriage",
+    "precision": 0.6452,
+    "support": 20,
+    "sources": 3,
+    "score": 1.9642
+   },
+   {
+    "term": "interim maintenance",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 2,
+    "score": 1.9459
+   },
+   {
+    "term": "adoption and",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 2,
+    "score": 1.9459
+   },
+   {
+    "term": "child is",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 3,
+    "score": 1.9459
+   },
+   {
+    "term": "the hindu",
+    "precision": 0.75,
+    "support": 12,
+    "sources": 3,
+    "score": 1.9237
+   },
+   {
+    "term": "the child",
+    "precision": 0.7,
+    "support": 14,
+    "sources": 3,
+    "score": 1.8956
+   },
+   {
+    "term": "domestic violence",
+    "precision": 0.8182,
+    "support": 9,
+    "sources": 2,
+    "score": 1.8839
+   },
+   {
+    "term": "maintenance",
+    "precision": 0.5946,
+    "support": 22,
+    "sources": 4,
+    "score": 1.8643
+   },
+   {
+    "term": "dissolution of",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 3,
+    "score": 1.8195
+   },
+   {
+    "term": "of maintenance",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 2,
+    "score": 1.8195
+   },
+   {
+    "term": "of divorce",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 3,
+    "score": 1.8195
+   },
+   {
+    "term": "for divorce",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 2,
+    "score": 1.8195
+   },
+   {
+    "term": "matrimonial",
+    "precision": 0.6842,
+    "support": 13,
+    "sources": 2,
+    "score": 1.8057
+   },
+   {
+    "term": "hindu adoption",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 2,
+    "score": 1.7918
+   },
+   {
+    "term": "maintenance act",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 2,
+    "score": 1.7918
+   },
+   {
+    "term": "nullity",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 2,
+    "score": 1.7918
+   },
+   {
+    "term": "maintenance to",
+    "precision": 0.8,
+    "support": 8,
+    "sources": 2,
+    "score": 1.7578
+   },
+   {
+    "term": "the matrimonial",
+    "precision": 0.8571,
+    "support": 6,
+    "sources": 2,
+    "score": 1.6679
+   },
+   {
+    "term": "hindu",
+    "precision": 0.5714,
+    "support": 16,
+    "sources": 4,
+    "score": 1.619
+   },
+   {
+    "term": "dissolution",
+    "precision": 0.7778,
+    "support": 7,
+    "sources": 3,
+    "score": 1.6173
+   },
+   {
+    "term": "divorce is",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 2,
+    "score": 1.6094
+   },
+   {
+    "term": "the divorce",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 2,
+    "score": 1.6094
+   },
+   {
+    "term": "separation agreement",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 2,
+    "score": 1.6094
+   },
+   {
+    "term": "alimony",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 2,
+    "score": 1.6094
+   },
+   {
+    "term": "divorce in",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 2,
+    "score": 1.6094
+   },
+   {
+    "term": "separately",
+    "precision": 0.6923,
+    "support": 9,
+    "sources": 3,
+    "score": 1.5941
+   },
+   {
+    "term": "per month",
+    "precision": 0.625,
+    "support": 10,
+    "sources": 2,
+    "score": 1.4987
+   },
+   {
+    "term": "the adoption",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 3,
+    "score": 1.4931
+   },
+   {
+    "term": "wife is",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 2,
+    "score": 1.4931
+   },
+   {
+    "term": "succession",
+    "precision": 0.75,
+    "support": 6,
+    "sources": 3,
+    "score": 1.4594
+   },
+   {
+    "term": "wedlock",
+    "precision": 0.7,
+    "support": 7,
+    "sources": 2,
+    "score": 1.4556
+   },
+   {
+    "term": "marital",
+    "precision": 0.6,
+    "support": 9,
+    "sources": 2,
+    "score": 1.3816
+   },
+   {
+    "term": "of family",
+    "precision": 0.6364,
+    "support": 7,
+    "sources": 2,
+    "score": 1.3233
+   }
+  ],
+  "Constitutional Law": [
+   {
+    "term": "corpus",
+    "precision": 0.9,
+    "support": 9,
+    "sources": 2,
+    "score": 2.0723
+   },
+   {
+    "term": "habeas corpus",
+    "precision": 0.8889,
+    "support": 8,
+    "sources": 2,
+    "score": 1.9531
+   },
+   {
+    "term": "habeas",
+    "precision": 0.8889,
+    "support": 8,
+    "sources": 2,
+    "score": 1.9531
+   },
+   {
+    "term": "democratic",
+    "precision": 0.8571,
+    "support": 6,
+    "sources": 2,
+    "score": 1.6679
+   },
+   {
+    "term": "of habeas",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 2,
+    "score": 1.6094
+   },
+   {
+    "term": "state from",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 2,
+    "score": 1.6094
+   },
+   {
+    "term": "detention",
+    "precision": 0.6923,
+    "support": 9,
+    "sources": 2,
+    "score": 1.5941
+   },
+   {
+    "term": "election",
+    "precision": 0.625,
+    "support": 10,
+    "sources": 2,
+    "score": 1.4987
+   },
+   {
+    "term": "freedom of",
+    "precision": 0.75,
+    "support": 6,
+    "sources": 2,
+    "score": 1.4594
+   },
+   {
+    "term": "fundamental right",
+    "precision": 0.5789,
+    "support": 11,
+    "sources": 2,
+    "score": 1.4386
+   },
+   {
+    "term": "security of",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 2,
+    "score": 1.2876
+   },
+   {
+    "term": "from making",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 2,
+    "score": 1.2876
+   },
+   {
+    "term": "the establishment",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 3,
+    "score": 1.2876
+   },
+   {
+    "term": "personal liberty",
+    "precision": 0.7143,
+    "support": 5,
+    "sources": 2,
+    "score": 1.2798
+   },
+   {
+    "term": "parliament",
+    "precision": 0.7143,
+    "support": 5,
+    "sources": 2,
+    "score": 1.2798
+   },
+   {
+    "term": "of life",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 2,
+    "score": 1.1675
+   },
+   {
+    "term": "fundamental rights",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 2,
+    "score": 1.1675
+   },
+   {
+    "term": "governor",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 2,
+    "score": 1.1198
+   },
+   {
+    "term": "the president",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 2,
+    "score": 1.1198
+   },
+   {
+    "term": "ward",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 2,
+    "score": 1.1198
+   },
+   {
+    "term": "and personal",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 2,
+    "score": 1.073
+   },
+   {
+    "term": "sovereign",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 3,
+    "score": 1.073
+   },
+   {
+    "term": "ongoing",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 2,
+    "score": 1.073
+   },
+   {
+    "term": "speech",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "and health",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "and ensure",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "the political",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "of election",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "immunity",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "state is",
+    "precision": 0.5556,
+    "support": 5,
+    "sources": 2,
+    "score": 0.9954
+   },
+   {
+    "term": "be declared",
+    "precision": 0.5556,
+    "support": 5,
+    "sources": 2,
+    "score": 0.9954
+   },
+   {
+    "term": "and fair",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 2,
+    "score": 0.9197
+   },
+   {
+    "term": "constitutional validity",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 2,
+    "score": 0.9197
+   },
+   {
+    "term": "pil",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 2,
+    "score": 0.9197
+   },
+   {
+    "term": "the governor",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 2,
+    "score": 0.8318
+   },
+   {
+    "term": "to public",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 2,
+    "score": 0.8318
+   },
+   {
+    "term": "the states",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 2,
+    "score": 0.8318
+   },
+   {
+    "term": "inconsistent with",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 2,
+    "score": 0.8318
+   },
+   {
+    "term": "process in",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 2,
+    "score": 0.8318
+   },
+   {
+    "term": "emergency",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 2,
+    "score": 0.8318
+   }
+  ],
+  "Contract Law": [
+   {
+    "term": "the borrower",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 2,
+    "score": 1.2876
+   },
+   {
+    "term": "guarantee is",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 2,
+    "score": 1.2876
+   },
+   {
+    "term": "equipment",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 2,
+    "score": 1.2876
+   },
+   {
+    "term": "in clause",
+    "precision": 0.7143,
+    "support": 5,
+    "sources": 2,
+    "score": 1.2798
+   },
+   {
+    "term": "contract between",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 2,
+    "score": 1.1675
+   },
+   {
+    "term": "agreement for",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 3,
+    "score": 1.1675
+   },
+   {
+    "term": "machinery",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 3,
+    "score": 1.1198
+   },
+   {
+    "term": "borrower",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 3,
+    "score": 1.073
+   },
+   {
+    "term": "the lender",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 2,
+    "score": 1.073
+   },
+   {
+    "term": "lender",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 2,
+    "score": 1.073
+   },
+   {
+    "term": "service provider",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 4,
+    "score": 1.073
+   },
+   {
+    "term": "defaults",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 3,
+    "score": 1.073
+   },
+   {
+    "term": "efforts to",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "and condition",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "the deposit",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "contra",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "performance of",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "duration and",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 3,
+    "score": 1.0397
+   },
+   {
+    "term": "any third",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 3,
+    "score": 1.0397
+   },
+   {
+    "term": "time settlement",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 2,
+    "score": 1.0397
+   },
+   {
+    "term": "free to",
+    "precision": 0.5556,
+    "support": 5,
+    "sources": 2,
+    "score": 0.9954
+   },
+   {
+    "term": "intimated",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 2,
+    "score": 0.9197
+   },
+   {
+    "term": "of loan",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 2,
+    "score": 0.8318
+   },
+   {
+    "term": "repay",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 2,
+    "score": 0.8318
+   },
+   {
+    "term": "disclosure agreement",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 3,
+    "score": 0.8318
+   },
+   {
+    "term": "collateral",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 2,
+    "score": 0.8318
+   },
+   {
+    "term": "etc it",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 2,
+    "score": 0.8318
+   },
+   {
+    "term": "on both",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 3,
+    "score": 0.8318
+   },
+   {
+    "term": "consultants",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 2,
+    "score": 0.8318
+   },
+   {
+    "term": "any dispute",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 2,
+    "score": 0.8318
+   },
+   {
+    "term": "any provision",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 3,
+    "score": 0.8318
+   },
+   {
+    "term": "no reply",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 2,
+    "score": 0.8318
+   },
+   {
+    "term": "fee of",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 4,
+    "score": 0.8318
+   }
+  ]
+ }
+}

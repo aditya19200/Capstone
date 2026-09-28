@@ -33,6 +33,13 @@ async def lifespan(app: FastAPI):
     # the admin table, the F1 chart and retrain's regression guard all have
     # a baseline to work from. No-ops if versions already exist. See
     # baseline.py.
+    # Ontology consistency check — catches confidently-wrong predictions that
+    # confidence-based routing is structurally blind to. Degrades to a no-op
+    # if the markers file is absent.
+    from services.ontology_check import ontology_check
+    ontology_check.load()
+    print(f"[startup] Ontology check: {'enabled' if ontology_check.is_loaded() else 'DISABLED (no markers file)'}")
+
     from baseline import register_baseline_if_absent
     register_baseline_if_absent()
 

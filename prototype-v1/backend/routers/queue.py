@@ -2,8 +2,21 @@
 routers/queue.py — Human review queue endpoints.
 
 GET /queue/low-confidence
-  Wraps repositories.predictions.list_low_confidence(REVIEW_THRESHOLD) so
-  reviewers can see predictions the active-learning engine routed to them.
+  Predictions a human should look at. Two independent reasons put an item
+  here:
+
+    low_confidence     — the model doubted itself (confidence below
+                         REVIEW_THRESHOLD). This is the original behaviour.
+    ontology_conflict  — the model was confident, but the legal-concept
+                         vocabulary in the text belongs to a different
+                         domain (services/ontology_check.py).
+
+  The second reason exists because the first one cannot catch confidently
+  wrong predictions: those are auto-accepted, never reviewed, and so never
+  corrected. Confidence is the model grading its own work; the ontology
+  check is evidence from outside the model.
+
+  The route name is kept for compatibility with the existing frontend.
   Reviewer/Admin only — returns prediction text excerpts.
 """
 
@@ -15,6 +28,7 @@ from fastapi import APIRouter, Header, HTTPException, Query, status
 from config.settings import settings
 from models.response_models import LowConfidenceItem, LowConfidenceQueueResponse
 from repositories import predictions as predictions_repo
+from services.ontology_check import ontology_check
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -45,7 +59,27 @@ async def get_low_confidence_queue(
 ) -> LowConfidenceQueueResponse:
     _require_reviewer(x_role)
 
-    all_rows = predictions_repo.list_low_confidence(settings.REVIEW_THRESHOLD)
+    threshold = settings.REVIEW_THRESHOLD
+
+    # Low confidence remains the primary route. When the ontology check is
+    # unavailable (markers file absent) this degrades to exactly the old
+    # behaviour rather than failing.
+    if not ontology_check.is_loaded():
+        all_rows = [
+            (r, "low_confidence", None)
+            for r in predictions_repo.list_low_confidence(threshold)
+        ]
+    else:
+        all_rows = []
+        for r in predictions_repo.list_all():
+            if r["confidence"] < threshold:
+                all_rows.append((r, "low_confidence", None))
+                continue
+            # Only confident predictions are worth checking — anything below
+            # the threshold is already queued on confidence alone.
+            conflict = ontology_check.check(r["text_content"], r["predicted_label"])
+            if conflict:
+                all_rows.append((r, "ontology_conflict", conflict))
 
     offset = (page - 1) * page_size
     page_rows = all_rows[offset : offset + page_size]
@@ -60,8 +94,12 @@ async def get_low_confidence_queue(
             predicted_label=r["predicted_label"],
             confidence=r["confidence"],
             created_at=r["created_at"],
+            flag_reason=reason,
+            suggested_label=(conflict or {}).get("suggested_label"),
+            matched_terms=(conflict or {}).get("matched_terms"),
+            flag_detail=(conflict or {}).get("reason"),
         )
-        for r in page_rows
+        for r, reason, conflict in page_rows
     ]
 
     return LowConfidenceQueueResponse(
