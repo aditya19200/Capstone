@@ -31,6 +31,9 @@ function ReviewPage() {
     })()
   }, [])
 
+  const ontologyCount = items?.filter((i) => i.flag_reason === 'ontology_conflict').length ?? 0
+  const lowConfCount = (items?.length ?? 0) - ontologyCount
+
   const handleRetry = () => {
     setItems(null)
     setFetchError('')
@@ -94,11 +97,32 @@ function ReviewPage() {
           Reviewer Workspace
         </p>
         <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">
-          Low-Confidence Review Queue
+          Review Queue
         </h2>
         <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">
-          Confirm or correct predictions the model was not confident about.
+          Confirm or correct predictions flagged for human review.
         </p>
+
+        {/* Items arrive here for two unrelated reasons and the counts differ
+            a lot between them, so showing the split is the difference between
+            "some items" and knowing how much work is queued and why. */}
+        {items?.length ? (
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+            <span className="rounded-full bg-slate-500/15 px-3 py-1 font-semibold text-slate-700 dark:text-slate-200">
+              {items.length} to review
+            </span>
+            {ontologyCount > 0 ? (
+              <span className="rounded-full bg-amber-500/15 px-3 py-1 font-medium text-amber-700 dark:text-amber-300">
+                {ontologyCount} ontology conflict{ontologyCount === 1 ? '' : 's'}
+              </span>
+            ) : null}
+            {lowConfCount > 0 ? (
+              <span className="rounded-full bg-indigo-500/15 px-3 py-1 font-medium text-indigo-700 dark:text-indigo-300">
+                {lowConfCount} low confidence
+              </span>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       {submitError ? (

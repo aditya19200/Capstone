@@ -36,6 +36,11 @@ echo "Waiting for the model to load..."
 for i in $(seq 1 30); do
     if curl -s http://localhost:8000/health 2>/dev/null | grep -q '"model_loaded":true'; then
         echo "Backend ready."
+        # Surface the startup checks that otherwise only appear in backend.log.
+        # Whether the ontology check loaded decides whether confidently-wrong
+        # predictions reach the review queue at all, so it should not be
+        # something you have to go and grep for.
+        grep -h "^\[startup\]" backend.log 2>/dev/null | sed 's/^/  /'
         break
     fi
     sleep 1
