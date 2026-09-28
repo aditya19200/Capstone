@@ -36,6 +36,25 @@ async def lifespan(app: FastAPI):
     from baseline import register_baseline_if_absent
     register_baseline_if_absent()
 
+    # Rollback has to survive a restart: model_versions.get_active() is the
+    # record of which weights should be serving, so honour it rather than
+    # always booting MODEL_PATH. Normally this is a no-op — the baseline row
+    # registered above points at MODEL_PATH, which is already loaded.
+    from repositories import model_versions as _model_versions_repo
+    _active = _model_versions_repo.get_active()
+    if _active and _active.get("file_path") and _active["file_path"] != settings.MODEL_PATH:
+        print(f"[startup] Active version is {_active['version_number']}; loading its weights.")
+        try:
+            model_service.load(
+                model_path=_active["file_path"],
+                version_number=_active["version_number"],
+            )
+        except Exception as exc:
+            # Don't refuse to boot over a bad saved version — MODEL_PATH is
+            # already loaded and serving, which is the safe fallback.
+            print(f"[startup] WARNING: could not load active version: {exc}")
+            print(f"[startup] Continuing with {settings.MODEL_PATH}.")
+
     # No real Supabase configured (local dev) -> batch/xai workers as
     # separate processes would each get their own empty mock_db and never
     # see what this process inserts. Run them in-thread here instead. See
@@ -101,5 +120,9 @@ async def health_check():
     return {
         "status": "ok",
         "model_loaded": model_service.is_loaded(),
-        "model_path": settings.MODEL_PATH,
+        # What is actually resident right now, which is not necessarily
+        # MODEL_PATH once a retrained version has been activated.
+        "model_path": model_service.loaded_path or settings.MODEL_PATH,
+        "model_version": model_service.loaded_version or "baseline",
+        "configured_model_path": settings.MODEL_PATH,
     }

@@ -69,7 +69,9 @@ Flagging them explicitly rather than burying them in the diff:
 | `backend/repositories/batch_items.py` | Aditya | Added the missing mock fallbacks for `claim()` and `update()` |
 | `backend/services/mock_db.py` | Aditya | Added `claim_batch_items()` and `update_batch_item()` |
 | `backend/models/response_models.py` | Aditya | New response models + two missing `prediction_id` fields |
-| `backend/main.py` | Aditya | Starts in-thread workers when no real DB is configured |
+| `backend/main.py` | Aditya | Starts in-thread workers when no real DB is configured; honours the active model version at startup |
+| `backend/routers/admin.py` | Aditya | Activation now loads the version's weights, with rollback of `is_active` if they fail to load |
+| `backend/services/mock_db.py` | Aditya | `set_active_model_version()` checked the target existed *after* deactivating every version, so a bad id left nothing active — reordered |
 | `frontend/src/api/client.js` | Bidisha | Wired seven functions to real endpoints that had since been built |
 | `frontend/src/pages/*.jsx`, `components/**` | Bidisha | Pagination fix, Recent Batches list, Explain in review queue, retrain counter |
 | `frontend/src/index.css`, `index.html` | Bidisha | Dark theme (pure palette remap, no component changes) |
@@ -82,8 +84,12 @@ Full reasoning for each is in the session changelog.
 
 | Item | Owner |
 |------|-------|
-| Admin + Metrics pages are mock data — `/admin/metrics` needs a model-versions list | **Aditya** |
-| Dashboard is 100% hardcoded — never calls the API | **Bidisha** |
-| A newly trained model is never loaded into memory | **Ankush** |
 | `retrain_jobs` is missing the `notes` and `min_annotations` columns the API sends | **Arjun** |
+| Consolidate `services/supabase_service.py` with `repositories/` — the overlap caused 2 of the 11 integration defects | **Aditya** |
 | No real Supabase/Neo4j connected — everything runs on the in-memory mock | **Aditya + Arjun** |
+| Confidence calibration — the model is 14.6 points more confident than it is correct | **Ankush** |
+| Frontend has no automated tests | **Bidisha** |
+
+Closed since the last revision of this file: Admin and Metrics now read real
+data, the Dashboard calls `/stats/dashboard`, and activating a model version
+now loads its weights into the running service (below).

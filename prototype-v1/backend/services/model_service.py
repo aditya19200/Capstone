@@ -14,6 +14,7 @@ Design rules:
 import asyncio
 import logging
 import math
+import threading
 from functools import partial
 from typing import Dict, List, Optional, Tuple
 
@@ -69,23 +70,48 @@ class ModelService:
         self._device: torch.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu"
         )
+        # Guards the (model, tokenizer) pair so a reload can never be observed
+        # half-applied — see load() and _snapshot().
+        self._lock = threading.RLock()
+        # Which weights are actually resident, so /health and the admin page can
+        # show what is being served rather than what is merely marked active.
+        self._loaded_path: Optional[str] = None
+        self._loaded_version: Optional[str] = None
 
     # ------------------------------------------------------------------
     # Lifecycle
     # ------------------------------------------------------------------
 
-    def load(self) -> None:
+    def load(
+        self,
+        model_path: Optional[str] = None,
+        version_number: Optional[str] = None,
+    ) -> None:
         """
-        Load the tokenizer and model weights from MODEL_PATH.
+        Load tokenizer and weights, replacing whatever is currently resident.
 
-        Called once during application startup. Raises RuntimeError if the
-        model path is invalid or weights cannot be loaded.
+        Called at startup with no arguments (loads settings.MODEL_PATH), and
+        again by the admin activate endpoint with the newly activated version's
+        file_path — which is what makes an activated model actually serve
+        predictions instead of only being marked active in the database.
+
+        Both objects are built into locals FIRST and swapped in together under
+        a lock. Two consequences that matter:
+
+          * If the new weights fail to load, the exception propagates and the
+            previously loaded model is still resident and still serving. A bad
+            checkpoint can never leave the service with no model at all.
+          * An in-flight predict() can never see the new model paired with the
+            old tokenizer, because it takes both references in one locked read
+            (see _snapshot()).
+
+        Raises RuntimeError if the path is invalid or the weights won't load.
         """
-        model_path = settings.MODEL_PATH
+        model_path = model_path or settings.MODEL_PATH
         logger.info("Loading tokenizer from %s", model_path)
 
         try:
-            self._tokenizer = AutoTokenizer.from_pretrained(model_path)
+            new_tokenizer = AutoTokenizer.from_pretrained(model_path)
         except Exception as exc:
             raise RuntimeError(
                 f"Failed to load tokenizer from '{model_path}': {exc}"
@@ -94,30 +120,70 @@ class ModelService:
         logger.info("Loading model weights from %s (device=%s)", model_path, self._device)
 
         try:
-            self._model = AutoModelForSequenceClassification.from_pretrained(
+            new_model = AutoModelForSequenceClassification.from_pretrained(
                 model_path,
                 num_labels=NUM_LABELS,
             )
-            self._model.to(self._device)
-            self._model.eval()          # disable dropout for inference
+            new_model.to(self._device)
+            new_model.eval()            # disable dropout for inference
         except Exception as exc:
             raise RuntimeError(
                 f"Failed to load model from '{model_path}': {exc}"
             ) from exc
 
-        logger.info("InLegalBERT loaded successfully on %s.", self._device)
+        # Atomic swap — nothing above this line has touched live state.
+        with self._lock:
+            previous = self._loaded_version or self._loaded_path
+            self._tokenizer = new_tokenizer
+            self._model = new_model
+            self._loaded_path = model_path
+            self._loaded_version = version_number
+
+        if previous:
+            logger.info(
+                "Model swapped: %s -> %s (%s) on %s.",
+                previous, version_number or model_path, model_path, self._device,
+            )
+        else:
+            logger.info("InLegalBERT loaded successfully on %s.", self._device)
 
     def unload(self) -> None:
         """Release model and tokenizer from memory."""
-        self._model = None
-        self._tokenizer = None
+        with self._lock:
+            self._model = None
+            self._tokenizer = None
+            self._loaded_path = None
+            self._loaded_version = None
         if self._device.type == "cuda":
             torch.cuda.empty_cache()
         logger.info("Model unloaded.")
 
     def is_loaded(self) -> bool:
         """Return True if the model is currently in memory."""
-        return self._model is not None and self._tokenizer is not None
+        with self._lock:
+            return self._model is not None and self._tokenizer is not None
+
+    def _snapshot(self) -> Tuple[AutoModelForSequenceClassification, AutoTokenizer]:
+        """
+        Take a consistent (model, tokenizer) pair under the lock.
+
+        Callers then use the returned locals for the whole forward pass, so a
+        concurrent load() swapping the pair mid-inference cannot tear it.
+        """
+        with self._lock:
+            if self._model is None or self._tokenizer is None:
+                raise RuntimeError("Model is not loaded. Call model_service.load() first.")
+            return self._model, self._tokenizer
+
+    @property
+    def loaded_path(self) -> Optional[str]:
+        """Filesystem path of the weights currently resident."""
+        return self._loaded_path
+
+    @property
+    def loaded_version(self) -> Optional[str]:
+        """version_number of the resident weights, if loaded via activation."""
+        return self._loaded_version
 
     # ------------------------------------------------------------------
     # Core inference (synchronous, CPU-bound)
@@ -139,14 +205,13 @@ class ModelService:
           RuntimeError: if model has not been loaded yet.
           ValueError:   if text is empty after stripping.
         """
-        if not self.is_loaded():
-            raise RuntimeError("Model is not loaded. Call model_service.load() first.")
+        model, tokenizer = self._snapshot()
 
         text = text.strip()
         if not text:
             raise ValueError("Input text is empty.")
 
-        inputs = self._tokenizer(
+        inputs = tokenizer(
             text,
             return_tensors="pt",
             truncation=True,
@@ -157,7 +222,7 @@ class ModelService:
         inputs = {k: v.to(self._device) for k, v in inputs.items()}
 
         with torch.no_grad():
-            outputs = self._model(**inputs)
+            outputs = model(**inputs)
 
         logits: torch.Tensor = outputs.logits          # shape: (1, NUM_LABELS)
         probs: torch.Tensor = torch.softmax(logits, dim=-1)[0]  # shape: (NUM_LABELS,)
@@ -195,12 +260,11 @@ class ModelService:
 
         Returns a list of result dicts in the same order as the input texts.
         """
-        if not self.is_loaded():
-            raise RuntimeError("Model is not loaded. Call model_service.load() first.")
+        model, tokenizer = self._snapshot()
         if not texts:
             return []
 
-        inputs = self._tokenizer(
+        inputs = tokenizer(
             texts,
             return_tensors="pt",
             truncation=True,
@@ -210,7 +274,7 @@ class ModelService:
         inputs = {k: v.to(self._device) for k, v in inputs.items()}
 
         with torch.no_grad():
-            outputs = self._model(**inputs)
+            outputs = model(**inputs)
 
         logits: torch.Tensor = outputs.logits           # (batch, NUM_LABELS)
         probs_batch: torch.Tensor = torch.softmax(logits, dim=-1)  # (batch, NUM_LABELS)
@@ -295,9 +359,7 @@ class ModelService:
         Used by shap_service to tokenize text for SHAP explainability.
         Raises RuntimeError if model has not been loaded.
         """
-        if self._tokenizer is None:
-            raise RuntimeError("Tokenizer is not loaded. Call model_service.load() first.")
-        return self._tokenizer
+        return self._snapshot()[1]
 
     def get_model(self) -> AutoModelForSequenceClassification:
         """
@@ -306,9 +368,7 @@ class ModelService:
         Used by shap_service to run SHAP's forward function.
         Raises RuntimeError if model has not been loaded.
         """
-        if self._model is None:
-            raise RuntimeError("Model is not loaded. Call model_service.load() first.")
-        return self._model
+        return self._snapshot()[0]
 
     @property
     def device(self) -> torch.device:
