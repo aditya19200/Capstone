@@ -41,9 +41,11 @@ Outputs both representations of the same model:
 The two are generated from the same mining run and cannot drift, which is
 the same arrangement ontology_seed.cypher already documents for the domain
 nodes: model it in the graph, mirror it for the mock, swap without any
-behaviour change. A concept may indicate more than one domain — "violence"
-genuinely points at both Family and Criminal Law — and the edge weight is
-what separates them, which is why this is a graph rather than a lookup table.
+behaviour change. Note the current limit: each term is assigned to its
+single most frequent domain, so every Concept has exactly one INDICATES
+edge and the layer is still flat in substance. Emitting several weighted
+edges per concept is the change that would make the graph representation
+do work a table cannot.
 
 Re-runnable; nothing is hand-edited in place.
 

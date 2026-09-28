@@ -17,9 +17,13 @@ graph/concept_seed.cypher defines each term as
     (:Concept {term, precision, support})
         -[:INDICATES {weight}]-> (:OntologyNode {label})
 
-and a term may indicate several domains at different weights ("violence"
-genuinely points at both Family and Criminal Law), which is why it is a
-graph rather than a lookup table. graph/concept_markers.json, read below, is
+Each term currently carries exactly ONE outgoing INDICATES edge: the miner
+assigns it to the single domain it most often occurs in. So the concept
+layer as it stands is expressible as a flat table, and the JSON mirror is
+exactly that. The graph representation earns its place only once concepts
+carry edges to several domains at different weights, which is the honest
+next step — "violence" occurs in criminal matters too, and modelling that
+is what a table cannot do. graph/concept_markers.json, read below, is
 the flat mirror of that same model, generated in the same run so the two
 cannot drift. Reading the mirror is the arrangement the rest of the graph
 layer already uses: ontology_seed.cypher mirrors mock_db's ONTOLOGY exactly
