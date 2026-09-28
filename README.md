@@ -81,7 +81,6 @@ row → switch to **Reviewer** to correct the uncertain ones → switch to
 | `graph/` | Neo4j legal-concept ontology |
 | `datasets/v1.csv` | 1701 labelled training samples |
 | `sample-data/` | Demo batches and the evaluation set — see below |
-| `OWNERSHIP.md` | Who owns which files |
 
 ### `sample-data/`
 
