@@ -9,6 +9,7 @@ import LoginPage from './pages/Login.jsx'
 import MetricsPage from './pages/Metrics.jsx'
 import RegisterPage from './pages/Register.jsx'
 import RetrainPage from './pages/Retrain.jsx'
+import ComparePage from './pages/Compare.jsx'
 import ReviewPage from './pages/Review.jsx'
 
 function App() {
@@ -74,6 +75,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <RetrainPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/compare"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <ComparePage />
               </ProtectedRoute>
             }
           />

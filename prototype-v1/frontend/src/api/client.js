@@ -304,3 +304,19 @@ export async function activateModelVersion(versionId) {
   const { data } = await axiosClient.post(`/admin/models/${versionId}/activate`)
   return data
 }
+
+
+// Batch comparison — the before/after view on the Admin side. Kept separate
+// from getBatches() (annotator-facing, no role header) because these are
+// admin-only and carry the model_version each run was produced by.
+export async function getComparableBatches() {
+  const { data } = await axiosClient.get('/admin/batches')
+  return data
+}
+
+export async function compareBatches(batchA, batchB, changedOnly = false) {
+  const { data } = await axiosClient.get('/admin/compare', {
+    params: { batch_a: batchA, batch_b: batchB, changed_only: changedOnly },
+  })
+  return data
+}

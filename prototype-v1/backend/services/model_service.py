@@ -185,6 +185,20 @@ class ModelService:
         """version_number of the resident weights, if loaded via activation."""
         return self._loaded_version
 
+    @property
+    def model_version(self) -> str:
+        """
+        Version string to stamp on predictions.
+
+        routers/predict.py and workers/batch_worker.py both read this via
+        getattr(..., "model_version", "v1"). The attribute did not exist, so
+        every prediction ever made was recorded as "v1" no matter which
+        weights produced it — which made the stored model_version useless for
+        telling two runs apart. Returning the resident version fixes that at
+        both call sites without touching either.
+        """
+        return self._loaded_version or "baseline"
+
     # ------------------------------------------------------------------
     # Core inference (synchronous, CPU-bound)
     # ------------------------------------------------------------------
