@@ -75,15 +75,15 @@ python3 seed_retrain_data.py
 
 **Try it:**
 
-1. **Annotator** → Annotate → upload `sample-data/demo_registry_intake.csv`
+1. **Annotator** → Annotate → upload `sample-data/demo/1-intake.csv`
 2. **Reviewer** → Review — 27 items, most flagged by ontology conflict rather
    than low confidence. Each shows the concept evidence on both sides and
    arrives with the suggested label pre-selected, so correcting one is a single
    click. Correct at least 15
-3. **Annotator** → upload `sample-data/demo_probe_set.csv` — 8 documents the
+3. **Annotator** → upload `sample-data/demo/2-probe-set.csv` — 8 documents the
    system has never been corrected on. This is the "before"
 4. **Admin** → Retrain → Activate
-5. **Annotator** → upload `demo_probe_set.csv` again
+5. **Annotator** → upload `2-probe-set.csv` again
 6. **Admin** → Compare → pick the two probe batches
 
 Seven or eight of the eight change from Family Law to Criminal Law, and none of
@@ -101,20 +101,20 @@ them were ever corrected. 15 corrections is the measured minimum for all eight;
 | `db/` | Postgres schema, migrations, RPC functions |
 | `graph/` | Neo4j legal-concept ontology |
 | `datasets/v1.csv` | 1701 labelled training samples |
-| `sample-data/` | Demo batches and the evaluation set — see below |
+| `sample-data/` | `demo/` what you upload during the demo · `evaluation/` measurement sets · `archive/` older batches |
 
 ### `sample-data/`
 
 | File | Rows | Confidence mix | Use for |
 |------|-----:|----------------|---------|
-| `demo_registry_intake.csv` | 53 | mixed, all 10 domains | **The demo.** 26 classify correctly, 5 are genuinely low confidence, 22 are confident and wrong. Four of those are real court documents failing on unrelated confusions |
-| `demo_probe_set.csv` | 8 | confident and wrong | Held out for before/after. Upload once before retraining and again after, then compare. Never correct these |
-| `demo_confident_errors.csv` | 25 | confident and wrong | The teaching set on its own, if you want it without the surrounding batch |
-| `demo_batch_tough.csv` | 45 | 60% high / 29% med / 11% low | Older demo batch. Colour on every page, 5 items reach the review queue |
-| `demo_batch_easy.csv` | 50 | 94% high / 4% / 2% | Safe fallback — but pages 2-4 are entirely green |
-| `stress_test.csv` | 225 | — | Measuring accuracy. Real labelled court text with a `gold_label` answer key. 15 pages, ~75s to classify — not for live use |
+| `demo/1-intake.csv` | 53 | mixed, all 10 domains | **The demo.** 26 classify correctly, 5 are genuinely low confidence, 22 are confident and wrong. Four of those are real court documents failing on unrelated confusions |
+| `2-probe-set.csv` | 8 | confident and wrong | Held out for before/after. Upload once before retraining and again after, then compare. Never correct these |
+| `demo/teaching-set-only.csv` | 25 | confident and wrong | The teaching set on its own, if you want it without the surrounding batch |
+| `archive/demo_batch_tough.csv` | 45 | 60% high / 29% med / 11% low | Older demo batch. Colour on every page, 5 items reach the review queue |
+| `archive/demo_batch_easy.csv` | 50 | 94% high / 4% / 2% | Safe fallback — but pages 2-4 are entirely green |
+| `evaluation/stress_test.csv` | 225 | — | Measuring accuracy. Real labelled court text with a `gold_label` answer key. 15 pages, ~75s to classify — not for live use |
 
-The uploader reads only the `text` column, so `stress_test.csv`'s answer-key
+The uploader reads only the `text` column, so the answer-key
 columns never reach the model.
 
 ---

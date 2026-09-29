@@ -86,11 +86,11 @@ row → switch to **Reviewer** to correct the uncertain ones → switch to
 
 | File | Rows | Confidence mix | Use for |
 |------|-----:|----------------|---------|
-| `demo_batch_tough.csv` | 45 | 60% high / 29% med / 11% low | **The demo.** Colour on every page, 5 items reach the review queue |
-| `demo_batch_easy.csv` | 50 | 94% high / 4% / 2% | Safe fallback — but pages 2-4 are entirely green |
-| `stress_test.csv` | 225 | — | Measuring accuracy. Real labelled court text with a `gold_label` answer key. 15 pages, ~75s to classify — not for live use |
+| `sample-data/archive/demo_batch_tough.csv` | 45 | 60% high / 29% med / 11% low | **The demo.** Colour on every page, 5 items reach the review queue |
+| `sample-data/archive/demo_batch_easy.csv` | 50 | 94% high / 4% / 2% | Safe fallback — but pages 2-4 are entirely green |
+| `sample-data/evaluation/stress_test.csv` | 225 | — | Measuring accuracy. Real labelled court text with a `gold_label` answer key. 15 pages, ~75s to classify — not for live use |
 
-The uploader reads only the `text` column, so `stress_test.csv`'s answer-key
+The uploader reads only the `text` column, so `sample-data/evaluation/stress_test.csv`'s answer-key
 columns never reach the model.
 
 ---
