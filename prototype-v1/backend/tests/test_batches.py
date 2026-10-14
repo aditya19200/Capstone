@@ -518,3 +518,94 @@ class TestExportBatch:
 
         assert text_content_cell == "'=SUM(A1:A9)"
         assert not text_content_cell.startswith("=")
+
+
+class TestSubmitBatchPdf:
+    """
+    POST /batches/pdf.
+
+    The extraction itself is covered in tests/test_pdf_extract.py; what is
+    checked here is that the route joins the same pipeline a CSV upload does
+    and that a refusal reaches the client with its reason intact.
+    """
+
+    @staticmethod
+    def _pdf(text: str) -> bytes:
+        from tests.test_pdf_extract import TestRealPdfBytes
+        return TestRealPdfBytes._one_page_pdf(text)
+
+    SENTENCE = (
+        "The accused was charged under the Indian Penal Code and the prosecution "
+        "led evidence before this Court at the trial of the said offence"
+    )
+
+    def test_pdf_upload_creates_a_batch(self, client):
+        resp = client.post(
+            "/batches/pdf",
+            files={"file": ("judgment.pdf", self._pdf(self.SENTENCE), "application/pdf")},
+        )
+        assert resp.status_code == 202, resp.text
+        body = resp.json()
+        assert body["total_items"] >= 1
+        assert body["batch_id"]
+
+    def test_batch_is_recorded_with_source_pdf(self, client):
+        resp = client.post(
+            "/batches/pdf",
+            files={"file": ("judgment.pdf", self._pdf(self.SENTENCE), "application/pdf")},
+        )
+        batch = batches_repo.get(resp.json()["batch_id"])
+        assert batch["source"] == "pdf"
+        assert batch["filename"] == "judgment.pdf"
+
+    def test_items_land_on_the_same_queue_as_a_csv(self, client):
+        batch_id = client.post(
+            "/batches/pdf",
+            files={"file": ("judgment.pdf", self._pdf(self.SENTENCE), "application/pdf")},
+        ).json()["batch_id"]
+        items = batch_items_repo.list_by_batch(batch_id)
+        assert items, "a PDF upload must enqueue batch_items like any other source"
+        assert all(i["status"] == "pending" for i in items)
+        assert "prosecution" in " ".join(i["text_content"] for i in items)
+
+    def test_stored_text_is_normalised(self, client):
+        # normalize() collapses the line breaks pdfplumber emits. Storing the
+        # raw form would mean classifying one string and retraining on
+        # another, which is the drift utils/text.py warns about.
+        batch_id = client.post(
+            "/batches/pdf",
+            files={"file": ("judgment.pdf", self._pdf(self.SENTENCE), "application/pdf")},
+        ).json()["batch_id"]
+        for item in batch_items_repo.list_by_batch(batch_id):
+            assert "\n" not in item["text_content"]
+            assert "  " not in item["text_content"]
+
+    def test_empty_upload_is_refused(self, client):
+        resp = client.post(
+            "/batches/pdf", files={"file": ("empty.pdf", b"", "application/pdf")}
+        )
+        assert resp.status_code == 422
+        assert "empty" in resp.json()["detail"].lower()
+
+    def test_unreadable_file_is_refused_with_a_reason(self, client):
+        resp = client.post(
+            "/batches/pdf",
+            files={"file": ("x.pdf", b"%PDF-1.4\nnot a pdf\n", "application/pdf")},
+        )
+        assert resp.status_code == 422
+        assert resp.json()["detail"], "the client needs to be told why"
+
+    def test_scanned_pdf_refusal_explains_itself(self, client, monkeypatch):
+        # The whole point of detecting this: a scan extracts to nothing, and
+        # ingesting it would queue blank documents and classify them
+        # confidently. The message has to say that OCR is what is missing.
+        from services import pdf_extract
+        monkeypatch.setattr(pdf_extract, "extract_pages", lambda raw: ["", "", ""])
+        resp = client.post(
+            "/batches/pdf",
+            files={"file": ("scan.pdf", b"%PDF-1.4 whatever", "application/pdf")},
+        )
+        assert resp.status_code == 422
+        detail = resp.json()["detail"]
+        assert "OCR" in detail and "scan" in detail.lower()
+        assert not mock_db._batches, "a refused upload must not create a batch"

@@ -325,6 +325,20 @@ export async function submitBatchCsv(file) {
   return { batch_id: batchId, total_items: 10 }
 }
 
+export async function submitBatchPdf(file) {
+  // Registers the batch the same way submitBatchCsv does — the page polls
+  // the returned id for progress, so a batch that is not in mockBatches
+  // leaves the UI stuck on "processing" forever.
+  //
+  // The real endpoint splits a PDF into passages, so the item count is not
+  // the page count and cannot be guessed from the file offline. 12 is a
+  // stand-in, same spirit as the CSV mock's 10.
+  await delay(300)
+  const batchId = nextId('batch')
+  mockBatches.set(batchId, { total: 12, completed: 0, items: [], fileName: file?.name })
+  return { batch_id: batchId, total_items: 12 }
+}
+
 export async function getBatch(batchId) {
   await delay(500)
   const batch = mockBatches.get(batchId)

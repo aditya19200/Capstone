@@ -92,6 +92,29 @@ them were ever corrected. 15 corrections is the measured minimum for all eight;
 
 ---
 
+## Input formats
+
+Three ways in, one pipeline. Past the point where an upload becomes a list of
+strings, nothing downstream can tell them apart — same queue, same routing,
+same ontology check, same review screen, same export, same retraining.
+
+| Endpoint | Takes | Notes |
+|---|---|---|
+| `POST /batches/paste` | one document per line | |
+| `POST /batches/csv` | a `text` column, or a single-column file | |
+| `POST /batches/pdf` | a digital PDF | Split into passages that fit the model's 256-token window, breaking on paragraph then sentence boundaries — not on page boundaries, which fall mid-sentence |
+
+All three normalise before storing. That is not tidiness: the retrain worker
+normalises before training, so text stored raw would be classified in one
+form and trained on in another. It matters most for PDFs, whose text arrives
+full of hyphen-breaks and soft line wraps.
+
+**Scanned PDFs are refused, deliberately.** A scan is a photograph of a page
+with no text layer, and extraction returns empty strings rather than failing.
+Ingesting one would queue blank documents, classify them confidently as
+something, and quietly poison the annotation set. Reading them needs OCR,
+which this does not do — so it says so instead of pretending.
+
 ## Layout
 
 | Path | What |
