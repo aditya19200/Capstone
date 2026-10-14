@@ -56,3 +56,14 @@ backend.log
 prediction_worker.log
 xai_worker.log
 batch_worker.log
+
+# ---------------------------------------------------------------------------
+# Submission artifacts and recordings — reports, decks, screen captures.
+# These live on Drive, not in git: the demo recording alone is 8 MB, none of
+# them can be diffed, and git keeps every version of a binary forever.
+# Root level only, so documents kept under docs/ can still be committed.
+# ---------------------------------------------------------------------------
+/*.docx
+/*.pdf
+/*.pptx
+/*.webm
