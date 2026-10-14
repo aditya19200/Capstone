@@ -62,12 +62,54 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DATASET = ROOT / "datasets" / "v1.csv"
-OUTPUT = ROOT / "graph" / "concept_markers.json"
-CYPHER_OUTPUT = ROOT / "graph" / "concept_seed.cypher"
+PACK_DIR = ROOT / "domains"
 
-MIN_DOCS_DEFAULT = 6
-MIN_PRECISION_DEFAULT = 0.60
+# Which corpus to mine and where to write the markers both come from the
+# domain pack, so mining a second domain is --domain <key> rather than an edit
+# here. Markers are not transferable between domains: they are the vocabulary
+# of one corpus, scored against that corpus's own gold labels.
+#
+# Set by resolve_domain() in main(); module-level so the helpers below read
+# them the way they always did.
+DATASET = None
+OUTPUT = None
+CYPHER_OUTPUT = None
+DOMAIN_KEY = None
+DOMAIN_LABELS = []        # label names in pack (id) order — the output order
+
+
+def resolve_domain(key: str):
+    """Point DATASET/OUTPUT/CYPHER_OUTPUT at one domain pack's files."""
+    global DATASET, OUTPUT, CYPHER_OUTPUT, DOMAIN_KEY, DOMAIN_LABELS
+    path = PACK_DIR / f"{key}.json"
+    if not path.exists():
+        available = sorted(p.stem for p in PACK_DIR.glob("*.json"))
+        sys.exit(f"No domain pack at {path}. Available: {', '.join(available) or 'none'}")
+
+    pack = json.loads(path.read_text(encoding="utf-8"))
+    dataset = pack.get("dataset")
+    markers = pack.get("markers_file")
+    if not dataset or not markers:
+        sys.exit(
+            f"domains/{key}.json must set both 'dataset' and 'markers_file' "
+            f"before markers can be mined for it."
+        )
+
+    DOMAIN_KEY = key
+    DOMAIN_LABELS = [l["name"] for l in pack["labels"]]
+    DATASET = ROOT / dataset
+    OUTPUT = ROOT / markers
+    # The Cypher mirror sits beside the JSON, named after it, so the two are
+    # obviously one output of one run.
+    CYPHER_OUTPUT = OUTPUT.with_name(OUTPUT.stem.replace("_markers", "_seed") + ".cypher")
+
+# These defaults are the operating point the committed concept_markers.json
+# was actually mined at, and that services/ontology_check.py's MIN_EVIDENCE
+# was grid-searched against. They used to read 6 and 0.60, which meant a
+# plain re-run quietly produced a smaller, different marker set than the one
+# in the repo — so the file could not be regenerated from its own script.
+MIN_DOCS_DEFAULT = 4
+MIN_PRECISION_DEFAULT = 0.55
 MIN_SOURCES_DEFAULT = 2
 TOP_N_PER_LABEL = 40
 
@@ -161,11 +203,28 @@ def mine(rows, min_docs: int, min_precision: float, min_sources: int):
             "score": round(precision * math.log(count + 1), 4),
         })
 
-    for label in markers:
-        markers[label].sort(key=lambda m: m["score"], reverse=True)
-        markers[label] = markers[label][:TOP_N_PER_LABEL]
+    # Both orderings below exist to make the generated files reproducible.
+    # tokenize() returns a set, so the order terms are discovered in varies
+    # with PYTHONHASHSEED; that leaked into the output twice over — into
+    # which of two equal-scoring markers came first (a stable sort inherits
+    # the input order) and into the label key order (markers is populated
+    # while iterating the term counts). Neither changed *which* markers were
+    # mined, but both made the files churn on every run, so a real change was
+    # invisible in the diff.
+    ordered = {}
+    for label in DOMAIN_LABELS:                  # pack (id) order, not discovery order
+        if label not in markers:
+            continue
+        markers[label].sort(key=lambda m: (-m["score"], m["term"]))
+        ordered[label] = markers[label][:TOP_N_PER_LABEL]
 
-    return markers, label_total
+    # A gold label present in the corpus but absent from the pack: surfaced
+    # rather than silently dropped, since it means the two disagree.
+    for label in markers:
+        if label not in ordered:
+            print(f"WARNING: corpus label {label!r} is not in domains/{DOMAIN_KEY}.json")
+
+    return ordered, label_total
 
 
 def write_cypher(markers) -> None:
@@ -198,7 +257,7 @@ def write_cypher(markers) -> None:
         "FOR (c:Concept) REQUIRE c.term IS UNIQUE;",
         "",
     ]
-    for label in sorted(markers):
+    for label in markers:            # already in pack order
         lines.append("// ---- " + label + " ----")
         for m in markers[label]:
             term = m["term"].replace(chr(34), "")
@@ -226,8 +285,11 @@ def main():
                          "learning dataset provenance instead of legal concepts)")
     ap.add_argument("--print-only", action="store_true",
                     help="show what would be written without writing it")
+    ap.add_argument("--domain", default="legal",
+                    help="domain pack supplying the corpus and output paths")
     args = ap.parse_args()
 
+    resolve_domain(args.domain)
     rows = load_rows()
     markers, label_total = mine(rows, args.min_docs, args.min_precision, args.min_sources)
 
