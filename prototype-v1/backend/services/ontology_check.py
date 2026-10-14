@@ -54,12 +54,17 @@ removes corpus artifacts, but nothing here understands the text.
 import json
 import logging
 import re
-from pathlib import Path
 from typing import Dict, List, Optional
+
+from config.domains import active_domain
 
 logger = logging.getLogger(__name__)
 
-MARKERS_FILE = Path(__file__).resolve().parent.parent.parent / "graph" / "concept_markers.json"
+# Which markers file to read comes from the active domain pack, so pointing
+# ACTIVE_DOMAIN at another domain picks up that domain's concept layer too —
+# the markers are mined per corpus and are not interchangeable.
+_DOMAIN = active_domain()
+MARKERS_FILE = _DOMAIN.markers_path
 
 # Operating point, chosen by grid search rather than taste. Measured against
 # 48 domestic-context criminal texts (the confusion this was built for) and
@@ -98,7 +103,19 @@ class OntologyCheck:
         self._loaded = False
 
     def load(self) -> None:
-        """Read concept_markers.json and precompile one regex per marker."""
+        """Read the domain's markers file and precompile one regex per marker."""
+        # A domain pack may name no markers file at all — a newly added domain
+        # has none until the miner has been run over its corpus. Either way the
+        # service degrades to a no-op rather than failing: no markers means the
+        # confidence thresholds still route reviews, just without this check.
+        if MARKERS_FILE is None:
+            logger.warning(
+                "[ontology_check] domain %r declares no markers_file — "
+                "consistency checking disabled.", _DOMAIN.key,
+            )
+            self._loaded = False
+            return
+
         if not MARKERS_FILE.exists():
             logger.warning(
                 "[ontology_check] %s not found — consistency checking disabled. "

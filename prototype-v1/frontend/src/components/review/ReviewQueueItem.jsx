@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { LEGAL_LABELS } from '../../api/constants.js'
+import useLabels from '../../hooks/useLabels.js'
 import ConfidenceBadge from '../prediction/ConfidenceBadge.jsx'
 
 function ReviewQueueItem({ item, isSubmitting, onSubmit, onExplain }) {
+  const { labels } = useLabels()
   const isOntologyFlag = item.flag_reason === 'ontology_conflict'
 
   // Pre-select the ontology's suggestion when it raised the flag. The reviewer
@@ -89,7 +90,7 @@ function ReviewQueueItem({ item, isSubmitting, onSubmit, onExplain }) {
             onChange={(event) => setSelectedLabel(event.target.value)}
             disabled={isSubmitting}
           >
-            {LEGAL_LABELS.map((label) => (
+            {labels.map((label) => (
               <option key={label} value={label}>
                 {label}
               </option>

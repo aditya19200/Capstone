@@ -2,77 +2,113 @@
 verify_ontology.py — sanity-checks the seeded graph against what
 backend/services/neo4j_service.py expects.
 
+The expectations are read from the domain pack (domains/<key>.json), which is
+the same file backend/services/mock_db.py projects its ONTOLOGY dict from.
+That is the point of the check: the mock and the graph have to agree node for
+node and edge for edge, or swapping the mock out for a live Neo4j stops being
+a query-for-query replacement. Comparing both against one file is what makes
+"they agree" a fact rather than a hope.
+
 Usage:
     export NEO4J_URI=... NEO4J_USER=... NEO4J_PASSWORD=... NEO4J_DATABASE=...
-    python verify_ontology.py
+    python verify_ontology.py [--domain legal]
 """
 
-import os
+import argparse
+import json
+import sys
+from pathlib import Path
+
 from neo4j import GraphDatabase
 
-NEO4J_URI = os.environ.get("NEO4J_URI", "bolt://localhost:7687")
-NEO4J_USER = os.environ.get("NEO4J_USER", "neo4j")
-NEO4J_PASSWORD = os.environ.get("NEO4J_PASSWORD", "password")
-NEO4J_DATABASE = os.environ.get("NEO4J_DATABASE", "neo4j")
+ROOT = Path(__file__).resolve().parent.parent
 
-EXPECTED_LABELS = [
-    "Contract Law", "Criminal Law", "Constitutional Law",
-    "Corporate / Company Law", "Property / Real Estate Law", "Family Law",
-    "Labour & Employment Law", "Intellectual Property Law", "Taxation Law",
-    "Civil Procedure / Other",
-]
+# A label no pack should contain, used to check the negative case.
+ABSENT_LABEL = "Made Up Law"
+
+
+def load_pack(key):
+    path = ROOT / "domains" / f"{key}.json"
+    if not path.exists():
+        available = sorted(p.stem for p in (ROOT / "domains").glob("*.json"))
+        sys.exit(f"No domain pack at {path}. Available: {', '.join(available) or 'none'}")
+    labels = json.loads(path.read_text(encoding="utf-8"))["labels"]
+    return {l["name"]: sorted(l.get("related", [])) for l in labels}
 
 
 def main():
-    driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--domain", default="legal", help="domain pack to verify against")
+    ap.add_argument("--uri", default=None)
+    args = ap.parse_args()
+
+    import os
+    uri = args.uri or os.environ.get("NEO4J_URI", "bolt://localhost:7687")
+    user = os.environ.get("NEO4J_USER", "neo4j")
+    password = os.environ.get("NEO4J_PASSWORD", "password")
+    database = os.environ.get("NEO4J_DATABASE", "neo4j")
+
+    expected = load_pack(args.domain)
+    print(f"Verifying against domains/{args.domain}.json — {len(expected)} labels.\n")
+
+    driver = GraphDatabase.driver(uri, auth=(user, password))
     try:
-        with driver.session(database=NEO4J_DATABASE) as session:
+        with driver.session(database=database) as session:
             rows = session.run(
                 "MATCH (n:OntologyNode) RETURN n.label AS label ORDER BY n.label"
             )
             labels = sorted(r["label"] for r in rows)
-            expected_sorted = sorted(EXPECTED_LABELS)
+            expected_sorted = sorted(expected)
             assert labels == expected_sorted, (
-                f"Label mismatch.\n  got:      {labels}\n  expected: {expected_sorted}"
+                "Label mismatch.\n"
+                f"  missing from graph: {sorted(set(expected_sorted) - set(labels))}\n"
+                f"  extra in graph:     {sorted(set(labels) - set(expected_sorted))}"
             )
-            print(f"OK  — {len(labels)}/10 OntologyNode labels present and match id2label.")
+            print(f"OK  — {len(labels)}/{len(expected)} OntologyNode labels present "
+                  f"and match the pack.")
 
-            result = session.run(
-                """
-                MATCH (n:OntologyNode {label: $label})-[:RELATED_TO]->(r)
-                RETURN r.label AS label ORDER BY r.label
-                """,
-                label="Civil Procedure / Other",
-            )
-            related = [r["label"] for r in result]
-            expected_related = sorted([
-                "Contract Law", "Family Law", "Labour & Employment Law",
-                "Property / Real Estate Law",
-            ])
-            assert related == expected_related, (
-                f"RELATED_TO mismatch for 'Civil Procedure / Other'.\n"
-                f"  got:      {related}\n  expected: {expected_related}"
-            )
-            print("OK  — RELATED_TO edges for 'Civil Procedure / Other' match the mock.")
+            # Every node's edges, not a single spot check: a seed file can get
+            # one domain's RELATED_TO right and another's wrong.
+            for label, expected_related in sorted(expected.items()):
+                result = session.run(
+                    """
+                    MATCH (n:OntologyNode {label: $label})-[:RELATED_TO]->(r)
+                    RETURN r.label AS label ORDER BY r.label
+                    """,
+                    label=label,
+                )
+                related = sorted(r["label"] for r in result)
+                assert related == expected_related, (
+                    f"RELATED_TO mismatch for {label!r}.\n"
+                    f"  got:      {related}\n  expected: {expected_related}"
+                )
+            edge_count = sum(len(v) for v in expected.values())
+            print(f"OK  — all {edge_count} RELATED_TO edges across {len(expected)} "
+                  f"labels match the pack.")
 
+            known = sorted(expected)[0]
             exists = session.run(
                 "MATCH (n:OntologyNode {label: $label}) RETURN count(n) > 0 AS exists",
-                label="Taxation Law",
+                label=known,
             ).single()["exists"]
             assert exists is True
-            print("OK  — label_exists() query returns True for a known label.")
+            print(f"OK  — label_exists() returns True for a known label ({known!r}).")
 
+            assert ABSENT_LABEL not in expected, (
+                f"{ABSENT_LABEL!r} is in the pack — pick another ABSENT_LABEL "
+                f"for the negative check."
+            )
             not_exists = session.run(
                 "MATCH (n:OntologyNode {label: $label}) RETURN count(n) > 0 AS exists",
-                label="Made Up Law",
+                label=ABSENT_LABEL,
             ).single()["exists"]
             assert not_exists is False
-            print("OK  — label_exists() query returns False for an unknown label.")
+            print("OK  — label_exists() returns False for an unknown label.")
     finally:
         driver.close()
 
-    print("\nAll checks passed. Graph matches services/mock_db.py's ONTOLOGY dict.")
-    print("Safe to tell Aditya the swap-from-mock checklist can proceed.")
+    print(f"\nAll checks passed. Graph matches domains/{args.domain}.json, which is "
+          f"also what mock_db.ONTOLOGY projects.")
 
 
 if __name__ == "__main__":

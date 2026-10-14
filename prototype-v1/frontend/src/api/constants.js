@@ -11,7 +11,13 @@ export const REVIEW_THRESHOLD = 0.5 // confidence < this -> needs_review
 // made pagination lie about how many pages existed.
 export const BATCH_PAGE_SIZE = 15
 
-// Mirrors LEGAL_LABELS in backend/models/response_models.py (id2label order).
+// FALLBACK ONLY. The label dropdowns read GET /domains via hooks/useLabels.js,
+// which is fed by the backend's domain pack — this list is what they fall back
+// to when that call fails, so a reviewer mid-queue still gets a usable select.
+// mocks.js also uses it as its fixture label set.
+//
+// It does not need to track the backend label-for-label any more; it only
+// needs to be a sane default for the legal deployment.
 export const LEGAL_LABELS = [
   'Contract Law',
   'Criminal Law',

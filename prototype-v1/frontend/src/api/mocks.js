@@ -225,6 +225,35 @@ export async function getRetrainStatus() {
 }
 
 // ---------------------------------------------------------------------------
+// /domains
+// ---------------------------------------------------------------------------
+
+// Shaped like GET /domains. LEGAL_LABELS is the fixture list in constants.js,
+// which is deliberately still static here — mocks.js is fake data for offline
+// development, not a mirror of the backend's domain pack.
+export async function getDomains() {
+  await delay()
+  return {
+    active: 'legal',
+    domains: [
+      {
+        key: 'legal',
+        display_name: 'Indian Legal',
+        description: 'Mocked domain for offline development.',
+        base_model: 'law-ai/InLegalBERT',
+        num_labels: LEGAL_LABELS.length,
+        labels: LEGAL_LABELS.map((name, id) => ({
+          id,
+          name,
+          description: '',
+          related: [],
+        })),
+      },
+    ],
+  }
+}
+
+// ---------------------------------------------------------------------------
 // /ontology
 // ---------------------------------------------------------------------------
 
