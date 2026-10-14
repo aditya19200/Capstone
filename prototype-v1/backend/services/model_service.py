@@ -21,29 +21,28 @@ from typing import Dict, List, Optional, Tuple
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
+from config.domains import Domain, active_domain
 from config.settings import settings
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Label mapping — mirrors id2label in the model config
+# Label mapping — read from the active domain pack, not typed out here
 # ---------------------------------------------------------------------------
+#
+# These used to be a literal dict. They now come from domains/<key>.json via
+# config/domains.py, so a second domain is a new file rather than an edit to
+# this one. The values for the legal domain are unchanged.
+#
+# Order is not cosmetic: the id is the index into the model's output logits,
+# which is why domains.py refuses to load a pack whose ids are not 0..n-1 in
+# order. It must also match id2label in the checkpoint's own config.json.
 
-ID2LABEL: Dict[int, str] = {
-    0: "Contract Law",
-    1: "Criminal Law",
-    2: "Constitutional Law",
-    3: "Corporate / Company Law",
-    4: "Property / Real Estate Law",
-    5: "Family Law",
-    6: "Labour & Employment Law",
-    7: "Intellectual Property Law",
-    8: "Taxation Law",
-    9: "Civil Procedure / Other",
-}
+ACTIVE_DOMAIN: Domain = active_domain()
 
-LABEL2ID: Dict[str, int] = {v: k for k, v in ID2LABEL.items()}
-NUM_LABELS: int = len(ID2LABEL)
+ID2LABEL: Dict[int, str] = ACTIVE_DOMAIN.id2label
+LABEL2ID: Dict[str, int] = ACTIVE_DOMAIN.label2id
+NUM_LABELS: int = ACTIVE_DOMAIN.num_labels
 
 
 # ---------------------------------------------------------------------------

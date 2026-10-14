@@ -9,24 +9,17 @@ from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
+from config.domains import active_domain
+
 
 # ---------------------------------------------------------------------------
 # Shared / reusable types
 # ---------------------------------------------------------------------------
 
-# The 10 legal domain labels (mirrors id2label in the model)
-LEGAL_LABELS = [
-    "Contract Law",
-    "Criminal Law",
-    "Constitutional Law",
-    "Corporate / Company Law",
-    "Property / Real Estate Law",
-    "Family Law",
-    "Labour & Employment Law",
-    "Intellectual Property Law",
-    "Taxation Law",
-    "Civil Procedure / Other",
-]
+# The active domain's label names, in id order. Derived from the domain pack
+# (config/domains.py) rather than typed out, so this cannot drift from the
+# mapping model_service uses to read the model's logits.
+LEGAL_LABELS = active_domain().names
 
 RoutingDecision = Literal["AUTO_ACCEPT", "NEEDS_EXPLANATION", "ROUTE_TO_REVIEWER"]
 

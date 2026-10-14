@@ -115,6 +115,19 @@ export async function getRetrainEligibility() {
 }
 
 // ---------------------------------------------------------------------------
+// /domains
+// ---------------------------------------------------------------------------
+
+// The label set the backend actually serves. This replaced a hardcoded copy
+// of the ten legal labels in constants.js, which carried a comment asking
+// whoever changed the backend to remember to update it by hand.
+export async function getDomains() {
+  if (USE_MOCKS) return mocks.getDomains()
+  const { data } = await axiosClient.get('/domains')
+  return data
+}
+
+// ---------------------------------------------------------------------------
 // /ontology
 // ---------------------------------------------------------------------------
 

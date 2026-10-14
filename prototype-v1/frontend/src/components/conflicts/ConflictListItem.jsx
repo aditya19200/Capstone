@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { LEGAL_LABELS } from '../../api/constants.js'
+import useLabels from '../../hooks/useLabels.js'
 
 function formatWhen(isoString) {
   return new Date(isoString).toLocaleString()
 }
 
 function ConflictListItem({ item, isSubmitting, onResolve }) {
+  const { labels } = useLabels()
   // Guard against a real endpoint ever returning a row without
   // second_annotation — today's mock always includes it (getConflicts is
   // filtered to annotator_vs_annotator only), but nothing enforces that
@@ -62,7 +63,7 @@ function ConflictListItem({ item, isSubmitting, onResolve }) {
             disabled={isSubmitting}
             className="mt-2 block w-full sm:w-64"
           >
-            {LEGAL_LABELS.map((label) => (
+            {labels.map((label) => (
               <option key={label} value={label}>
                 {label}
               </option>

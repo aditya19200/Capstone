@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     Pydantic automatically casts strings to the declared types.
     """
 
+    # --- Domain ---
+    # Which domains/<key>.json supplies the label set. See config/domains.py.
+    ACTIVE_DOMAIN: str = "legal"
+
     # --- Model ---
     MODEL_PATH: str = "./models/LegalModelShared"
     MAX_LENGTH: int = 256           # tokenizer truncation — must match training

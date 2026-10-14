@@ -1,0 +1,103 @@
+{
+  "key": "legal",
+  "display_name": "Indian Legal",
+  "description": "Indian legal judgments and statutory text, classified by area of law.",
+  "base_model": "law-ai/InLegalBERT",
+  "model_path": "./models/LegalModelShared",
+  "max_length": 256,
+  "markers_file": "graph/concept_markers.json",
+  "dataset": "datasets/v1.csv",
+  "labels": [
+    {
+      "id": 0,
+      "name": "Contract Law",
+      "description": "Governs agreements between parties, including formation, enforcement, and breach.",
+      "related": [
+        "Corporate / Company Law",
+        "Civil Procedure / Other"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "Criminal Law",
+      "description": "Covers offences against the state or public, prosecution, and sentencing.",
+      "related": [
+        "Civil Procedure / Other"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Constitutional Law",
+      "description": "Deals with the interpretation and application of a country's constitution.",
+      "related": [
+        "Criminal Law",
+        "Civil Procedure / Other"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Corporate / Company Law",
+      "description": "Regulates the formation, governance, and dissolution of companies.",
+      "related": [
+        "Contract Law",
+        "Taxation Law"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Property / Real Estate Law",
+      "description": "Covers ownership, transfer, and use of real and personal property.",
+      "related": [
+        "Contract Law",
+        "Family Law"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Family Law",
+      "description": "Governs marriage, divorce, child custody, and related domestic matters.",
+      "related": [
+        "Property / Real Estate Law",
+        "Civil Procedure / Other"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Labour & Employment Law",
+      "description": "Regulates the employer-employee relationship, wages, and workplace rights.",
+      "related": [
+        "Contract Law",
+        "Civil Procedure / Other"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Intellectual Property Law",
+      "description": "Covers patents, trademarks, copyrights, and trade secrets.",
+      "related": [
+        "Corporate / Company Law",
+        "Contract Law"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Taxation Law",
+      "description": "Deals with tax obligations, disputes, and compliance for individuals and entities.",
+      "related": [
+        "Corporate / Company Law",
+        "Civil Procedure / Other"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Civil Procedure / Other",
+      "description": "Procedural rules for civil litigation and miscellaneous legal matters.",
+      "related": [
+        "Contract Law",
+        "Family Law",
+        "Labour & Employment Law",
+        "Property / Real Estate Law"
+      ]
+    }
+  ]
+}

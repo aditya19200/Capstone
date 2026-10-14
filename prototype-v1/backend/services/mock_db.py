@@ -27,6 +27,8 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
+from config.domains import active_domain
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -780,84 +782,19 @@ def get_pending_prediction_jobs() -> List[Dict]:
 
 
 # ===========================================================================
-# NEO4J ONTOLOGY MOCK  (static dict — one entry per legal label)
+# NEO4J ONTOLOGY MOCK  (one entry per label in the active domain)
 # ===========================================================================
+#
+# This was a hand-written dict of the ten legal domains. It is now projected
+# from the active domain pack (domains/<key>.json via config/domains.py) in
+# exactly the same shape, so the descriptions and related edges live in one
+# file instead of being repeated here.
+#
+# ontology_seed.cypher still mirrors this for the real Neo4j path. That
+# mirroring is what makes the swap a query-for-query replacement, and it is
+# checked by graph/verify_ontology.py, which reads the same pack.
 
-ONTOLOGY: Dict[str, Dict] = {
-    "Contract Law": {
-        "label": "Contract Law",
-        "description": "Governs agreements between parties, including formation, enforcement, and breach.",
-        "parent": None,
-        "children": [],
-        "related": ["Corporate / Company Law", "Civil Procedure / Other"],
-    },
-    "Criminal Law": {
-        "label": "Criminal Law",
-        "description": "Covers offences against the state or public, prosecution, and sentencing.",
-        "parent": None,
-        "children": [],
-        "related": ["Civil Procedure / Other"],
-    },
-    "Constitutional Law": {
-        "label": "Constitutional Law",
-        "description": "Deals with the interpretation and application of a country's constitution.",
-        "parent": None,
-        "children": [],
-        "related": ["Criminal Law", "Civil Procedure / Other"],
-    },
-    "Corporate / Company Law": {
-        "label": "Corporate / Company Law",
-        "description": "Regulates the formation, governance, and dissolution of companies.",
-        "parent": None,
-        "children": [],
-        "related": ["Contract Law", "Taxation Law"],
-    },
-    "Property / Real Estate Law": {
-        "label": "Property / Real Estate Law",
-        "description": "Covers ownership, transfer, and use of real and personal property.",
-        "parent": None,
-        "children": [],
-        "related": ["Contract Law", "Family Law"],
-    },
-    "Family Law": {
-        "label": "Family Law",
-        "description": "Governs marriage, divorce, child custody, and related domestic matters.",
-        "parent": None,
-        "children": [],
-        "related": ["Property / Real Estate Law", "Civil Procedure / Other"],
-    },
-    "Labour & Employment Law": {
-        "label": "Labour & Employment Law",
-        "description": "Regulates the employer-employee relationship, wages, and workplace rights.",
-        "parent": None,
-        "children": [],
-        "related": ["Contract Law", "Civil Procedure / Other"],
-    },
-    "Intellectual Property Law": {
-        "label": "Intellectual Property Law",
-        "description": "Covers patents, trademarks, copyrights, and trade secrets.",
-        "parent": None,
-        "children": [],
-        "related": ["Corporate / Company Law", "Contract Law"],
-    },
-    "Taxation Law": {
-        "label": "Taxation Law",
-        "description": "Deals with tax obligations, disputes, and compliance for individuals and entities.",
-        "parent": None,
-        "children": [],
-        "related": ["Corporate / Company Law", "Civil Procedure / Other"],
-    },
-    "Civil Procedure / Other": {
-        "label": "Civil Procedure / Other",
-        "description": "Procedural rules for civil litigation and miscellaneous legal matters.",
-        "parent": None,
-        "children": [],
-        "related": [
-            "Contract Law", "Family Law", "Labour & Employment Law",
-            "Property / Real Estate Law",
-        ],
-    },
-}
+ONTOLOGY: Dict[str, Dict] = active_domain().ontology
 
 
 def get_ontology_nodes() -> List[Dict]:
