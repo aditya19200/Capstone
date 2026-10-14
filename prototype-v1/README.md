@@ -98,6 +98,7 @@ them were ever corrected. 15 corrections is the measured minimum for all eight;
 |------|------|
 | `backend/` | FastAPI API, workers, ML services |
 | `frontend/` | React app |
+| `domains/` | The label sets. One `<key>.json` per domain — names, ids, descriptions and the model that predicts them. `ACTIVE_DOMAIN` in `backend/.env` picks which one is served |
 | `db/` | Postgres schema, migrations, RPC functions |
 | `graph/` | Neo4j legal-concept ontology |
 | `datasets/v1.csv` | 1701 labelled training samples |
