@@ -3,10 +3,21 @@ routers/batches.py — Batch ingestion endpoints.
 
 POST /batches/paste
 POST /batches/csv
+POST /batches/pdf
   Ingest a batch of texts. No classification happens in the request path —
   a batches row plus one 'pending' batch_items row per text is inserted and
   the response returns immediately. The classify worker picks items up from
   the batch_items queue.
+
+  The three differ only in how they get from an upload to a list of strings.
+  Past that point a PDF is indistinguishable from a pasted document: same
+  queue, same routing, same ontology check, same review screen, same export.
+
+  Every one of them runs utils.text.normalize() before insert. That is not
+  cosmetic — the retrain worker normalises before training, so text stored
+  un-normalised here would be classified in one form and trained on in
+  another. It matters most for PDFs, whose text arrives full of the
+  hyphen-breaks and soft newlines normalize() exists to remove.
 
 GET  /batches
   List past batches, newest first — lets the UI re-open a batch after
@@ -40,6 +51,9 @@ from models.response_models import (
 )
 from repositories import batch_items as batch_items_repo
 from repositories import batches as batches_repo
+from config.settings import settings
+from services import pdf_extract
+from utils.text import count_tokens, normalize
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -76,12 +90,19 @@ def sanitize_csv_cell(value: str) -> str:
 )
 async def submit_batch_paste(body: BatchPasteRequest) -> BatchCreateResponse:
     """Create a batch row + one pending batch_items row per text."""
-    batch = batches_repo.insert(source="paste", total_items=len(body.texts))
-    batch_items_repo.insert_many(batch_id=batch["id"], texts=body.texts)
+    texts = [t for t in (normalize(t) for t in body.texts) if t]
+    if not texts:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="No usable text was submitted.",
+        )
 
-    logger.info("Batch queued: id=%s source=paste items=%d", batch["id"], len(body.texts))
+    batch = batches_repo.insert(source="paste", total_items=len(texts))
+    batch_items_repo.insert_many(batch_id=batch["id"], texts=texts)
 
-    return BatchCreateResponse(batch_id=batch["id"], total_items=len(body.texts))
+    logger.info("Batch queued: id=%s source=paste items=%d", batch["id"], len(texts))
+
+    return BatchCreateResponse(batch_id=batch["id"], total_items=len(texts))
 
 
 # ---------------------------------------------------------------------------
@@ -127,8 +148,7 @@ async def submit_batch_csv(file: UploadFile = File(...)) -> BatchCreateResponse:
             )
 
     texts = df[text_column].dropna().astype(str).tolist()
-    texts = [t.strip() for t in texts]
-    texts = [t for t in texts if t]
+    texts = [t for t in (normalize(t) for t in texts) if t]
     if not texts:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -141,6 +161,79 @@ async def submit_batch_csv(file: UploadFile = File(...)) -> BatchCreateResponse:
     logger.info(
         "Batch queued: id=%s source=csv filename=%s items=%d",
         batch["id"], file.filename, len(texts),
+    )
+
+    return BatchCreateResponse(batch_id=batch["id"], total_items=len(texts))
+
+
+# ---------------------------------------------------------------------------
+# POST /batches/pdf
+# ---------------------------------------------------------------------------
+
+@router.post(
+    "/pdf",
+    response_model=BatchCreateResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Ingest a batch from an uploaded PDF",
+    description=(
+        "Extracts the text layer from a PDF and splits it into passages that "
+        "fit the model's 256-token window, breaking on paragraph boundaries "
+        "rather than on page boundaries. The resulting passages join the same "
+        "queue a CSV upload does. "
+        "Password-protected files are rejected, and so are scans: a scanned "
+        "page has no text layer, and ingesting it would queue blank documents."
+    ),
+)
+async def submit_batch_pdf(file: UploadFile = File(...)) -> BatchCreateResponse:
+    raw = await file.read()
+    if not raw:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="The uploaded file was empty.",
+        )
+
+    # Pack by real token count when the tokeniser is up, which it is in the
+    # API process. count_tokens() raises if the model has not loaded yet —
+    # fall back to the measured character budget rather than failing the
+    # upload over it.
+    token_counter = None
+    max_tokens = None
+    try:
+        count_tokens("probe")
+        token_counter = count_tokens
+        max_tokens = settings.MAX_LENGTH
+    except Exception:
+        logger.warning(
+            "[pdf] tokeniser unavailable — packing by character budget instead"
+        )
+
+    try:
+        result = pdf_extract.extract(
+            raw, token_counter=token_counter, max_tokens=max_tokens
+        )
+    except pdf_extract.PdfExtractionError as exc:
+        # Covers encrypted, scanned, malformed and text-free files. All of
+        # them are a problem with the upload, not with the server.
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+        )
+
+    texts = [t for t in (normalize(d) for d in result.documents) if t]
+    if not texts:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="This PDF produced no usable text.",
+        )
+
+    batch = batches_repo.insert(
+        source="pdf", total_items=len(texts), filename=file.filename
+    )
+    batch_items_repo.insert_many(batch_id=batch["id"], texts=texts)
+
+    logger.info(
+        "Batch queued: id=%s source=pdf filename=%s pages=%d chars=%d items=%d",
+        batch["id"], file.filename, result.page_count, result.chars_extracted,
+        len(texts),
     )
 
     return BatchCreateResponse(batch_id=batch["id"], total_items=len(texts))

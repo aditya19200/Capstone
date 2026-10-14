@@ -6,6 +6,7 @@ import {
   listBatches,
   submitBatchCsv,
   submitBatchPaste,
+  submitBatchPdf,
 } from '../api/client.js'
 import BatchItemsTable from '../components/annotation/BatchItemsTable.jsx'
 import BatchProgress from '../components/annotation/BatchProgress.jsx'
@@ -13,16 +14,31 @@ import ConceptsPanel from '../components/annotation/ConceptsPanel.jsx'
 import LegalTextInput from '../components/annotation/LegalTextInput.jsx'
 import ExplainPanel from '../components/explanation/ExplainPanel.jsx'
 
+const BATCH_SOURCE_LABELS = {
+  csv: 'CSV upload',
+  pdf: 'PDF upload',
+  paste: 'Pasted text',
+}
+
 const POLL_INTERVAL_MS = 3000
 const MAX_POLL_MS = 5 * 60 * 1000
 
-const isCsvFile = (file) => {
+// Which endpoint a dropped file goes to. Extension first, MIME type as a
+// fallback: browsers disagree about what they report for a .csv dragged out
+// of a spreadsheet app, and some send no type at all.
+const fileKind = (file) => {
   if (!file) {
-    return false
+    return null
   }
 
-  const lowerCaseName = file.name.toLowerCase()
-  return lowerCaseName.endsWith('.csv') || file.type === 'text/csv'
+  const name = file.name.toLowerCase()
+  if (name.endsWith('.csv') || file.type === 'text/csv') {
+    return 'csv'
+  }
+  if (name.endsWith('.pdf') || file.type === 'application/pdf') {
+    return 'pdf'
+  }
+  return null
 }
 
 function AnnotatePage() {
@@ -104,9 +120,9 @@ function AnnotatePage() {
       return
     }
 
-    if (!isCsvFile(file)) {
+    if (!fileKind(file)) {
       setSelectedFile(null)
-      setErrorMessage('Please upload a valid CSV file.')
+      setErrorMessage('Upload a .csv or .pdf file.')
       return
     }
 
@@ -157,11 +173,14 @@ function AnnotatePage() {
         response = await submitBatchPaste(texts)
       } else {
         if (!selectedFile) {
-          setErrorMessage('Select a CSV file first.')
+          setErrorMessage('Select a file first.')
           return
         }
 
-        response = await submitBatchCsv(selectedFile)
+        response =
+          fileKind(selectedFile) === 'pdf'
+            ? await submitBatchPdf(selectedFile)
+            : await submitBatchCsv(selectedFile)
       }
 
       setBatchId(response.batch_id)
@@ -171,7 +190,16 @@ function AnnotatePage() {
       setPhase('processing')
     } catch (error) {
       console.error('[Annotate] batch submit failed', error)
-      setErrorMessage('Something went wrong submitting the batch. Please try again.')
+      // The upload endpoints answer a rejected file with a reason — scanned,
+      // password-protected, no 'text' column. Showing "something went wrong"
+      // instead would throw away the only thing that tells the user what to
+      // do next, so the server's detail wins when there is one.
+      const detail = error?.response?.data?.detail
+      setErrorMessage(
+        typeof detail === 'string' && detail
+          ? detail
+          : 'Something went wrong submitting the batch. Please try again.',
+      )
       setPhase('error')
     }
   }
@@ -262,7 +290,7 @@ function AnnotatePage() {
           Annotate Legal Text
         </h2>
         <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">
-          Paste text or upload a CSV to classify a batch of legal documents.
+          Paste text, or upload a CSV or PDF, to classify a batch of legal documents.
         </p>
       </div>
 
@@ -281,7 +309,7 @@ function AnnotatePage() {
               onClick={() => setMode('csv')}
               className={mode === 'csv' ? 'btn-primary' : 'btn-secondary'}
             >
-              Upload CSV
+              Upload File
             </button>
           </div>
 
@@ -311,22 +339,22 @@ function AnnotatePage() {
                 >
                   <div className="rounded-full bg-white p-4 shadow-sm">
                     <div className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-indigo-700">
-                      CSV
+                      CSV / PDF
                     </div>
                   </div>
                   <h4 className="mt-5 text-lg font-semibold text-slate-900">
-                    Drag and drop your CSV file here
+                    Drag and drop a CSV or PDF here
                   </h4>
                   <p className="mt-2 text-sm text-slate-600">or click to browse from your device</p>
                   <p className="mt-4 text-xs uppercase tracking-[0.2em] text-slate-400">
-                    Supported format: .csv
+                    Supported formats: .csv · .pdf
                   </p>
                 </label>
 
                 <input
                   id="legal-dataset-upload"
                   type="file"
-                  accept=".csv,text/csv"
+                  accept=".csv,text/csv,.pdf,application/pdf"
                   onChange={handleFileChange}
                   className="sr-only"
                 />
@@ -384,7 +412,7 @@ function AnnotatePage() {
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-slate-800">
-                      {batch.source === 'csv' ? 'CSV upload' : 'Pasted text'} ·{' '}
+                      {BATCH_SOURCE_LABELS[batch.source] ?? 'Pasted text'} ·{' '}
                       {batch.total_items} item{batch.total_items === 1 ? '' : 's'}
                     </p>
                     <p className="text-xs text-slate-500">

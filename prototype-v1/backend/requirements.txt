@@ -23,6 +23,10 @@ neo4j==5.20.0               # Official Neo4j driver
 # ── Batch ingestion / export ────────────────────────────────────────────────
 pandas==2.2.2                # CSV parsing (POST /batches/csv) and export building only
 python-multipart==0.0.9      # required by FastAPI for UploadFile / multipart form parsing
+pdfplumber==0.11.10          # PDF text layer (POST /batches/pdf). Chosen over pypdf because
+                             # it keeps layout, so a running header is not welded onto the
+                             # first line of body text. Reads the text layer only — a scanned
+                             # PDF yields nothing and is refused rather than silently ingested.
 
 # ── Testing ────────────────────────────────────────────────────────────────
 pytest==8.2.0

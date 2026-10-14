@@ -200,6 +200,19 @@ export async function submitBatchCsv(file) {
   return data
 }
 
+// Same contract as submitBatchCsv — the backend extracts the text layer and
+// splits it into passages, then hands them to the identical queue. A PDF
+// differs from a CSV only in how it becomes a list of strings.
+export async function submitBatchPdf(file) {
+  if (USE_MOCKS) return mocks.submitBatchPdf(file)
+  const form = new FormData()
+  form.append('file', file)
+  const { data } = await axiosClient.post('/batches/pdf', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return data
+}
+
 export async function getBatch(batchId) {
   if (USE_MOCKS) return mocks.getBatch(batchId)
   const { data } = await axiosClient.get(`/batches/${batchId}`)
