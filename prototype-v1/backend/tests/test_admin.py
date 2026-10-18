@@ -14,6 +14,7 @@ from fastapi.testclient import TestClient
 from main import app
 from repositories import annotations as annotations_repo
 from repositories import model_versions as model_versions_repo
+from models.response_models import LEGAL_LABELS
 from services import mock_db
 
 ADMIN_HEADERS = {"X-Role": "admin"}
@@ -191,12 +192,28 @@ class TestAdminMetrics:
         resp = client.get("/admin/metrics", headers={"X-Role": "reviewer"})
         assert resp.status_code == 403
 
-    def test_empty_state_returns_sane_defaults(self, client):
+    def test_fresh_state_reports_the_baseline_and_no_activity(self, client):
+        """
+        What a fresh install shows: the deployed model, and nothing done yet.
+
+        There is no longer a state with no model at all. main.py calls
+        register_baseline_if_absent() at startup, which registers the shipped
+        checkpoint from backend/metrics/baseline_metrics.json so the admin
+        screen opens describing the model actually being served rather than
+        blank. So the model fields are populated from that file, while the
+        fields that record *activity* — annotations, batches — are empty,
+        because none has happened.
+        """
         resp = client.get("/admin/metrics", headers=ADMIN_HEADERS)
         assert resp.status_code == 200
         data = resp.json()
-        assert data["active_model_version"] is None
-        assert data["f1_per_class"] == {}
+
+        # From the registered baseline.
+        assert data["active_model_version"] is not None
+        assert "baseline" in data["active_model_version"]
+        assert set(data["f1_per_class"]) == set(LEGAL_LABELS)
+
+        # Nothing has been annotated or uploaded yet.
         assert data["annotation_counts"] == {}
         assert data["batch_throughput"] == []
 
