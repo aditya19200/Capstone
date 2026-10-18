@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useExplanation, beginExplanation } from '../../hooks/useExplanation.js'
+import AgreementCard from './AgreementCard.jsx'
 import ExplanationPanel from './ExplanationPanel.jsx'
 
 function Spinner() {
@@ -10,7 +11,7 @@ function Spinner() {
 
 function ExplainPanel({ item, onClose }) {
   const predictionId = item?.prediction_id
-  const { status, tokenImportances, error, retry } = useExplanation(predictionId)
+  const { status, tokenImportances, agreement, error, retry } = useExplanation(predictionId)
 
   useEffect(() => {
     if (predictionId) {
@@ -89,7 +90,15 @@ function ExplainPanel({ item, onClose }) {
             </div>
           )}
 
-          {status === 'done' && <ExplanationPanel shapValues={shapValues} />}
+          {status === 'done' && (
+            <>
+              {/* The chart first — the agreement card talks about the tokens
+                  in it, so it reads as a conclusion rather than a verdict
+                  handed down before the evidence. */}
+              <ExplanationPanel shapValues={shapValues} />
+              <AgreementCard agreement={agreement} />
+            </>
+          )}
         </div>
       </aside>
     </>

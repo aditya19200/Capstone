@@ -25,6 +25,7 @@ from services.supabase_service import (
     get_prediction,
     get_xai_job,
 )
+from services import xai_agreement
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -173,10 +174,33 @@ async def get_explanation(prediction_id: str) -> ExplainResponse:
     # (pending/processing/done/failed) — only "completed" needs remapping.
     response_status = "done" if explanation["status"] == "completed" else explanation["status"]
 
+    # --- 4. Does the model's own explanation agree with the ontology? ---
+    # Needs both the SHAP tokens and the prediction's text, so it is computed
+    # here rather than stored: the explanation row predates this comparison
+    # and re-running the miner changes the answer for rows already written.
+    agreement = None
+    if token_importances:
+        prediction = get_prediction(prediction_id)
+        if prediction:
+            try:
+                agreement = xai_agreement.analyse(
+                    prediction["text_content"],
+                    prediction["predicted_label"],
+                    [t.model_dump() for t in token_importances],
+                )
+            except Exception as exc:
+                # An explanation that loads is worth more than one that 500s
+                # because a comparison alongside it failed.
+                logger.error(
+                    "Agreement analysis failed for prediction %s: %s",
+                    prediction_id, exc,
+                )
+
     return ExplainResponse(
         explanation_id=explanation["explanationId"],
         prediction_id=prediction_id,
         status=response_status,
         token_importances=token_importances,
         generated_at=explanation.get("generatedAt"),
+        agreement=agreement,
     )
