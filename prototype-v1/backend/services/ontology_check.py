@@ -67,16 +67,32 @@ _DOMAIN = active_domain()
 MARKERS_FILE = _DOMAIN.markers_path
 
 # Operating point, chosen by grid search rather than taste. Measured against
-# 48 domestic-context criminal texts (the confusion this was built for) and
-# all 1,701 correctly-labelled corpus samples:
+# all 1,701 corpus samples (feeding each its own gold label, so any flag is
+# by construction a false positive), the 200 Criminal Law samples re-labelled
+# as Family Law (the confusion this was built for), and PRADEEP v. STATE OF
+# HARYANA — a real Supreme Court murder appeal whose child-witness passages
+# the model files under Family Law at 0.84-0.98 confidence:
 #
-#     recall 36/48 (75%)   false positives 7.5% of correct labels
-#                          9.6% of genuine Family Law documents
+#                      false pos.   on Family   recall   Pradeep
+#     was (40/1.2)          7.5%        9.6%     74.5%     0/5
+#     now (100/1.5)         8.0%       11.8%     76.0%     3/5
 #
-# Reproduce with the sweep in the session log; raising MIN_EVIDENCE trades
-# recall for reviewer time roughly one-for-one past this point.
+# The gain came from marker coverage, not from these thresholds: the miner's
+# TOP_N_PER_LABEL was discarding two-thirds of the terms that passed its
+# quality filters. DOMINANCE_RATIO rose from 1.2 to 1.5 to pay for the extra
+# evidence those markers contribute, which is what keeps the false-positive
+# cost to half a point.
 #
-# Note what 7.5% means: reviewers see ~7.5% more documents than confidence
+# Also tested and rejected: giving each concept weighted edges to SEVERAL
+# domains instead of one, which is the obvious way to express that "child"
+# belongs to Family and Criminal both. Swept across 64 combinations of
+# edge-precision floor, support floor and these two thresholds; the best of
+# them scored 67.5% recall at 8.2% false positives, worse than the single-
+# edge scheme on both axes, and caught 0/5 of Pradeep. The concept layer
+# stays one edge per term because that measured better, not because a graph
+# could not express more.
+#
+# Note what 8.0% means: reviewers see ~8% more documents than confidence
 # alone would route them. That is the cost of catching a class of error the
 # confidence thresholds detect at 0%.
 
@@ -87,7 +103,11 @@ MIN_EVIDENCE = 5.0
 # And it must outweigh the predicted label's own evidence by this factor.
 # Above 1.0 so a document with genuinely mixed vocabulary (a criminal matter
 # that really does discuss the marriage) does not flag on a narrow margin.
-DOMINANCE_RATIO = 1.2
+# Raised from 1.2 when the marker count went from 393 to 752: more markers
+# mean more accumulated evidence on both sides, so the bar for "clearly
+# contradicts" has to rise with them or the extra coverage is spent entirely
+# on false positives.
+DOMINANCE_RATIO = 1.5
 
 # At least this many distinct markers must match, so a single high-scoring
 # term cannot raise a flag on its own.
