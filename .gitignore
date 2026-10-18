@@ -67,3 +67,7 @@ batch_worker.log
 /*.pdf
 /*.pptx
 /*.webm
+
+# Downloaded reference corpora — not part of the repo. The curated demo
+# subset lives in sample-data/demo/pdfs/ instead.
+prototype-v1/pdfs/
