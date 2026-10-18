@@ -38,6 +38,26 @@ logger = logging.getLogger(__name__)
 # which is why domains.py refuses to load a pack whose ids are not 0..n-1 in
 # order. It must also match id2label in the checkpoint's own config.json.
 
+def _softmax_calibrated(logits: "torch.Tensor") -> "torch.Tensor":
+    """
+    Softmax, with temperature scaling applied first.
+
+    Dividing every logit by the same constant cannot change which one is
+    largest, so this never changes a predicted label — only how confident the
+    model reports being. settings.CALIBRATION_TEMPERATURE documents the
+    measurement behind the value and why it ships at 1.0 (off).
+
+    Both predict paths go through here so the two cannot diverge: a
+    calibrated single prediction and an uncalibrated batch prediction of the
+    same text would make the compare screen and the queue disagree about a
+    document for no visible reason.
+    """
+    t = settings.CALIBRATION_TEMPERATURE
+    if t != 1.0:
+        logits = logits / max(t, 1e-3)
+    return torch.softmax(logits, dim=-1)
+
+
 ACTIVE_DOMAIN: Domain = active_domain()
 
 ID2LABEL: Dict[int, str] = ACTIVE_DOMAIN.id2label
@@ -238,7 +258,7 @@ class ModelService:
             outputs = model(**inputs)
 
         logits: torch.Tensor = outputs.logits          # shape: (1, NUM_LABELS)
-        probs: torch.Tensor = torch.softmax(logits, dim=-1)[0]  # shape: (NUM_LABELS,)
+        probs: torch.Tensor = _softmax_calibrated(logits)[0]    # shape: (NUM_LABELS,)
 
         # Top-1 prediction
         label_id: int = int(probs.argmax().item())
@@ -290,7 +310,7 @@ class ModelService:
             outputs = model(**inputs)
 
         logits: torch.Tensor = outputs.logits           # (batch, NUM_LABELS)
-        probs_batch: torch.Tensor = torch.softmax(logits, dim=-1)  # (batch, NUM_LABELS)
+        probs_batch: torch.Tensor = _softmax_calibrated(logits)    # (batch, NUM_LABELS)
 
         results = []
         for probs in probs_batch:

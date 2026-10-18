@@ -31,6 +31,32 @@ class Settings(BaseSettings):
     NEO4J_USER: str = "neo4j"
     NEO4J_PASSWORD: str = "password"
 
+    # --- Confidence calibration ---
+    # Divides the logits before softmax. 1.0 is off, leaving confidence
+    # exactly as the model produced it.
+    #
+    # Measured on the held-out set (sample-data/evaluation/, 656 passages
+    # across 17 documents the model has never seen; the Indian Stamp Act is
+    # excluded because at 821 passages it was 56% of the data on its own and
+    # its gold label is disputed):
+    #
+    #     accuracy                     0.845   unchanged by this setting
+    #     mean confidence     0.920 -> 0.858
+    #     expected calib. error
+    #                         0.083 -> 0.060   at T = 1.313
+    #
+    # In the 0.9-1.0 confidence band the model claims 0.979 and is right
+    # 0.890 of the time, so it overstates itself by about nine points where
+    # it matters most — that band is above CONFIDENCE_HIGH and is
+    # auto-accepted without review.
+    #
+    # Left at 1.0 deliberately. Dividing by 1.313 cannot change which label
+    # wins, so accuracy is untouched, but every confidence drops, and some
+    # predictions cross CONFIDENCE_HIGH and start routing to reviewers. That
+    # is more correct and it changes the behaviour the thresholds below were
+    # tuned against, so it is a deliberate switch rather than a default.
+    CALIBRATION_TEMPERATURE: float = 1.0
+
     # --- Active Learning thresholds ---
     CONFIDENCE_HIGH: float = 0.85   # above this → AUTO_ACCEPT
     CONFIDENCE_LOW: float = 0.55    # below this → ROUTE_TO_REVIEWER
