@@ -102,6 +102,26 @@ export async function getExplain(predictionId) {
       importance: Number((Math.random() * 2 - 1).toFixed(3)),
     })),
     generated_at: new Date().toISOString(),
+    // Shaped like services/xai_agreement.py's output. Fixed rather than
+    // random: the point of this card is a specific comparison, and random
+    // terms would show a verdict whose evidence contradicts it.
+    agreement: {
+      verdict: 'overruled',
+      summary:
+        '\u201cagreement\u201d, \u201cparties\u201d pushed toward Contract Law, while ' +
+        '\u201cprosecution\u201d pushed against it. The model went with Contract Law regardless.',
+      supporting: [
+        { term: 'agreement', domain: 'Contract Law', shap_weight: 0.142, share: 0.21, direction: 'toward' },
+        { term: 'parties', domain: 'Contract Law', shap_weight: 0.089, share: 0.13, direction: 'toward' },
+      ],
+      contradicting: [
+        { term: 'prosecution', domain: 'Criminal Law', shap_weight: -0.061, share: 0.09, direction: 'against' },
+      ],
+      predicted_label: 'Contract Law',
+      predicted_evidence: 7.4,
+      rival_label: 'Criminal Law',
+      rival_evidence: 5.1,
+    },
   }
 }
 

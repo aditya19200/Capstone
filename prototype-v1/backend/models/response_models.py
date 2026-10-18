@@ -111,6 +111,15 @@ class ExplainResponse(BaseModel):
         default=None,
         description="ISO-8601 timestamp of when the explanation was generated.",
     )
+    agreement: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description=(
+            "Whether the words the model relied on are legal vocabulary for the "
+            "domain it chose. Compares SHAP's ranked tokens against the ontology's "
+            "concept markers. None when either signal is missing. See "
+            "services/xai_agreement.py."
+        ),
+    )
 
 
 class ExplainTriggerResponse(BaseModel):

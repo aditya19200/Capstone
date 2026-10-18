@@ -21,7 +21,7 @@ const pollMeta = new Map()
 
 const listeners = new Map() // prediction_id -> Set<() => void>
 
-const DEFAULT_ENTRY = { status: 'idle', tokenImportances: null, generatedAt: null, error: null }
+const DEFAULT_ENTRY = { status: 'idle', tokenImportances: null, agreement: null, generatedAt: null, error: null }
 
 function getEntry(predictionId) {
   if (!cache.has(predictionId)) {
@@ -65,6 +65,10 @@ async function poll(predictionId) {
       setEntry(predictionId, {
         status: 'done',
         tokenImportances: result.token_importances,
+        // Whether the words SHAP says drove the prediction are legal
+        // vocabulary for the label the model picked. Computed server-side
+        // from the same two signals shown elsewhere on this screen.
+        agreement: result.agreement ?? null,
         generatedAt: result.generated_at,
         error: null,
       })
