@@ -111,7 +111,22 @@ def resolve_domain(key: str):
 MIN_DOCS_DEFAULT = 4
 MIN_PRECISION_DEFAULT = 0.55
 MIN_SOURCES_DEFAULT = 2
-TOP_N_PER_LABEL = 40
+# How many markers to keep per domain. This was 40, which was arbitrary and
+# turned out to be the binding constraint on the detector: Criminal Law alone
+# had 188 terms passing every quality filter above, and 148 of them were being
+# discarded by this cap rather than by any measure of quality.
+#
+# Raising it to 100 (752 markers, up from 393) is what let the detector catch
+# confidently-wrong predictions in PRADEEP v. STATE OF HARYANA, a real murder
+# appeal whose child-witness passages the model files under Family Law at
+# 0.84-0.98 confidence. At 40 it caught 0 of 5; at 100, 3 of 5.
+#
+# Measured cost, against all 1,701 corpus samples: false positives 7.5% ->
+# 8.0%, and on genuine Family Law documents 9.6% -> 11.8%. Recall on the
+# criminal-as-Family confusion rose 74.5% -> 76.0%. Going further to 220
+# bought another 1.0pp of recall for another 0.5pp of false positives and
+# caught no additional Pradeep passages, so 100 is where it stops.
+TOP_N_PER_LABEL = 100
 
 # Words that carry no domain signal. Kept short on purpose — an aggressive
 # stoplist would quietly drop real legal vocabulary.
