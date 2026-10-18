@@ -190,7 +190,9 @@ class TestSHAPServiceExplain:
         import services.model_service as ms
         monkeypatch.setattr(ms.model_service, "is_loaded", lambda: False)
 
-        with pytest.raises(RuntimeError, match="not loaded"):
+        # Matches on the stable part of the message. The wording is
+        # "Model must be loaded before running SHAP explanations."
+        with pytest.raises(RuntimeError, match="must be loaded"):
             shap_svc.explain(_SAMPLE_TEXT, _SAMPLE_LABEL_ID)
 
     def test_explain_raises_on_empty_text(self, shap_svc, monkeypatch):
@@ -354,7 +356,11 @@ class TestGetExplanationEndpoint:
 
         assert resp.status_code == 200
         data = resp.json()
-        assert data["status"] == "completed"
+        # The row is stored as "completed" but the API reports "done" —
+        # routers/explain.py maps it deliberately, so the response matches the
+        # status vocabulary the schema allows for jobs:
+        #   check (status in ('pending', 'processing', 'done', 'failed'))
+        assert data["status"] == "done"
         assert data["token_importances"] is not None
         assert len(data["token_importances"]) == len(_FAKE_SHAP_OUTPUT)
 
