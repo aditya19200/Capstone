@@ -14,6 +14,15 @@ it attaches to rather than MATCHing it, so it can be loaded alone. It is
 still loaded second, because the ontology seed is what carries the
 descriptions and the RELATED_TO edges.
 
+Several domains share one database (Aura Free has only one), so after loading
+it stamps each of the pack's OntologyNodes with `domain: <key>`. That is what
+verify_ontology.py and backend/services/neo4j_service.py filter on — without
+it, a graph holding legal and medical nodes looks like one 22-label ontology.
+
+It then counts what actually landed and exits non-zero if that differs from
+the seed files, because the failure this guards against (edges that silently
+attach to nothing) reports success otherwise.
+
     export NEO4J_URI="neo4j+s://xxxx.databases.neo4j.io"
     export NEO4J_USER="neo4j"
     export NEO4J_PASSWORD="..."
@@ -22,30 +31,119 @@ descriptions and the RELATED_TO edges.
     python load_ontology.py --domain legal
     python load_ontology.py --domain medical
 
-Verify afterwards with:
+Every statement is a MERGE, so re-running is safe. Verify afterwards with:
 
     python verify_ontology.py --domain legal
 """
 
 import argparse
+import json
 import os
+import re
 import sys
 from pathlib import Path
 
-from neo4j import GraphDatabase
-
 HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent
+
+# Schema statements can't share a transaction with data writes.
+_SCHEMA = re.compile(r"^\s*(CREATE|DROP)\s+(CONSTRAINT|INDEX)\b", re.IGNORECASE)
 
 
 def statements(script: str):
-    """Split on ';', dropping comment-only lines so they don't become queries."""
-    for block in script.split(";"):
+    """
+    Split a seed file into statements.
+
+    A statement ends with ';' at the end of a line, which is how the miner
+    writes them. Splitting on every ';' (as this used to) also split the
+    header comment of both concept seeds — it contains "...v1.csv; the
+    INDICATES weight is" — so the first statement sent to Neo4j began with
+    "the INDICATES weight is", a syntax error that stopped the load before a
+    single concept was written.
+    """
+    for block in re.split(r";[ \t]*(?:\r?\n|$)", script):
         cleaned = "\n".join(
             line for line in block.splitlines()
             if not line.strip().startswith("//")
         ).strip()
         if cleaned:
             yield cleaned
+
+
+def expected_counts(domain: str, files):
+    """What the seeds and the pack say should be in the graph for this domain."""
+    pack = json.loads((ROOT / "domains" / f"{domain}.json").read_text(encoding="utf-8"))
+    labels = [l["name"] for l in pack["labels"]]
+    concept_text = files[1].read_text(encoding="utf-8")
+    return {
+        "labels": labels,
+        "nodes": len(labels),
+        "related": sum(len(l.get("related", [])) for l in pack["labels"]),
+        "indicates": len(re.findall(r"\[r:INDICATES\]", concept_text)),
+    }
+
+
+def load_file(session, path: Path) -> int:
+    stmts = list(statements(path.read_text(encoding="utf-8")))
+    schema = [s for s in stmts if _SCHEMA.match(s)]
+    data = [s for s in stmts if not _SCHEMA.match(s)]
+
+    for stmt in schema:
+        session.run(stmt).consume()
+
+    # One transaction per file: thousands of round trips to Aura become one
+    # commit, and a dropped connection leaves nothing half-loaded.
+    with session.begin_transaction() as tx:
+        for i, stmt in enumerate(data, 1):
+            tx.run(stmt).consume()
+            if i % 500 == 0:
+                print(f"    {i}/{len(data)} ...", flush=True)
+        tx.commit()
+
+    print(f"  {path.name}: {len(stmts)} statements")
+    return len(stmts)
+
+
+def tag_and_check(session, domain: str, exp) -> bool:
+    """Stamp the pack's nodes with their domain, then count what landed."""
+    session.run(
+        "MATCH (n:OntologyNode) WHERE n.label IN $labels SET n.domain = $domain",
+        labels=exp["labels"], domain=domain,
+    ).consume()
+
+    def one(q, **p):
+        return session.run(q, domain=domain, **p).single()[0]
+
+    got = {
+        "nodes": one("MATCH (n:OntologyNode {domain: $domain}) RETURN count(n)"),
+        "related": one("MATCH (:OntologyNode {domain: $domain})-[r:RELATED_TO]->"
+                       "(:OntologyNode {domain: $domain}) RETURN count(r)"),
+        "indicates": one("MATCH (:Concept)-[r:INDICATES]->(:OntologyNode {domain: $domain}) "
+                         "RETURN count(r)"),
+    }
+    untagged = one("MATCH (n:OntologyNode) WHERE n.domain IS NULL RETURN count(n)")
+    shared = one("MATCH (c:Concept)-[:INDICATES]->(d:OntologyNode) "
+                 "WITH c, count(DISTINCT d.domain) AS n WHERE n > 1 RETURN count(c)")
+
+    print(f"\nIn the graph for domain '{domain}':")
+    ok = True
+    for key, label in [("nodes", "OntologyNode"), ("related", "RELATED_TO"),
+                       ("indicates", "INDICATES")]:
+        good = got[key] == exp[key]
+        ok &= good
+        print(f"  {'OK  ' if good else 'FAIL'} {label:<13} {got[key]} (expected {exp[key]})")
+    if untagged:
+        ok = False
+        print(f"  FAIL {untagged} OntologyNode(s) belong to no domain — a seed names a "
+              f"label its pack doesn't have, or they predate domain tagging. "
+              f"Inspect: MATCH (n:OntologyNode) WHERE n.domain IS NULL RETURN n.label")
+    if shared:
+        print(f"  note {shared} concept term(s) indicate labels in more than one domain. "
+              f"Concept.term is unique, so such a term is one node and keeps the "
+              f"precision/support of whichever domain was loaded last. Nothing at "
+              f"runtime reads those properties from the graph (ontology_check.py uses "
+              f"<key>_concept_markers.json).")
+    return ok
 
 
 def main():
@@ -68,30 +166,34 @@ def main():
             f"Generate them with:  python mine_concept_markers.py --domain {args.domain}\n"
             f"Domains with seeds already: {', '.join(available) or 'none'}"
         )
+    exp = expected_counts(args.domain, files)
 
     if args.dry_run:
         for f in files:
             print(f"{f.name}: {sum(1 for _ in statements(f.read_text()))} statements")
+        print(f"expects {exp['nodes']} OntologyNode, {exp['related']} RELATED_TO, "
+              f"{exp['indicates']} INDICATES")
         return
+
+    from neo4j import GraphDatabase  # not needed for --dry-run
 
     uri = args.uri or os.environ.get("NEO4J_URI", "bolt://localhost:7687")
     user = os.environ.get("NEO4J_USER", "neo4j")
     password = os.environ.get("NEO4J_PASSWORD", "password")
     database = os.environ.get("NEO4J_DATABASE", "neo4j")
 
+    print(f"Loading domain '{args.domain}' into {uri} (database={database})")
     total = 0
     with GraphDatabase.driver(uri, auth=(user, password)) as driver:
+        driver.verify_connectivity()
         with driver.session(database=database) as session:
             for f in files:
-                count = 0
-                for statement in statements(f.read_text()):
-                    session.run(statement)
-                    count += 1
-                print(f"  {f.name}: {count} statements")
-                total += count
+                total += load_file(session, f)
+            ok = tag_and_check(session, args.domain, exp)
 
-    print(f"\nLoaded {total} statements for domain '{args.domain}' into {uri} "
-          f"(database={database}).")
+    print(f"\nLoaded {total} statements.")
+    if not ok:
+        sys.exit("The graph does not match the seed files — see FAIL lines above.")
     print(f"Verify with:  python verify_ontology.py --domain {args.domain}")
 
 

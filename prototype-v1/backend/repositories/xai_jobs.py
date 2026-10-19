@@ -51,6 +51,9 @@ def get_by_prediction(prediction_id: str) -> Optional[Dict]:
         .table("xai_jobs")
         .select("*")
         .eq("prediction_id", prediction_id)
+        # A prediction can be explained more than once (a retry after a
+        # failure); without an order, limit(1) returned an arbitrary one.
+        .order("created_at", desc=True)
         .limit(1)
         .execute()
     )

@@ -29,3 +29,20 @@ def get_client():
         )
     from supabase import create_client  # deferred — not installed in dev without real creds
     return create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
+
+
+def current_domain() -> str:
+    """
+    Key of the domain pack this process serves (e.g. "legal", "medical").
+
+    Migration 007 added a `domain` column to predictions and annotations
+    because one database can hold rows from several label sets, and a
+    label_id only means something relative to its pack. Writes stamp it and
+    list/count queries filter on it, so a medical backend never sees — or
+    retrains on — legal rows sharing the same database.
+
+    Uses active_domain() rather than settings.ACTIVE_DOMAIN so that the
+    fallback it applies for a mistyped key is respected here too.
+    """
+    from config.domains import active_domain
+    return active_domain().key
