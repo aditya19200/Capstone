@@ -17,6 +17,7 @@ import math
 from dataclasses import dataclass
 from typing import Dict, List, Literal, Tuple
 
+from config.domains import active_domain
 from config.settings import settings
 
 logger = logging.getLogger(__name__)
@@ -144,8 +145,12 @@ class ActiveLearningEngine:
         high but the top-2 gap is still very narrow (e.g. 0.86 vs 0.84),
         suggesting genuine ambiguity that warrants an explanation.
         """
-        # Theoretical max entropy for NUM_LABELS=10 uniform distribution
-        max_entropy = math.log(10)          # ≈ 2.303
+        # Theoretical max entropy is log(num_labels) for a uniform
+        # distribution, so it belongs to the active domain and not to a
+        # constant. It was log(10) — correct for legal, wrong by 0.18 nats
+        # for the 12-class medical pack, and the figure is printed in the
+        # reason string a reviewer reads.
+        max_entropy = math.log(active_domain().num_labels)
         # Margin threshold below which AUTO_ACCEPT is overridden
         margin_low_guard = 0.10
 
