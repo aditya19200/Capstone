@@ -289,7 +289,7 @@ export NEO4J_PASSWORD="..."
 export NEO4J_DATABASE="neo4j"
 
 python load_ontology.py --domain legal       # 32 + 1505 statements
-python load_ontology.py --domain medical     # 32 + 2217 statements
+python load_ontology.py --domain medical     # 32 + 2359 statements
 ```
 
 `--dry-run` counts the statements without connecting, which is a quick way
@@ -308,7 +308,7 @@ there are two sets of seeds, and the naming is now uniform:
 graph/legal_ontology_seed.cypher      10 domain nodes, 21 RELATED_TO edges
 graph/legal_concept_seed.cypher       752 concepts
 graph/medical_ontology_seed.cypher    12 domain nodes
-graph/medical_concept_seed.cypher     1,108 concepts
+graph/medical_concept_seed.cypher     1,179 concepts (re-mined 19 Oct)
 ```
 
 The old `ontology_seed.cypher`, `concept_seed.cypher` and
@@ -346,7 +346,7 @@ then re-run the loader. And check the edges actually landed:
 
 ```cypher
 MATCH (:Concept)-[r:INDICATES]->(:OntologyNode) RETURN count(r);
-// expect 752 for legal, 1108 for medical
+// expect 752 for legal, 1179 for medical
 ```
 
 ## 4. Verification takes a domain too
@@ -366,3 +366,41 @@ If nothing persists after you wire up Supabase, check that `SUPABASE_URL` no
 longer contains the word `placeholder`. `is_configured()` returns False and
 everything silently keeps using the in-memory mock, which looks exactly like
 it is working.
+
+---
+
+# UPDATE — 20 Oct: what connecting it for real turned up
+
+Branch `data-layer-pg-neo4j`. Each of these was found by running the app
+against a real Postgres (all migrations, behind PostgREST, which is what
+Supabase serves) rather than by reading code. The in-memory mock hid every
+one of them — it has no column types, no table list, and one domain per
+process.
+
+**Run migration 008 too.** `008_app_schema_gaps.sql`: `annotator_id` and
+`triggered_by` become `text` (the frontend sends `X-User-Id: mock-user-1`,
+which a `uuid` column rejects, so every annotation failed), and `retrain_jobs`
+gains `notes` / `min_annotations`. Safe to re-run. If your project already has
+001–007 from earlier, run only 008.
+
+**Use the legacy key.** Project Settings → API Keys → *Legacy API keys* →
+`service_role` (starts `eyJ`). The pinned client, supabase==2.4.6, rejects the
+newer `sb_secret_…` keys with "Invalid API key".
+
+**One command tells you whether it is really connected:**
+
+```
+cd backend && ./venv/bin/python check_data_layer.py
+```
+
+It queries both databases directly (the app falls back to the mock silently,
+so "the app works" proves nothing), checks every table and migration, counts
+every domain's graph against its seeds, and compares the live ontology to the
+mock function by function.
+
+**The loader stamps a domain on each node.** Both domains share one graph, and
+nothing recorded which node belonged to which — after loading medical,
+`verify_ontology.py --domain legal` saw 22 nodes and failed. Graphs loaded by
+an older loader: just re-run it for each domain.
+
+What changed and why is in the commit message on that branch.

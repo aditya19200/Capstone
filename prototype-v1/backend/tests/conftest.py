@@ -7,7 +7,17 @@ These stubs are installed into sys.modules BEFORE any application module is
 imported, so they are picked up transparently by all test files.
 """
 
+import os
 import sys
+
+# Keep the suite on the in-memory path even when backend/.env holds real
+# Supabase / Neo4j credentials. Environment variables take precedence over
+# .env in pydantic-settings, so these placeholders win and every
+# is_configured() check is False. Without this, running the tests after
+# connecting a real database would write test rows into it.
+os.environ["SUPABASE_URL"] = "https://placeholder.supabase.co"
+os.environ["SUPABASE_SERVICE_KEY"] = "placeholder_key"
+os.environ["NEO4J_URI"] = "bolt://localhost:7687"
 import types
 from unittest.mock import MagicMock
 

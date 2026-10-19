@@ -16,6 +16,7 @@ Usage:
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -54,10 +55,26 @@ def main():
     driver = GraphDatabase.driver(uri, auth=(user, password))
     try:
         with driver.session(database=database) as session:
+            # Several domains share one database, so only this domain's nodes
+            # count. load_ontology.py stamps them with `domain`.
             rows = session.run(
-                "MATCH (n:OntologyNode) RETURN n.label AS label ORDER BY n.label"
+                "MATCH (n:OntologyNode {domain: $domain}) RETURN n.label AS label "
+                "ORDER BY n.label",
+                domain=args.domain,
             )
             labels = sorted(r["label"] for r in rows)
+            if not labels:
+                untagged = session.run(
+                    "MATCH (n:OntologyNode) WHERE n.domain IS NULL RETURN count(n) AS n"
+                ).single()["n"]
+                sys.exit(
+                    f"No OntologyNode has domain '{args.domain}'."
+                    + (f" {untagged} node(s) have no domain at all — they were loaded "
+                       f"by an older load_ontology.py. Re-run it for each domain "
+                       f"(it only adds the tag; nothing is duplicated)."
+                       if untagged else
+                       f" Load it with:  python load_ontology.py --domain {args.domain}")
+                )
             expected_sorted = sorted(expected)
             assert labels == expected_sorted, (
                 "Label mismatch.\n"
@@ -72,10 +89,11 @@ def main():
             for label, expected_related in sorted(expected.items()):
                 result = session.run(
                     """
-                    MATCH (n:OntologyNode {label: $label})-[:RELATED_TO]->(r)
+                    MATCH (n:OntologyNode {label: $label, domain: $domain})
+                          -[:RELATED_TO]->(r)
                     RETURN r.label AS label ORDER BY r.label
                     """,
-                    label=label,
+                    label=label, domain=args.domain,
                 )
                 related = sorted(r["label"] for r in result)
                 assert related == expected_related, (
@@ -85,6 +103,24 @@ def main():
             edge_count = sum(len(v) for v in expected.values())
             print(f"OK  — all {edge_count} RELATED_TO edges across {len(expected)} "
                   f"labels match the pack.")
+
+            # The concept layer: every INDICATES edge in the seed must have
+            # landed on one of this domain's nodes. A MATCH that finds nothing
+            # is not an error in Cypher, so this is the check that catches a
+            # concept seed which "loaded" without attaching anything.
+            seed = ROOT / "graph" / f"{args.domain}_concept_seed.cypher"
+            if seed.exists():
+                expected_edges = len(re.findall(r"\[r:INDICATES\]", seed.read_text(encoding="utf-8")))
+                got_edges = session.run(
+                    "MATCH (:Concept)-[r:INDICATES]->(:OntologyNode {domain: $domain}) "
+                    "RETURN count(r) AS n",
+                    domain=args.domain,
+                ).single()["n"]
+                assert got_edges == expected_edges, (
+                    f"INDICATES mismatch: {got_edges} edges in the graph, "
+                    f"{expected_edges} in {seed.name}."
+                )
+                print(f"OK  — all {got_edges} INDICATES edges from {seed.name} are present.")
 
             known = sorted(expected)[0]
             exists = session.run(

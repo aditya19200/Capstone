@@ -67,7 +67,9 @@ async def lifespan(app: FastAPI):
     # see what this process inserts. Run them in-thread here instead. See
     # local_workers.py. Real deployments (is_configured() True) are
     # unaffected — they keep running workers as separate processes.
-    if not is_configured():
+    # RUN_WORKERS_IN_PROCESS lets run_local_demo.sh keep that behaviour once
+    # Supabase is connected, since it starts no separate worker processes.
+    if not is_configured() or settings.RUN_WORKERS_IN_PROCESS:
         from local_workers import start_local_workers
         start_local_workers()
 

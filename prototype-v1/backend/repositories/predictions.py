@@ -2,12 +2,14 @@
 repositories/predictions.py — CRUD for the predictions table.
 
 Falls back to mock_db when Supabase is not configured (placeholder URL).
-Swap: remove the is_configured() branches once the real schema is live.
+Both paths are kept: the mock is what the demo runs on. On the real path,
+inserts stamp the active domain and list queries filter on it (migration 007);
+fetching a single row by id does not, since an id is already unambiguous.
 """
 
 from typing import Dict, List, Optional
 
-from repositories._client import get_client, is_configured
+from repositories._client import current_domain, get_client, is_configured
 
 
 def insert(
@@ -37,6 +39,7 @@ def insert(
         "confidence": confidence,
         "all_probabilities": all_probabilities,
         "model_version": model_version,
+        "domain": current_domain(),
     }).execute()
     return result.data[0]
 
@@ -67,6 +70,7 @@ def list_low_confidence(threshold: float) -> List[Dict]:
         get_client()
         .table("predictions")
         .select("*")
+        .eq("domain", current_domain())
         .lt("confidence", threshold)
         .order("created_at", desc=True)
         .execute()
@@ -76,7 +80,7 @@ def list_low_confidence(threshold: float) -> List[Dict]:
 
 def list_all() -> List[Dict]:
     """
-    Every prediction, newest first.
+    Every prediction for the active domain, newest first.
 
     Backs GET /stats/dashboard, which aggregates over the whole set
     (confidence bands, label distribution, recent activity). Fine at
@@ -92,6 +96,7 @@ def list_all() -> List[Dict]:
         get_client()
         .table("predictions")
         .select("*")
+        .eq("domain", current_domain())
         .order("created_at", desc=True)
         .execute()
     )

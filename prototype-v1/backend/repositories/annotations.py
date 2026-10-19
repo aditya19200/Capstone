@@ -4,7 +4,7 @@ repositories/annotations.py — CRUD for the annotations table.
 
 from typing import Dict, List, Literal, Optional
 
-from repositories._client import get_client, is_configured
+from repositories._client import current_domain, get_client, is_configured
 
 AnnotationStatus = Literal["pending", "validated", "rejected"]
 
@@ -38,6 +38,7 @@ def insert(
         "validated_label": validated_label,
         "annotator_id": annotator_id,
         "status": status,
+        "domain": current_domain(),
     }).execute()
     return result.data[0]
 
@@ -87,6 +88,7 @@ def list_by_annotator(annotator_id: str) -> List[Dict]:
         get_client()
         .table("annotations")
         .select("*")
+        .eq("domain", current_domain())
         .eq("annotator_id", annotator_id)
         .order("annotated_at", desc=True)
         .execute()
@@ -109,6 +111,7 @@ def count_validated() -> int:
         get_client()
         .table("annotations")
         .select("id", count="exact")
+        .eq("domain", current_domain())
         .eq("status", "validated")
         .execute()
     )
@@ -132,6 +135,7 @@ def count_by_status() -> Dict[str, int]:
             get_client()
             .table("annotations")
             .select("id", count="exact")
+            .eq("domain", current_domain())
             .eq("status", s)
             .execute()
         )
@@ -156,6 +160,7 @@ def count_conflicts() -> int:
         get_client()
         .table("annotations")
         .select("id", count="exact")
+        .eq("domain", current_domain())
         .eq("has_conflict", True)
         .execute()
     )
