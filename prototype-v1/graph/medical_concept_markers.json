@@ -1,0 +1,7789 @@
+{
+ "source_dataset": "datasets/medical_v1.csv",
+ "sample_count": 1738,
+ "min_docs": 4,
+ "min_precision": 0.55,
+ "min_sources": 1,
+ "markers": {
+  "Cardiovascular / Pulmonary": [
+   {
+    "term": "right coronary",
+    "precision": 0.9298,
+    "support": 53,
+    "sources": 1,
+    "score": 3.7091
+   },
+   {
+    "term": "left main",
+    "precision": 0.9273,
+    "support": 51,
+    "sources": 1,
+    "score": 3.6639
+   },
+   {
+    "term": "pigtail",
+    "precision": 0.9545,
+    "support": 42,
+    "sources": 1,
+    "score": 3.5902
+   },
+   {
+    "term": "pigtail catheter",
+    "precision": 0.9744,
+    "support": 38,
+    "sources": 1,
+    "score": 3.5696
+   },
+   {
+    "term": "cardiac catheterization",
+    "precision": 0.9524,
+    "support": 40,
+    "sources": 1,
+    "score": 3.5367
+   },
+   {
+    "term": "heart catheterization",
+    "precision": 1.0,
+    "support": 33,
+    "sources": 1,
+    "score": 3.5264
+   },
+   {
+    "term": "left heart",
+    "precision": 0.9722,
+    "support": 35,
+    "sources": 1,
+    "score": 3.484
+   },
+   {
+    "term": "coronary angiography",
+    "precision": 1.0,
+    "support": 31,
+    "sources": 1,
+    "score": 3.4657
+   },
+   {
+    "term": "anterior descending",
+    "precision": 0.913,
+    "support": 42,
+    "sources": 1,
+    "score": 3.4341
+   },
+   {
+    "term": "circumflex",
+    "precision": 0.875,
+    "support": 49,
+    "sources": 1,
+    "score": 3.423
+   },
+   {
+    "term": "femoral artery",
+    "precision": 0.8644,
+    "support": 51,
+    "sources": 1,
+    "score": 3.4155
+   },
+   {
+    "term": "coronary",
+    "precision": 0.7172,
+    "support": 104,
+    "sources": 1,
+    "score": 3.338
+   },
+   {
+    "term": "lad",
+    "precision": 0.9231,
+    "support": 36,
+    "sources": 1,
+    "score": 3.3332
+   },
+   {
+    "term": "main",
+    "precision": 0.7742,
+    "support": 72,
+    "sources": 1,
+    "score": 3.3216
+   },
+   {
+    "term": "left coronary",
+    "precision": 1.0,
+    "support": 26,
+    "sources": 1,
+    "score": 3.2958
+   },
+   {
+    "term": "the cardiac",
+    "precision": 1.0,
+    "support": 26,
+    "sources": 1,
+    "score": 3.2958
+   },
+   {
+    "term": "diagonal",
+    "precision": 0.9167,
+    "support": 33,
+    "sources": 1,
+    "score": 3.2325
+   },
+   {
+    "term": "aortic",
+    "precision": 0.7177,
+    "support": 89,
+    "sources": 1,
+    "score": 3.2297
+   },
+   {
+    "term": "obtuse",
+    "precision": 0.9643,
+    "support": 27,
+    "sources": 1,
+    "score": 3.2132
+   },
+   {
+    "term": "obtuse marginal",
+    "precision": 0.9643,
+    "support": 27,
+    "sources": 1,
+    "score": 3.2132
+   },
+   {
+    "term": "right femoral",
+    "precision": 0.8431,
+    "support": 43,
+    "sources": 1,
+    "score": 3.1906
+   },
+   {
+    "term": "aortic valve",
+    "precision": 0.7941,
+    "support": 54,
+    "sources": 1,
+    "score": 3.1823
+   },
+   {
+    "term": "coronary artery",
+    "precision": 0.7143,
+    "support": 85,
+    "sources": 1,
+    "score": 3.1817
+   },
+   {
+    "term": "catheterization",
+    "precision": 0.7778,
+    "support": 56,
+    "sources": 1,
+    "score": 3.1446
+   },
+   {
+    "term": "ventricular",
+    "precision": 0.6731,
+    "support": 105,
+    "sources": 1,
+    "score": 3.1389
+   },
+   {
+    "term": "the lad",
+    "precision": 0.9615,
+    "support": 25,
+    "sources": 1,
+    "score": 3.1328
+   },
+   {
+    "term": "french sheath",
+    "precision": 0.8718,
+    "support": 34,
+    "sources": 1,
+    "score": 3.0995
+   },
+   {
+    "term": "ventriculography",
+    "precision": 1.0,
+    "support": 21,
+    "sources": 1,
+    "score": 3.091
+   },
+   {
+    "term": "descending artery",
+    "precision": 0.9286,
+    "support": 26,
+    "sources": 1,
+    "score": 3.0604
+   },
+   {
+    "term": "main coronary",
+    "precision": 0.9286,
+    "support": 26,
+    "sources": 1,
+    "score": 3.0604
+   },
+   {
+    "term": "the aortic",
+    "precision": 0.7606,
+    "support": 54,
+    "sources": 1,
+    "score": 3.0478
+   },
+   {
+    "term": "hemodynamics",
+    "precision": 1.0,
+    "support": 20,
+    "sources": 1,
+    "score": 3.0445
+   },
+   {
+    "term": "left ventriculography",
+    "precision": 1.0,
+    "support": 20,
+    "sources": 1,
+    "score": 3.0445
+   },
+   {
+    "term": "chest tube",
+    "precision": 0.9259,
+    "support": 25,
+    "sources": 1,
+    "score": 3.0168
+   },
+   {
+    "term": "seldinger technique",
+    "precision": 0.9259,
+    "support": 25,
+    "sources": 1,
+    "score": 3.0168
+   },
+   {
+    "term": "atrial",
+    "precision": 0.6909,
+    "support": 76,
+    "sources": 1,
+    "score": 3.0012
+   },
+   {
+    "term": "left ventricular",
+    "precision": 0.7083,
+    "support": 68,
+    "sources": 1,
+    "score": 2.9992
+   },
+   {
+    "term": "diastolic pressure",
+    "precision": 1.0,
+    "support": 19,
+    "sources": 1,
+    "score": 2.9957
+   },
+   {
+    "term": "angiography",
+    "precision": 0.7759,
+    "support": 45,
+    "sources": 1,
+    "score": 2.9705
+   },
+   {
+    "term": "left circumflex",
+    "precision": 0.8966,
+    "support": 26,
+    "sources": 1,
+    "score": 2.9549
+   },
+   {
+    "term": "subclavian",
+    "precision": 0.875,
+    "support": 28,
+    "sources": 1,
+    "score": 2.9464
+   },
+   {
+    "term": "angio seal",
+    "precision": 1.0,
+    "support": 18,
+    "sources": 1,
+    "score": 2.9444
+   },
+   {
+    "term": "carina",
+    "precision": 1.0,
+    "support": 18,
+    "sources": 1,
+    "score": 2.9444
+   },
+   {
+    "term": "french pigtail",
+    "precision": 1.0,
+    "support": 18,
+    "sources": 1,
+    "score": 2.9444
+   },
+   {
+    "term": "left ventriculogram",
+    "precision": 1.0,
+    "support": 18,
+    "sources": 1,
+    "score": 2.9444
+   },
+   {
+    "term": "modified seldinger",
+    "precision": 1.0,
+    "support": 18,
+    "sources": 1,
+    "score": 2.9444
+   },
+   {
+    "term": "pullback",
+    "precision": 1.0,
+    "support": 18,
+    "sources": 1,
+    "score": 2.9444
+   },
+   {
+    "term": "ascending aorta",
+    "precision": 0.92,
+    "support": 23,
+    "sources": 1,
+    "score": 2.9238
+   },
+   {
+    "term": "right atrial",
+    "precision": 0.92,
+    "support": 23,
+    "sources": 1,
+    "score": 2.9238
+   },
+   {
+    "term": "gradient",
+    "precision": 0.814,
+    "support": 35,
+    "sources": 1,
+    "score": 2.9168
+   },
+   {
+    "term": "right groin",
+    "precision": 0.871,
+    "support": 27,
+    "sources": 1,
+    "score": 2.9022
+   },
+   {
+    "term": "seldinger",
+    "precision": 0.871,
+    "support": 27,
+    "sources": 1,
+    "score": 2.9022
+   },
+   {
+    "term": "jl4",
+    "precision": 0.9524,
+    "support": 20,
+    "sources": 1,
+    "score": 2.8995
+   },
+   {
+    "term": "ventriculogram",
+    "precision": 0.9167,
+    "support": 22,
+    "sources": 1,
+    "score": 2.8742
+   },
+   {
+    "term": "left anterior",
+    "precision": 0.7419,
+    "support": 46,
+    "sources": 1,
+    "score": 2.8566
+   },
+   {
+    "term": "selective coronary",
+    "precision": 0.95,
+    "support": 19,
+    "sources": 1,
+    "score": 2.8459
+   },
+   {
+    "term": "left ventricle",
+    "precision": 0.7143,
+    "support": 50,
+    "sources": 1,
+    "score": 2.8084
+   },
+   {
+    "term": "marginal branch",
+    "precision": 0.9474,
+    "support": 18,
+    "sources": 1,
+    "score": 2.7895
+   },
+   {
+    "term": "bifurcates",
+    "precision": 1.0,
+    "support": 15,
+    "sources": 1,
+    "score": 2.7726
+   },
+   {
+    "term": "gradient across",
+    "precision": 1.0,
+    "support": 15,
+    "sources": 1,
+    "score": 2.7726
+   },
+   {
+    "term": "judkins",
+    "precision": 1.0,
+    "support": 15,
+    "sources": 1,
+    "score": 2.7726
+   },
+   {
+    "term": "ventricular pressure",
+    "precision": 1.0,
+    "support": 15,
+    "sources": 1,
+    "score": 2.7726
+   },
+   {
+    "term": "right atrium",
+    "precision": 0.8387,
+    "support": 26,
+    "sources": 1,
+    "score": 2.7643
+   },
+   {
+    "term": "angioplasty",
+    "precision": 0.88,
+    "support": 22,
+    "sources": 1,
+    "score": 2.7592
+   },
+   {
+    "term": "diastolic",
+    "precision": 0.7407,
+    "support": 40,
+    "sources": 1,
+    "score": 2.7508
+   },
+   {
+    "term": "angiographic",
+    "precision": 0.9444,
+    "support": 17,
+    "sources": 1,
+    "score": 2.7298
+   },
+   {
+    "term": "diagonal branch",
+    "precision": 0.9444,
+    "support": 17,
+    "sources": 1,
+    "score": 2.7298
+   },
+   {
+    "term": "occluded",
+    "precision": 0.9444,
+    "support": 17,
+    "sources": 1,
+    "score": 2.7298
+   },
+   {
+    "term": "posterior descending",
+    "precision": 0.9444,
+    "support": 17,
+    "sources": 1,
+    "score": 2.7298
+   },
+   {
+    "term": "atrium",
+    "precision": 0.7609,
+    "support": 35,
+    "sources": 1,
+    "score": 2.7266
+   },
+   {
+    "term": "right ventricle",
+    "precision": 0.8333,
+    "support": 25,
+    "sources": 1,
+    "score": 2.7151
+   },
+   {
+    "term": "end diastolic",
+    "precision": 0.7895,
+    "support": 30,
+    "sources": 1,
+    "score": 2.711
+   },
+   {
+    "term": "the circumflex",
+    "precision": 0.9048,
+    "support": 19,
+    "sources": 1,
+    "score": 2.7104
+   },
+   {
+    "term": "bifurcates into",
+    "precision": 1.0,
+    "support": 14,
+    "sources": 1,
+    "score": 2.7081
+   },
+   {
+    "term": "french jl4",
+    "precision": 1.0,
+    "support": 14,
+    "sources": 1,
+    "score": 2.7081
+   },
+   {
+    "term": "rao",
+    "precision": 1.0,
+    "support": 14,
+    "sources": 1,
+    "score": 2.7081
+   },
+   {
+    "term": "sternotomy",
+    "precision": 1.0,
+    "support": 14,
+    "sources": 1,
+    "score": 2.7081
+   },
+   {
+    "term": "ventricular end",
+    "precision": 0.875,
+    "support": 21,
+    "sources": 1,
+    "score": 2.7047
+   },
+   {
+    "term": "regurgitation",
+    "precision": 0.7097,
+    "support": 44,
+    "sources": 1,
+    "score": 2.7015
+   },
+   {
+    "term": "ejection fraction",
+    "precision": 0.6495,
+    "support": 63,
+    "sources": 1,
+    "score": 2.7011
+   },
+   {
+    "term": "artery disease",
+    "precision": 0.6707,
+    "support": 55,
+    "sources": 1,
+    "score": 2.6999
+   },
+   {
+    "term": "cardiac",
+    "precision": 0.5787,
+    "support": 103,
+    "sources": 1,
+    "score": 2.6875
+   },
+   {
+    "term": "catheters",
+    "precision": 0.775,
+    "support": 31,
+    "sources": 1,
+    "score": 2.6859
+   },
+   {
+    "term": "systolic",
+    "precision": 0.6321,
+    "support": 67,
+    "sources": 1,
+    "score": 2.667
+   },
+   {
+    "term": "circumflex artery",
+    "precision": 0.9412,
+    "support": 16,
+    "sources": 1,
+    "score": 2.6666
+   },
+   {
+    "term": "the coronary",
+    "precision": 0.9412,
+    "support": 16,
+    "sources": 1,
+    "score": 2.6666
+   },
+   {
+    "term": "pulmonary artery",
+    "precision": 0.8276,
+    "support": 24,
+    "sources": 1,
+    "score": 2.6639
+   },
+   {
+    "term": "mitral",
+    "precision": 0.6757,
+    "support": 50,
+    "sources": 1,
+    "score": 2.6566
+   },
+   {
+    "term": "groin was",
+    "precision": 0.9,
+    "support": 18,
+    "sources": 1,
+    "score": 2.65
+   },
+   {
+    "term": "fraction",
+    "precision": 0.6337,
+    "support": 64,
+    "sources": 1,
+    "score": 2.6452
+   },
+   {
+    "term": "lad and",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "the carina",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "the heart",
+    "precision": 0.7561,
+    "support": 31,
+    "sources": 1,
+    "score": 2.6204
+   },
+   {
+    "term": "right ventricular",
+    "precision": 0.8214,
+    "support": 23,
+    "sources": 1,
+    "score": 2.6105
+   },
+   {
+    "term": "coronary arteries",
+    "precision": 0.9375,
+    "support": 15,
+    "sources": 1,
+    "score": 2.5993
+   },
+   {
+    "term": "irregularities",
+    "precision": 0.9375,
+    "support": 15,
+    "sources": 1,
+    "score": 2.5993
+   },
+   {
+    "term": "pacing",
+    "precision": 0.9375,
+    "support": 15,
+    "sources": 1,
+    "score": 2.5993
+   },
+   {
+    "term": "pmi",
+    "precision": 0.9375,
+    "support": 15,
+    "sources": 1,
+    "score": 2.5993
+   },
+   {
+    "term": "bronchoscopy",
+    "precision": 0.7879,
+    "support": 26,
+    "sources": 1,
+    "score": 2.5967
+   },
+   {
+    "term": "chest was",
+    "precision": 0.84,
+    "support": 21,
+    "sources": 1,
+    "score": 2.5965
+   }
+  ],
+  "Orthopedic": [
+   {
+    "term": "extremity was",
+    "precision": 0.9747,
+    "support": 77,
+    "sources": 1,
+    "score": 4.2464
+   },
+   {
+    "term": "tourniquet was",
+    "precision": 0.9577,
+    "support": 68,
+    "sources": 1,
+    "score": 4.0552
+   },
+   {
+    "term": "tourniquet",
+    "precision": 0.8878,
+    "support": 87,
+    "sources": 1,
+    "score": 3.9748
+   },
+   {
+    "term": "tourniquet time",
+    "precision": 1.0,
+    "support": 42,
+    "sources": 1,
+    "score": 3.7612
+   },
+   {
+    "term": "the tourniquet",
+    "precision": 0.9038,
+    "support": 47,
+    "sources": 1,
+    "score": 3.499
+   },
+   {
+    "term": "the joint",
+    "precision": 0.9302,
+    "support": 40,
+    "sources": 1,
+    "score": 3.4545
+   },
+   {
+    "term": "tendon was",
+    "precision": 0.9714,
+    "support": 34,
+    "sources": 1,
+    "score": 3.4538
+   },
+   {
+    "term": "esmarch",
+    "precision": 0.9,
+    "support": 45,
+    "sources": 1,
+    "score": 3.4458
+   },
+   {
+    "term": "250 mmhg",
+    "precision": 0.9474,
+    "support": 36,
+    "sources": 1,
+    "score": 3.4209
+   },
+   {
+    "term": "release",
+    "precision": 0.8028,
+    "support": 57,
+    "sources": 1,
+    "score": 3.2598
+   },
+   {
+    "term": "exsanguinated",
+    "precision": 0.9167,
+    "support": 33,
+    "sources": 1,
+    "score": 3.2325
+   },
+   {
+    "term": "xeroform",
+    "precision": 0.9355,
+    "support": 29,
+    "sources": 1,
+    "score": 3.1818
+   },
+   {
+    "term": "webril",
+    "precision": 0.963,
+    "support": 26,
+    "sources": 1,
+    "score": 3.1738
+   },
+   {
+    "term": "to 250",
+    "precision": 0.9333,
+    "support": 28,
+    "sources": 1,
+    "score": 3.1428
+   },
+   {
+    "term": "arthroscopy",
+    "precision": 1.0,
+    "support": 20,
+    "sources": 1,
+    "score": 3.0445
+   },
+   {
+    "term": "release was",
+    "precision": 1.0,
+    "support": 20,
+    "sources": 1,
+    "score": 3.0445
+   },
+   {
+    "term": "articular",
+    "precision": 0.8649,
+    "support": 32,
+    "sources": 1,
+    "score": 3.024
+   },
+   {
+    "term": "adaptic",
+    "precision": 0.9259,
+    "support": 25,
+    "sources": 1,
+    "score": 3.0168
+   },
+   {
+    "term": "internal fixation",
+    "precision": 0.9565,
+    "support": 22,
+    "sources": 1,
+    "score": 2.9992
+   },
+   {
+    "term": "carpal ligament",
+    "precision": 1.0,
+    "support": 19,
+    "sources": 1,
+    "score": 2.9957
+   },
+   {
+    "term": "joint",
+    "precision": 0.6358,
+    "support": 110,
+    "sources": 1,
+    "score": 2.9945
+   },
+   {
+    "term": "an esmarch",
+    "precision": 0.9231,
+    "support": 24,
+    "sources": 1,
+    "score": 2.9713
+   },
+   {
+    "term": "transverse carpal",
+    "precision": 1.0,
+    "support": 18,
+    "sources": 1,
+    "score": 2.9444
+   },
+   {
+    "term": "of motion",
+    "precision": 0.7079,
+    "support": 63,
+    "sources": 1,
+    "score": 2.9439
+   },
+   {
+    "term": "screw was",
+    "precision": 0.8929,
+    "support": 25,
+    "sources": 1,
+    "score": 2.909
+   },
+   {
+    "term": "range of",
+    "precision": 0.6832,
+    "support": 69,
+    "sources": 1,
+    "score": 2.9024
+   },
+   {
+    "term": "the fracture",
+    "precision": 0.9524,
+    "support": 20,
+    "sources": 1,
+    "score": 2.8995
+   },
+   {
+    "term": "proximal phalanx",
+    "precision": 1.0,
+    "support": 17,
+    "sources": 1,
+    "score": 2.8904
+   },
+   {
+    "term": "arthroplasty",
+    "precision": 0.9167,
+    "support": 22,
+    "sources": 1,
+    "score": 2.8742
+   },
+   {
+    "term": "fixation of",
+    "precision": 0.9167,
+    "support": 22,
+    "sources": 1,
+    "score": 2.8742
+   },
+   {
+    "term": "fixation",
+    "precision": 0.7105,
+    "support": 54,
+    "sources": 1,
+    "score": 2.8473
+   },
+   {
+    "term": "external rotation",
+    "precision": 0.95,
+    "support": 19,
+    "sources": 1,
+    "score": 2.8459
+   },
+   {
+    "term": "knee was",
+    "precision": 0.95,
+    "support": 19,
+    "sources": 1,
+    "score": 2.8459
+   },
+   {
+    "term": "phalanx",
+    "precision": 0.95,
+    "support": 19,
+    "sources": 1,
+    "score": 2.8459
+   },
+   {
+    "term": "cast",
+    "precision": 0.9474,
+    "support": 18,
+    "sources": 1,
+    "score": 2.7895
+   },
+   {
+    "term": "saw was",
+    "precision": 0.9474,
+    "support": 18,
+    "sources": 1,
+    "score": 2.7895
+   },
+   {
+    "term": "flexion",
+    "precision": 0.7258,
+    "support": 45,
+    "sources": 1,
+    "score": 2.7789
+   },
+   {
+    "term": "weightbearing",
+    "precision": 1.0,
+    "support": 15,
+    "sources": 1,
+    "score": 2.7726
+   },
+   {
+    "term": "joint the",
+    "precision": 0.9091,
+    "support": 20,
+    "sources": 1,
+    "score": 2.7677
+   },
+   {
+    "term": "inflated to",
+    "precision": 0.766,
+    "support": 36,
+    "sources": 1,
+    "score": 2.7658
+   },
+   {
+    "term": "cement",
+    "precision": 0.9444,
+    "support": 17,
+    "sources": 1,
+    "score": 2.7298
+   },
+   {
+    "term": "the patella",
+    "precision": 0.9444,
+    "support": 17,
+    "sources": 1,
+    "score": 2.7298
+   },
+   {
+    "term": "volar",
+    "precision": 0.9444,
+    "support": 17,
+    "sources": 1,
+    "score": 2.7298
+   },
+   {
+    "term": "screw",
+    "precision": 0.7167,
+    "support": 43,
+    "sources": 1,
+    "score": 2.712
+   },
+   {
+    "term": "ankle tourniquet",
+    "precision": 0.9048,
+    "support": 19,
+    "sources": 1,
+    "score": 2.7104
+   },
+   {
+    "term": "tunnel release",
+    "precision": 0.9048,
+    "support": 19,
+    "sources": 1,
+    "score": 2.7104
+   },
+   {
+    "term": "cement was",
+    "precision": 1.0,
+    "support": 14,
+    "sources": 1,
+    "score": 2.7081
+   },
+   {
+    "term": "4x4s",
+    "precision": 0.8519,
+    "support": 23,
+    "sources": 1,
+    "score": 2.7072
+   },
+   {
+    "term": "exsanguinated with",
+    "precision": 0.875,
+    "support": 21,
+    "sources": 1,
+    "score": 2.7047
+   },
+   {
+    "term": "metatarsal",
+    "precision": 0.875,
+    "support": 21,
+    "sources": 1,
+    "score": 2.7047
+   },
+   {
+    "term": "arthroscopic",
+    "precision": 0.9412,
+    "support": 16,
+    "sources": 1,
+    "score": 2.6666
+   },
+   {
+    "term": "the articular",
+    "precision": 0.9412,
+    "support": 16,
+    "sources": 1,
+    "score": 2.6666
+   },
+   {
+    "term": "the osteotomy",
+    "precision": 0.9412,
+    "support": 16,
+    "sources": 1,
+    "score": 2.6666
+   },
+   {
+    "term": "vascular status",
+    "precision": 0.9412,
+    "support": 16,
+    "sources": 1,
+    "score": 2.6666
+   },
+   {
+    "term": "compartment",
+    "precision": 0.8462,
+    "support": 22,
+    "sources": 1,
+    "score": 2.6531
+   },
+   {
+    "term": "the extensor",
+    "precision": 0.8462,
+    "support": 22,
+    "sources": 1,
+    "score": 2.6531
+   },
+   {
+    "term": "open reduction",
+    "precision": 0.9,
+    "support": 18,
+    "sources": 1,
+    "score": 2.65
+   },
+   {
+    "term": "sagittal saw",
+    "precision": 0.9,
+    "support": 18,
+    "sources": 1,
+    "score": 2.65
+   },
+   {
+    "term": "all bony",
+    "precision": 0.8696,
+    "support": 20,
+    "sources": 1,
+    "score": 2.6474
+   },
+   {
+    "term": "debrided",
+    "precision": 0.8696,
+    "support": 20,
+    "sources": 1,
+    "score": 2.6474
+   },
+   {
+    "term": "the arm",
+    "precision": 0.7941,
+    "support": 27,
+    "sources": 1,
+    "score": 2.6462
+   },
+   {
+    "term": "arthrotomy",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "palm",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "shoe",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "the extremity",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "kerlix",
+    "precision": 0.8065,
+    "support": 25,
+    "sources": 1,
+    "score": 2.6275
+   },
+   {
+    "term": "the foot",
+    "precision": 0.8065,
+    "support": 25,
+    "sources": 1,
+    "score": 2.6275
+   },
+   {
+    "term": "motion of",
+    "precision": 0.8214,
+    "support": 23,
+    "sources": 1,
+    "score": 2.6105
+   },
+   {
+    "term": "rotator",
+    "precision": 0.8214,
+    "support": 23,
+    "sources": 1,
+    "score": 2.6105
+   },
+   {
+    "term": "metatarsal head",
+    "precision": 0.9375,
+    "support": 15,
+    "sources": 1,
+    "score": 2.5993
+   },
+   {
+    "term": "osteotomy",
+    "precision": 0.84,
+    "support": 21,
+    "sources": 1,
+    "score": 2.5965
+   },
+   {
+    "term": "marcaine plain",
+    "precision": 0.8636,
+    "support": 19,
+    "sources": 1,
+    "score": 2.5872
+   },
+   {
+    "term": "meniscus",
+    "precision": 0.8636,
+    "support": 19,
+    "sources": 1,
+    "score": 2.5872
+   },
+   {
+    "term": "was exsanguinated",
+    "precision": 0.8947,
+    "support": 17,
+    "sources": 1,
+    "score": 2.5861
+   },
+   {
+    "term": "splint",
+    "precision": 0.7714,
+    "support": 27,
+    "sources": 1,
+    "score": 2.5706
+   },
+   {
+    "term": "well padded",
+    "precision": 0.7714,
+    "support": 27,
+    "sources": 1,
+    "score": 2.5706
+   },
+   {
+    "term": "325 mmhg",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "and coban",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "bursa",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "component was",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "of adaptic",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "patella was",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "plan procedure",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "portals",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "trigger",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "foot was",
+    "precision": 0.8148,
+    "support": 22,
+    "sources": 1,
+    "score": 2.5548
+   },
+   {
+    "term": "postanesthesia care",
+    "precision": 0.8148,
+    "support": 22,
+    "sources": 1,
+    "score": 2.5548
+   },
+   {
+    "term": "rotator cuff",
+    "precision": 0.8148,
+    "support": 22,
+    "sources": 1,
+    "score": 2.5548
+   },
+   {
+    "term": "tendon",
+    "precision": 0.595,
+    "support": 72,
+    "sources": 1,
+    "score": 2.553
+   },
+   {
+    "term": "rotation",
+    "precision": 0.7812,
+    "support": 25,
+    "sources": 1,
+    "score": 2.5454
+   },
+   {
+    "term": "range",
+    "precision": 0.5917,
+    "support": 71,
+    "sources": 1,
+    "score": 2.5304
+   },
+   {
+    "term": "articular surface",
+    "precision": 0.9333,
+    "support": 14,
+    "sources": 1,
+    "score": 2.5275
+   },
+   {
+    "term": "bunion",
+    "precision": 0.9333,
+    "support": 14,
+    "sources": 1,
+    "score": 2.5275
+   },
+   {
+    "term": "bunionectomy",
+    "precision": 0.9333,
+    "support": 14,
+    "sources": 1,
+    "score": 2.5275
+   },
+   {
+    "term": "lidocaine plain",
+    "precision": 0.9333,
+    "support": 14,
+    "sources": 1,
+    "score": 2.5275
+   },
+   {
+    "term": "gurney",
+    "precision": 0.8571,
+    "support": 18,
+    "sources": 1,
+    "score": 2.5238
+   },
+   {
+    "term": "joint was",
+    "precision": 0.8571,
+    "support": 18,
+    "sources": 1,
+    "score": 2.5238
+   },
+   {
+    "term": "knee pain",
+    "precision": 0.7931,
+    "support": 23,
+    "sources": 1,
+    "score": 2.5205
+   },
+   {
+    "term": "conservative",
+    "precision": 0.7083,
+    "support": 34,
+    "sources": 1,
+    "score": 2.5184
+   },
+   {
+    "term": "esmarch bandage",
+    "precision": 0.8889,
+    "support": 16,
+    "sources": 1,
+    "score": 2.5184
+   }
+  ],
+  "Radiology": [
+   {
+    "term": "negative aspiration",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "needle emg",
+    "precision": 0.625,
+    "support": 10,
+    "sources": 1,
+    "score": 1.4987
+   },
+   {
+    "term": "electrical study",
+    "precision": 0.6154,
+    "support": 8,
+    "sources": 1,
+    "score": 1.3521
+   },
+   {
+    "term": "emg needle",
+    "precision": 0.6154,
+    "support": 8,
+    "sources": 1,
+    "score": 1.3521
+   },
+   {
+    "term": "insertional",
+    "precision": 0.6154,
+    "support": 8,
+    "sources": 1,
+    "score": 1.3521
+   },
+   {
+    "term": "latencies",
+    "precision": 0.6154,
+    "support": 8,
+    "sources": 1,
+    "score": 1.3521
+   },
+   {
+    "term": "this electrical",
+    "precision": 0.6154,
+    "support": 8,
+    "sources": 1,
+    "score": 1.3521
+   },
+   {
+    "term": "insertional activity",
+    "precision": 0.6364,
+    "support": 7,
+    "sources": 1,
+    "score": 1.3233
+   },
+   {
+    "term": "sensory distal",
+    "precision": 0.6364,
+    "support": 7,
+    "sources": 1,
+    "score": 1.3233
+   },
+   {
+    "term": "amplitudes",
+    "precision": 0.6667,
+    "support": 6,
+    "sources": 1,
+    "score": 1.2973
+   },
+   {
+    "term": "conduction velocities",
+    "precision": 0.6667,
+    "support": 6,
+    "sources": 1,
+    "score": 1.2973
+   },
+   {
+    "term": "distal latencies",
+    "precision": 0.6667,
+    "support": 6,
+    "sources": 1,
+    "score": 1.2973
+   },
+   {
+    "term": "exam bilateral",
+    "precision": 0.6667,
+    "support": 6,
+    "sources": 1,
+    "score": 1.2973
+   },
+   {
+    "term": "response amplitudes",
+    "precision": 0.6667,
+    "support": 6,
+    "sources": 1,
+    "score": 1.2973
+   },
+   {
+    "term": "amplitudes conduction",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "architectural",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "architectural distortion",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "fibroglandular tissue",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "motor stimulation",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "latencies evoked",
+    "precision": 0.7143,
+    "support": 5,
+    "sources": 1,
+    "score": 1.2798
+   },
+   {
+    "term": "emg was",
+    "precision": 0.5714,
+    "support": 8,
+    "sources": 1,
+    "score": 1.2556
+   },
+   {
+    "term": "abnormal it",
+    "precision": 0.5833,
+    "support": 7,
+    "sources": 1,
+    "score": 1.213
+   },
+   {
+    "term": "evoked response",
+    "precision": 0.5833,
+    "support": 7,
+    "sources": 1,
+    "score": 1.213
+   },
+   {
+    "term": "it reveals",
+    "precision": 0.5833,
+    "support": 7,
+    "sources": 1,
+    "score": 1.213
+   },
+   {
+    "term": "concentric needle",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 1,
+    "score": 1.1675
+   },
+   {
+    "term": "imaging of",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 1,
+    "score": 1.1675
+   },
+   {
+    "term": "denervation",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 1,
+    "score": 1.1198
+   },
+   {
+    "term": "denervation in",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 1,
+    "score": 1.1198
+   },
+   {
+    "term": "disposable concentric",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 1,
+    "score": 1.1198
+   },
+   {
+    "term": "interpretation of",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 1,
+    "score": 1.1198
+   },
+   {
+    "term": "lumbosacral paraspinal",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 1,
+    "score": 1.1198
+   },
+   {
+    "term": "muscles using",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 1,
+    "score": 1.1198
+   },
+   {
+    "term": "stimulation was",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 1,
+    "score": 1.1198
+   },
+   {
+    "term": "abductor pollicis",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "birads",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "birads classification",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "chronic denervation",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "fibroglandular",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "mammographic",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "pollicis brevis",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "radiofrequency",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "right tibialis",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "studies motor",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "thickening with",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "cluster",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "cluster of",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "complications interpretation",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "dense fibroglandular",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "echotexture",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "fhx htn",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "for 90",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "heterogeneously",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "left gastrocnemius",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "mass demonstrates",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "mass there",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "name only",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "of solution",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "of triamcinolone",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "or perinephric",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "right low",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "solution consisting",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "triamcinolone",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "velocities and",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "abnormalities are",
+    "precision": 0.5556,
+    "support": 5,
+    "sources": 1,
+    "score": 0.9954
+   },
+   {
+    "term": "and lumbosacral",
+    "precision": 0.5556,
+    "support": 5,
+    "sources": 1,
+    "score": 0.9954
+   },
+   {
+    "term": "increased insertional",
+    "precision": 0.5556,
+    "support": 5,
+    "sources": 1,
+    "score": 0.9954
+   },
+   {
+    "term": "radiograph",
+    "precision": 0.5556,
+    "support": 5,
+    "sources": 1,
+    "score": 0.9954
+   },
+   {
+    "term": "the gated",
+    "precision": 0.5556,
+    "support": 5,
+    "sources": 1,
+    "score": 0.9954
+   },
+   {
+    "term": "the periventricular",
+    "precision": 0.5556,
+    "support": 5,
+    "sources": 1,
+    "score": 0.9954
+   },
+   {
+    "term": "eeg showed",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "median motor",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "median sensory",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "not demonstrate",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "sensory response",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "spiculated",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "t36",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "ulnar motor",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "ultrasound history",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "use ros",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "velocity is",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "waves are",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "15 will",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "300mg",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "75mg",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "75mg qd",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "90 seconds",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "and hyperventilated",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "and icad",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "approved digital",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "attenuated evoked",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "benign appearing",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "biopsy if",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "brief examination",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "cancer technique",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "cancers probably",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "certain percentage",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "cervical paraspinal",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "clinically suspicious",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "color doppler",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "communis",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   }
+  ],
+  "Gastroenterology": [
+   {
+    "term": "olympus",
+    "precision": 0.9667,
+    "support": 29,
+    "sources": 1,
+    "score": 3.2878
+   },
+   {
+    "term": "colonoscope",
+    "precision": 1.0,
+    "support": 22,
+    "sources": 1,
+    "score": 3.1355
+   },
+   {
+    "term": "antrum",
+    "precision": 0.9615,
+    "support": 25,
+    "sources": 1,
+    "score": 3.1328
+   },
+   {
+    "term": "colonoscope was",
+    "precision": 1.0,
+    "support": 21,
+    "sources": 1,
+    "score": 3.091
+   },
+   {
+    "term": "pylorus",
+    "precision": 1.0,
+    "support": 21,
+    "sources": 1,
+    "score": 3.091
+   },
+   {
+    "term": "cecum",
+    "precision": 0.8684,
+    "support": 33,
+    "sources": 1,
+    "score": 3.0624
+   },
+   {
+    "term": "colonoscopy",
+    "precision": 0.8409,
+    "support": 37,
+    "sources": 1,
+    "score": 3.0589
+   },
+   {
+    "term": "the olympus",
+    "precision": 1.0,
+    "support": 20,
+    "sources": 1,
+    "score": 3.0445
+   },
+   {
+    "term": "endoscopy",
+    "precision": 0.8,
+    "support": 40,
+    "sources": 1,
+    "score": 2.9709
+   },
+   {
+    "term": "retroflexed",
+    "precision": 0.9545,
+    "support": 21,
+    "sources": 1,
+    "score": 2.9505
+   },
+   {
+    "term": "esophagitis",
+    "precision": 1.0,
+    "support": 18,
+    "sources": 1,
+    "score": 2.9444
+   },
+   {
+    "term": "upper endoscopy",
+    "precision": 1.0,
+    "support": 18,
+    "sources": 1,
+    "score": 2.9444
+   },
+   {
+    "term": "the cecum",
+    "precision": 0.871,
+    "support": 27,
+    "sources": 1,
+    "score": 2.9022
+   },
+   {
+    "term": "esophagogastroduodenoscopy",
+    "precision": 0.9524,
+    "support": 20,
+    "sources": 1,
+    "score": 2.8995
+   },
+   {
+    "term": "the antrum",
+    "precision": 1.0,
+    "support": 17,
+    "sources": 1,
+    "score": 2.8904
+   },
+   {
+    "term": "the pylorus",
+    "precision": 1.0,
+    "support": 17,
+    "sources": 1,
+    "score": 2.8904
+   },
+   {
+    "term": "laparoscopic cholecystectomy",
+    "precision": 0.913,
+    "support": 21,
+    "sources": 1,
+    "score": 2.8223
+   },
+   {
+    "term": "gastroscope",
+    "precision": 1.0,
+    "support": 15,
+    "sources": 1,
+    "score": 2.7726
+   },
+   {
+    "term": "egd",
+    "precision": 1.0,
+    "support": 14,
+    "sources": 1,
+    "score": 2.7081
+   },
+   {
+    "term": "the endoscopy",
+    "precision": 0.9412,
+    "support": 16,
+    "sources": 1,
+    "score": 2.6666
+   },
+   {
+    "term": "cystic duct",
+    "precision": 0.9,
+    "support": 18,
+    "sources": 1,
+    "score": 2.65
+   },
+   {
+    "term": "gallbladder was",
+    "precision": 0.9,
+    "support": 18,
+    "sources": 1,
+    "score": 2.65
+   },
+   {
+    "term": "esophagogastroduodenoscopy with",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "duodenum",
+    "precision": 0.7442,
+    "support": 32,
+    "sources": 1,
+    "score": 2.6021
+   },
+   {
+    "term": "video",
+    "precision": 0.7879,
+    "support": 26,
+    "sources": 1,
+    "score": 2.5967
+   },
+   {
+    "term": "the stomach",
+    "precision": 0.7115,
+    "support": 37,
+    "sources": 1,
+    "score": 2.5883
+   },
+   {
+    "term": "ileocecal",
+    "precision": 0.8947,
+    "support": 17,
+    "sources": 1,
+    "score": 2.5861
+   },
+   {
+    "term": "ileocecal valve",
+    "precision": 0.8947,
+    "support": 17,
+    "sources": 1,
+    "score": 2.5861
+   },
+   {
+    "term": "esophageal",
+    "precision": 0.75,
+    "support": 30,
+    "sources": 1,
+    "score": 2.5755
+   },
+   {
+    "term": "gastroscope was",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "rectal bleeding",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "gastric",
+    "precision": 0.7812,
+    "support": 25,
+    "sources": 1,
+    "score": 2.5454
+   },
+   {
+    "term": "cystic artery",
+    "precision": 0.9333,
+    "support": 14,
+    "sources": 1,
+    "score": 2.5275
+   },
+   {
+    "term": "duct was",
+    "precision": 0.9333,
+    "support": 14,
+    "sources": 1,
+    "score": 2.5275
+   },
+   {
+    "term": "esophagus was",
+    "precision": 0.9333,
+    "support": 14,
+    "sources": 1,
+    "score": 2.5275
+   },
+   {
+    "term": "descending colon",
+    "precision": 0.8889,
+    "support": 16,
+    "sources": 1,
+    "score": 2.5184
+   },
+   {
+    "term": "the duodenum",
+    "precision": 0.7742,
+    "support": 24,
+    "sources": 1,
+    "score": 2.492
+   },
+   {
+    "term": "bleeding perforation",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "liver bed",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "second portion",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "esophagus",
+    "precision": 0.6351,
+    "support": 47,
+    "sources": 1,
+    "score": 2.4587
+   },
+   {
+    "term": "cholecystitis",
+    "precision": 0.85,
+    "support": 17,
+    "sources": 1,
+    "score": 2.4568
+   },
+   {
+    "term": "transverse colon",
+    "precision": 0.85,
+    "support": 17,
+    "sources": 1,
+    "score": 2.4568
+   },
+   {
+    "term": "the esophagus",
+    "precision": 0.6792,
+    "support": 36,
+    "sources": 1,
+    "score": 2.4527
+   },
+   {
+    "term": "stomach the",
+    "precision": 0.9286,
+    "support": 13,
+    "sources": 1,
+    "score": 2.4506
+   },
+   {
+    "term": "air was",
+    "precision": 0.8824,
+    "support": 15,
+    "sources": 1,
+    "score": 2.4464
+   },
+   {
+    "term": "the ileocecal",
+    "precision": 0.8824,
+    "support": 15,
+    "sources": 1,
+    "score": 2.4464
+   },
+   {
+    "term": "the cystic",
+    "precision": 0.8182,
+    "support": 18,
+    "sources": 1,
+    "score": 2.4091
+   },
+   {
+    "term": "appendicitis postoperative",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "cardia",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "clo",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "distal esophagus",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "esophageal sphincter",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "the colonoscope",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "hemorrhoids",
+    "precision": 0.875,
+    "support": 14,
+    "sources": 1,
+    "score": 2.3695
+   },
+   {
+    "term": "stomach was",
+    "precision": 0.875,
+    "support": 14,
+    "sources": 1,
+    "score": 2.3695
+   },
+   {
+    "term": "stomach",
+    "precision": 0.6,
+    "support": 48,
+    "sources": 1,
+    "score": 2.3351
+   },
+   {
+    "term": "appendiceal",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "cecum the",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "duodenal bulb",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "gastroesophageal junction",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "ge junction",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "internal hemorrhoids",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "laparoscopic appendectomy",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "pylorus was",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "the duodenal",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "the ge",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "duodenal",
+    "precision": 0.8667,
+    "support": 13,
+    "sources": 1,
+    "score": 2.2872
+   },
+   {
+    "term": "cholangiogram",
+    "precision": 0.9167,
+    "support": 11,
+    "sources": 1,
+    "score": 2.2778
+   },
+   {
+    "term": "duct",
+    "precision": 0.7059,
+    "support": 24,
+    "sources": 1,
+    "score": 2.2721
+   },
+   {
+    "term": "bile",
+    "precision": 0.8,
+    "support": 16,
+    "sources": 1,
+    "score": 2.2666
+   },
+   {
+    "term": "endoscope was",
+    "precision": 0.7407,
+    "support": 20,
+    "sources": 1,
+    "score": 2.2552
+   },
+   {
+    "term": "terminal ileum",
+    "precision": 0.8571,
+    "support": 12,
+    "sources": 1,
+    "score": 2.1985
+   },
+   {
+    "term": "appendiceal orifice",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "gif",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "retroflexion",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "the anus",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "hiatal",
+    "precision": 0.7308,
+    "support": 19,
+    "sources": 1,
+    "score": 2.1892
+   },
+   {
+    "term": "hiatal hernia",
+    "precision": 0.7308,
+    "support": 19,
+    "sources": 1,
+    "score": 2.1892
+   },
+   {
+    "term": "endoscopy suite",
+    "precision": 0.7895,
+    "support": 15,
+    "sources": 1,
+    "score": 2.1889
+   },
+   {
+    "term": "colonoscopy with",
+    "precision": 0.9091,
+    "support": 10,
+    "sources": 1,
+    "score": 2.1799
+   },
+   {
+    "term": "polyp",
+    "precision": 0.72,
+    "support": 18,
+    "sources": 1,
+    "score": 2.12
+   },
+   {
+    "term": "mesoappendix",
+    "precision": 0.8462,
+    "support": 11,
+    "sources": 1,
+    "score": 2.1026
+   },
+   {
+    "term": "scope was",
+    "precision": 0.5806,
+    "support": 36,
+    "sources": 1,
+    "score": 2.0967
+   },
+   {
+    "term": "and duodenum",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "carefully through",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "colonic",
+    "precision": 0.75,
+    "support": 15,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "esophagus at",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "esophagus stomach",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "incisors",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "medications fentanyl",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "olympus gastroscope",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "the appendiceal",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "the cardia",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "biliary",
+    "precision": 0.8,
+    "support": 12,
+    "sources": 1,
+    "score": 2.052
+   },
+   {
+    "term": "terminal",
+    "precision": 0.8,
+    "support": 12,
+    "sources": 1,
+    "score": 2.052
+   },
+   {
+    "term": "rectum",
+    "precision": 0.5818,
+    "support": 32,
+    "sources": 1,
+    "score": 2.0343
+   },
+   {
+    "term": "15 mmhg",
+    "precision": 0.7647,
+    "support": 13,
+    "sources": 1,
+    "score": 2.0181
+   },
+   {
+    "term": "bile duct",
+    "precision": 0.7647,
+    "support": 13,
+    "sources": 1,
+    "score": 2.0181
+   },
+   {
+    "term": "trocars were",
+    "precision": 0.7647,
+    "support": 13,
+    "sources": 1,
+    "score": 2.0181
+   }
+  ],
+  "Neurology": [
+   {
+    "term": "bulk",
+    "precision": 0.6415,
+    "support": 34,
+    "sources": 1,
+    "score": 2.2808
+   },
+   {
+    "term": "to nose",
+    "precision": 0.9167,
+    "support": 11,
+    "sources": 1,
+    "score": 2.2778
+   },
+   {
+    "term": "memory",
+    "precision": 0.6444,
+    "support": 29,
+    "sources": 1,
+    "score": 2.1919
+   },
+   {
+    "term": "mental status",
+    "precision": 0.6444,
+    "support": 29,
+    "sources": 1,
+    "score": 2.1919
+   },
+   {
+    "term": "fluent",
+    "precision": 0.6154,
+    "support": 32,
+    "sources": 1,
+    "score": 2.1517
+   },
+   {
+    "term": "mental",
+    "precision": 0.5965,
+    "support": 34,
+    "sources": 1,
+    "score": 2.1207
+   },
+   {
+    "term": "aphasia",
+    "precision": 0.7037,
+    "support": 19,
+    "sources": 1,
+    "score": 2.1081
+   },
+   {
+    "term": "finger to",
+    "precision": 0.8462,
+    "support": 11,
+    "sources": 1,
+    "score": 2.1026
+   },
+   {
+    "term": "cognitive",
+    "precision": 0.6571,
+    "support": 23,
+    "sources": 1,
+    "score": 2.0884
+   },
+   {
+    "term": "examination mental",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "heel to",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "motor exam",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "shoulder shrug",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "epilepsy",
+    "precision": 0.9,
+    "support": 9,
+    "sources": 1,
+    "score": 2.0723
+   },
+   {
+    "term": "shrug",
+    "precision": 0.9,
+    "support": 9,
+    "sources": 1,
+    "score": 2.0723
+   },
+   {
+    "term": "dysarthria",
+    "precision": 0.5962,
+    "support": 31,
+    "sources": 1,
+    "score": 2.0661
+   },
+   {
+    "term": "objects",
+    "precision": 0.7273,
+    "support": 16,
+    "sources": 1,
+    "score": 2.0605
+   },
+   {
+    "term": "neurological examination",
+    "precision": 0.7368,
+    "support": 14,
+    "sources": 1,
+    "score": 1.9954
+   },
+   {
+    "term": "vibration",
+    "precision": 0.7368,
+    "support": 14,
+    "sources": 1,
+    "score": 1.9954
+   },
+   {
+    "term": "bulk and",
+    "precision": 0.68,
+    "support": 17,
+    "sources": 1,
+    "score": 1.9655
+   },
+   {
+    "term": "mini mental",
+    "precision": 0.8889,
+    "support": 8,
+    "sources": 1,
+    "score": 1.9531
+   },
+   {
+    "term": "and tandem",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "is fluent",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "rapid alternating",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "to shin",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "today this",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "trileptal",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "eeg",
+    "precision": 0.5952,
+    "support": 25,
+    "sources": 1,
+    "score": 1.9393
+   },
+   {
+    "term": "drift",
+    "precision": 0.5686,
+    "support": 29,
+    "sources": 1,
+    "score": 1.934
+   },
+   {
+    "term": "tandem",
+    "precision": 0.7222,
+    "support": 13,
+    "sources": 1,
+    "score": 1.906
+   },
+   {
+    "term": "extraocular movements",
+    "precision": 0.6429,
+    "support": 18,
+    "sources": 1,
+    "score": 1.8929
+   },
+   {
+    "term": "and tone",
+    "precision": 0.6818,
+    "support": 15,
+    "sources": 1,
+    "score": 1.8904
+   },
+   {
+    "term": "naming",
+    "precision": 0.6667,
+    "support": 16,
+    "sources": 1,
+    "score": 1.8888
+   },
+   {
+    "term": "speech is",
+    "precision": 0.8182,
+    "support": 9,
+    "sources": 1,
+    "score": 1.8839
+   },
+   {
+    "term": "coordination",
+    "precision": 0.5682,
+    "support": 25,
+    "sources": 1,
+    "score": 1.8512
+   },
+   {
+    "term": "language",
+    "precision": 0.6207,
+    "support": 18,
+    "sources": 1,
+    "score": 1.8276
+   },
+   {
+    "term": "and fund",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 1,
+    "score": 1.8195
+   },
+   {
+    "term": "and remote",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 1,
+    "score": 1.8195
+   },
+   {
+    "term": "fund",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 1,
+    "score": 1.8195
+   },
+   {
+    "term": "fund of",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 1,
+    "score": 1.8195
+   },
+   {
+    "term": "normal bulk",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 1,
+    "score": 1.8195
+   },
+   {
+    "term": "of knowledge",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 1,
+    "score": 1.8195
+   },
+   {
+    "term": "mri brain",
+    "precision": 0.5556,
+    "support": 25,
+    "sources": 1,
+    "score": 1.8101
+   },
+   {
+    "term": "left temporal",
+    "precision": 0.6842,
+    "support": 13,
+    "sources": 1,
+    "score": 1.8057
+   },
+   {
+    "term": "2002 she",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "alternating movements",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "and balance",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "head turning",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "intelligence",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "shrug is",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "status exam",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "without nystagmus",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "light touch",
+    "precision": 0.5938,
+    "support": 19,
+    "sources": 1,
+    "score": 1.7787
+   },
+   {
+    "term": "reportedly",
+    "precision": 0.5641,
+    "support": 22,
+    "sources": 1,
+    "score": 1.7687
+   },
+   {
+    "term": "romberg",
+    "precision": 0.5641,
+    "support": 22,
+    "sources": 1,
+    "score": 1.7687
+   },
+   {
+    "term": "normal muscle",
+    "precision": 0.6,
+    "support": 18,
+    "sources": 1,
+    "score": 1.7667
+   },
+   {
+    "term": "no drift",
+    "precision": 0.8,
+    "support": 8,
+    "sources": 1,
+    "score": 1.7578
+   },
+   {
+    "term": "spelling",
+    "precision": 0.8,
+    "support": 8,
+    "sources": 1,
+    "score": 1.7578
+   },
+   {
+    "term": "balance",
+    "precision": 0.625,
+    "support": 15,
+    "sources": 1,
+    "score": 1.7329
+   },
+   {
+    "term": "comprehension",
+    "precision": 0.625,
+    "support": 15,
+    "sources": 1,
+    "score": 1.7329
+   },
+   {
+    "term": "muscle bulk",
+    "precision": 0.625,
+    "support": 15,
+    "sources": 1,
+    "score": 1.7329
+   },
+   {
+    "term": "sense",
+    "precision": 0.625,
+    "support": 15,
+    "sources": 1,
+    "score": 1.7329
+   },
+   {
+    "term": "were flexor",
+    "precision": 0.55,
+    "support": 22,
+    "sources": 1,
+    "score": 1.7245
+   },
+   {
+    "term": "nystagmus",
+    "precision": 0.65,
+    "support": 13,
+    "sources": 1,
+    "score": 1.7154
+   },
+   {
+    "term": "repetition",
+    "precision": 0.65,
+    "support": 13,
+    "sources": 1,
+    "score": 1.7154
+   },
+   {
+    "term": "background",
+    "precision": 0.6667,
+    "support": 12,
+    "sources": 1,
+    "score": 1.71
+   },
+   {
+    "term": "concentration",
+    "precision": 0.6667,
+    "support": 12,
+    "sources": 1,
+    "score": 1.71
+   },
+   {
+    "term": "without dysarthria",
+    "precision": 0.5556,
+    "support": 20,
+    "sources": 1,
+    "score": 1.6914
+   },
+   {
+    "term": "decreasing to",
+    "precision": 0.5926,
+    "support": 16,
+    "sources": 1,
+    "score": 1.6789
+   },
+   {
+    "term": "flexor bilaterally",
+    "precision": 0.5588,
+    "support": 19,
+    "sources": 1,
+    "score": 1.6741
+   },
+   {
+    "term": "comprehension reading",
+    "precision": 0.8571,
+    "support": 6,
+    "sources": 1,
+    "score": 1.6679
+   },
+   {
+    "term": "intact for",
+    "precision": 0.8571,
+    "support": 6,
+    "sources": 1,
+    "score": 1.6679
+   },
+   {
+    "term": "keppra",
+    "precision": 0.8571,
+    "support": 6,
+    "sources": 1,
+    "score": 1.6679
+   },
+   {
+    "term": "remote memory",
+    "precision": 0.8571,
+    "support": 6,
+    "sources": 1,
+    "score": 1.6679
+   },
+   {
+    "term": "thinks that",
+    "precision": 0.8571,
+    "support": 6,
+    "sources": 1,
+    "score": 1.6679
+   },
+   {
+    "term": "tendon reflexes",
+    "precision": 0.6,
+    "support": 15,
+    "sources": 1,
+    "score": 1.6636
+   },
+   {
+    "term": "visual fields",
+    "precision": 0.6,
+    "support": 15,
+    "sources": 1,
+    "score": 1.6636
+   },
+   {
+    "term": "mother died",
+    "precision": 0.6087,
+    "support": 14,
+    "sources": 1,
+    "score": 1.6484
+   },
+   {
+    "term": "on exposure",
+    "precision": 0.6087,
+    "support": 14,
+    "sources": 1,
+    "score": 1.6484
+   },
+   {
+    "term": "palsy",
+    "precision": 0.619,
+    "support": 13,
+    "sources": 1,
+    "score": 1.6337
+   },
+   {
+    "term": "words",
+    "precision": 0.619,
+    "support": 13,
+    "sources": 1,
+    "score": 1.6337
+   },
+   {
+    "term": "reflexes were",
+    "precision": 0.6316,
+    "support": 12,
+    "sources": 1,
+    "score": 1.62
+   },
+   {
+    "term": "his neurological",
+    "precision": 0.7778,
+    "support": 7,
+    "sources": 1,
+    "score": 1.6173
+   },
+   {
+    "term": "lorazepam",
+    "precision": 0.7778,
+    "support": 7,
+    "sources": 1,
+    "score": 1.6173
+   },
+   {
+    "term": "abbreviated",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "abbreviated scale",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "administered clinical",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "adult intelligence",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "and kempt",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "and proprioception",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "and vibration",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "animal",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "animal naming",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "aphasia examination",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "association spelling",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "attention concentration",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "available medical",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "bnt",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "boston naming",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "clinic waiting",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   }
+  ],
+  "Urology": [
+   {
+    "term": "penis",
+    "precision": 1.0,
+    "support": 26,
+    "sources": 1,
+    "score": 3.2958
+   },
+   {
+    "term": "scrotum",
+    "precision": 0.9643,
+    "support": 27,
+    "sources": 1,
+    "score": 3.2132
+   },
+   {
+    "term": "the penis",
+    "precision": 1.0,
+    "support": 23,
+    "sources": 1,
+    "score": 3.1781
+   },
+   {
+    "term": "the urethra",
+    "precision": 0.9583,
+    "support": 23,
+    "sources": 1,
+    "score": 3.0456
+   },
+   {
+    "term": "urethral",
+    "precision": 1.0,
+    "support": 19,
+    "sources": 1,
+    "score": 2.9957
+   },
+   {
+    "term": "glans",
+    "precision": 1.0,
+    "support": 17,
+    "sources": 1,
+    "score": 2.8904
+   },
+   {
+    "term": "scrotal",
+    "precision": 0.8889,
+    "support": 24,
+    "sources": 1,
+    "score": 2.8612
+   },
+   {
+    "term": "the glans",
+    "precision": 1.0,
+    "support": 16,
+    "sources": 1,
+    "score": 2.8332
+   },
+   {
+    "term": "urethra",
+    "precision": 0.8,
+    "support": 32,
+    "sources": 1,
+    "score": 2.7972
+   },
+   {
+    "term": "penile",
+    "precision": 0.9091,
+    "support": 20,
+    "sources": 1,
+    "score": 2.7677
+   },
+   {
+    "term": "the scrotum",
+    "precision": 0.9444,
+    "support": 17,
+    "sources": 1,
+    "score": 2.7298
+   },
+   {
+    "term": "cystoscopy",
+    "precision": 0.7609,
+    "support": 35,
+    "sources": 1,
+    "score": 2.7266
+   },
+   {
+    "term": "circumcision",
+    "precision": 1.0,
+    "support": 14,
+    "sources": 1,
+    "score": 2.7081
+   },
+   {
+    "term": "dartos",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "foreskin",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "scrotal incision",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "surgical consent",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "urethra was",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "fluids received",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "verified once",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "vas",
+    "precision": 0.9333,
+    "support": 14,
+    "sources": 1,
+    "score": 2.5275
+   },
+   {
+    "term": "bladder neck",
+    "precision": 0.8889,
+    "support": 16,
+    "sources": 1,
+    "score": 2.5184
+   },
+   {
+    "term": "iv toradol",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "penis and",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "seminal",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "the foreskin",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "the scrotal",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "the tunica",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "transurethral resection",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "tunica",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "foreskin was",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "identification were",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "seminal vesicles",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "spermatic",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "testis",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "tunica vaginalis",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "vaginalis",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "vesicles",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "where surgical",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "the ureteral",
+    "precision": 0.8421,
+    "support": 16,
+    "sources": 1,
+    "score": 2.3859
+   },
+   {
+    "term": "external oblique",
+    "precision": 0.875,
+    "support": 14,
+    "sources": 1,
+    "score": 2.3695
+   },
+   {
+    "term": "boy with",
+    "precision": 0.9231,
+    "support": 12,
+    "sources": 1,
+    "score": 2.3676
+   },
+   {
+    "term": "condition upon",
+    "precision": 0.9231,
+    "support": 12,
+    "sources": 1,
+    "score": 2.3676
+   },
+   {
+    "term": "cord structures",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "inguinal incision",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "repair description",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "the dartos",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "the testis",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "the urethral",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "the vas",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "external ring",
+    "precision": 0.9167,
+    "support": 11,
+    "sources": 1,
+    "score": 2.2778
+   },
+   {
+    "term": "the prostate",
+    "precision": 0.7407,
+    "support": 20,
+    "sources": 1,
+    "score": 2.2552
+   },
+   {
+    "term": "transurethral",
+    "precision": 0.8571,
+    "support": 12,
+    "sources": 1,
+    "score": 2.1985
+   },
+   {
+    "term": "were verified",
+    "precision": 0.8571,
+    "support": 12,
+    "sources": 1,
+    "score": 2.1985
+   },
+   {
+    "term": "dermabond tissue",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "hemiscrotum",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "inguinal canal",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "oblique fascia",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "resectoscope",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "scrotum was",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "testicle was",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "testis was",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "tissue adhesive",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "ureteral orifices",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "toradol was",
+    "precision": 0.9091,
+    "support": 10,
+    "sources": 1,
+    "score": 2.1799
+   },
+   {
+    "term": "consent operative",
+    "precision": 0.8125,
+    "support": 13,
+    "sources": 1,
+    "score": 2.1442
+   },
+   {
+    "term": "watchful",
+    "precision": 0.8125,
+    "support": 13,
+    "sources": 1,
+    "score": 2.1442
+   },
+   {
+    "term": "watchful waiting",
+    "precision": 0.8125,
+    "support": 13,
+    "sources": 1,
+    "score": 2.1442
+   },
+   {
+    "term": "the sac",
+    "precision": 0.8462,
+    "support": 11,
+    "sources": 1,
+    "score": 2.1026
+   },
+   {
+    "term": "upon transfer",
+    "precision": 0.8462,
+    "support": 11,
+    "sources": 1,
+    "score": 2.1026
+   },
+   {
+    "term": "erection",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "glans penis",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "inhalation anesthetic",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "penis was",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "scrotum in",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "spermatic cord",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "the ilioinguinal",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "the spermatic",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "vas was",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "ilioinguinal",
+    "precision": 0.9,
+    "support": 9,
+    "sources": 1,
+    "score": 2.0723
+   },
+   {
+    "term": "prostatectomy",
+    "precision": 0.9,
+    "support": 9,
+    "sources": 1,
+    "score": 2.0723
+   },
+   {
+    "term": "testes",
+    "precision": 0.9,
+    "support": 9,
+    "sources": 1,
+    "score": 2.0723
+   },
+   {
+    "term": "the penile",
+    "precision": 0.9,
+    "support": 9,
+    "sources": 1,
+    "score": 2.0723
+   },
+   {
+    "term": "cystoscope",
+    "precision": 0.8,
+    "support": 12,
+    "sources": 1,
+    "score": 2.052
+   },
+   {
+    "term": "once he",
+    "precision": 0.8,
+    "support": 12,
+    "sources": 1,
+    "score": 2.052
+   },
+   {
+    "term": "old boy",
+    "precision": 0.7083,
+    "support": 17,
+    "sources": 1,
+    "score": 2.0473
+   },
+   {
+    "term": "prostate",
+    "precision": 0.5667,
+    "support": 34,
+    "sources": 1,
+    "score": 2.0147
+   },
+   {
+    "term": "24 french",
+    "precision": 0.8333,
+    "support": 10,
+    "sources": 1,
+    "score": 1.9982
+   },
+   {
+    "term": "hydrocele",
+    "precision": 0.8333,
+    "support": 10,
+    "sources": 1,
+    "score": 1.9982
+   },
+   {
+    "term": "options such",
+    "precision": 0.8333,
+    "support": 10,
+    "sources": 1,
+    "score": 1.9982
+   },
+   {
+    "term": "patient identification",
+    "precision": 0.8333,
+    "support": 10,
+    "sources": 1,
+    "score": 1.9982
+   },
+   {
+    "term": "prostate was",
+    "precision": 0.8333,
+    "support": 10,
+    "sources": 1,
+    "score": 1.9982
+   },
+   {
+    "term": "and wanted",
+    "precision": 0.7368,
+    "support": 14,
+    "sources": 1,
+    "score": 1.9954
+   },
+   {
+    "term": "bladder and",
+    "precision": 0.6957,
+    "support": 16,
+    "sources": 1,
+    "score": 1.9709
+   },
+   {
+    "term": "plan is",
+    "precision": 0.6957,
+    "support": 16,
+    "sources": 1,
+    "score": 1.9709
+   },
+   {
+    "term": "bladder appeared",
+    "precision": 0.8889,
+    "support": 8,
+    "sources": 1,
+    "score": 1.9531
+   },
+   {
+    "term": "pouch was",
+    "precision": 0.8889,
+    "support": 8,
+    "sources": 1,
+    "score": 1.9531
+   },
+   {
+    "term": "23 french",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "caudal block",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "deferens",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   }
+  ],
+  "Obstetrics / Gynecology": [
+   {
+    "term": "uterus was",
+    "precision": 0.9348,
+    "support": 43,
+    "sources": 1,
+    "score": 3.5374
+   },
+   {
+    "term": "uterine",
+    "precision": 0.8594,
+    "support": 55,
+    "sources": 1,
+    "score": 3.4593
+   },
+   {
+    "term": "the uterine",
+    "precision": 0.9487,
+    "support": 37,
+    "sources": 1,
+    "score": 3.451
+   },
+   {
+    "term": "uterus",
+    "precision": 0.7732,
+    "support": 75,
+    "sources": 1,
+    "score": 3.3485
+   },
+   {
+    "term": "cervix",
+    "precision": 0.8169,
+    "support": 58,
+    "sources": 1,
+    "score": 3.3309
+   },
+   {
+    "term": "cervix was",
+    "precision": 0.9412,
+    "support": 32,
+    "sources": 1,
+    "score": 3.2908
+   },
+   {
+    "term": "the cervix",
+    "precision": 0.84,
+    "support": 42,
+    "sources": 1,
+    "score": 3.1594
+   },
+   {
+    "term": "vagina",
+    "precision": 0.8718,
+    "support": 34,
+    "sources": 1,
+    "score": 3.0995
+   },
+   {
+    "term": "vesicouterine",
+    "precision": 1.0,
+    "support": 20,
+    "sources": 1,
+    "score": 3.0445
+   },
+   {
+    "term": "the uterus",
+    "precision": 0.7571,
+    "support": 53,
+    "sources": 1,
+    "score": 3.0202
+   },
+   {
+    "term": "fallopian",
+    "precision": 0.9259,
+    "support": 25,
+    "sources": 1,
+    "score": 3.0168
+   },
+   {
+    "term": "bladder flap",
+    "precision": 0.9231,
+    "support": 24,
+    "sources": 1,
+    "score": 2.9713
+   },
+   {
+    "term": "placenta",
+    "precision": 0.8182,
+    "support": 36,
+    "sources": 1,
+    "score": 2.9544
+   },
+   {
+    "term": "sponge lap",
+    "precision": 0.9545,
+    "support": 21,
+    "sources": 1,
+    "score": 2.9505
+   },
+   {
+    "term": "fallopian tube",
+    "precision": 0.9524,
+    "support": 20,
+    "sources": 1,
+    "score": 2.8995
+   },
+   {
+    "term": "the placenta",
+    "precision": 0.9167,
+    "support": 22,
+    "sources": 1,
+    "score": 2.8742
+   },
+   {
+    "term": "gravida",
+    "precision": 0.8889,
+    "support": 24,
+    "sources": 1,
+    "score": 2.8612
+   },
+   {
+    "term": "the vagina",
+    "precision": 0.8667,
+    "support": 26,
+    "sources": 1,
+    "score": 2.8564
+   },
+   {
+    "term": "lap and",
+    "precision": 0.95,
+    "support": 19,
+    "sources": 1,
+    "score": 2.8459
+   },
+   {
+    "term": "uterus and",
+    "precision": 0.95,
+    "support": 19,
+    "sources": 1,
+    "score": 2.8459
+   },
+   {
+    "term": "vaginal",
+    "precision": 0.7067,
+    "support": 53,
+    "sources": 1,
+    "score": 2.8189
+   },
+   {
+    "term": "ovaries",
+    "precision": 0.8438,
+    "support": 27,
+    "sources": 1,
+    "score": 2.8115
+   },
+   {
+    "term": "and ovaries",
+    "precision": 0.9474,
+    "support": 18,
+    "sources": 1,
+    "score": 2.7895
+   },
+   {
+    "term": "left fallopian",
+    "precision": 1.0,
+    "support": 15,
+    "sources": 1,
+    "score": 2.7726
+   },
+   {
+    "term": "the vesicouterine",
+    "precision": 1.0,
+    "support": 15,
+    "sources": 1,
+    "score": 2.7726
+   },
+   {
+    "term": "apgars",
+    "precision": 0.9091,
+    "support": 20,
+    "sources": 1,
+    "score": 2.7677
+   },
+   {
+    "term": "pfannenstiel",
+    "precision": 0.9091,
+    "support": 20,
+    "sources": 1,
+    "score": 2.7677
+   },
+   {
+    "term": "tubal",
+    "precision": 0.9091,
+    "support": 20,
+    "sources": 1,
+    "score": 2.7677
+   },
+   {
+    "term": "anteverted",
+    "precision": 0.9444,
+    "support": 17,
+    "sources": 1,
+    "score": 2.7298
+   },
+   {
+    "term": "hemostatic the",
+    "precision": 0.9444,
+    "support": 17,
+    "sources": 1,
+    "score": 2.7298
+   },
+   {
+    "term": "infant was",
+    "precision": 0.9444,
+    "support": 17,
+    "sources": 1,
+    "score": 2.7298
+   },
+   {
+    "term": "placenta was",
+    "precision": 0.9444,
+    "support": 17,
+    "sources": 1,
+    "score": 2.7298
+   },
+   {
+    "term": "intrauterine",
+    "precision": 0.8182,
+    "support": 27,
+    "sources": 1,
+    "score": 2.7263
+   },
+   {
+    "term": "low transverse",
+    "precision": 1.0,
+    "support": 14,
+    "sources": 1,
+    "score": 2.7081
+   },
+   {
+    "term": "pregnancy at",
+    "precision": 1.0,
+    "support": 14,
+    "sources": 1,
+    "score": 2.7081
+   },
+   {
+    "term": "intrauterine pregnancy",
+    "precision": 0.875,
+    "support": 21,
+    "sources": 1,
+    "score": 2.7047
+   },
+   {
+    "term": "adnexal",
+    "precision": 0.7838,
+    "support": 29,
+    "sources": 1,
+    "score": 2.6658
+   },
+   {
+    "term": "tenaculum",
+    "precision": 0.8276,
+    "support": 24,
+    "sources": 1,
+    "score": 2.6639
+   },
+   {
+    "term": "curettage",
+    "precision": 0.9,
+    "support": 18,
+    "sources": 1,
+    "score": 2.65
+   },
+   {
+    "term": "and curettage",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "old gravida",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "uterine incision",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "vesicouterine peritoneum",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "weighted speculum",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "para",
+    "precision": 0.8065,
+    "support": 25,
+    "sources": 1,
+    "score": 2.6275
+   },
+   {
+    "term": "vessel cord",
+    "precision": 0.9375,
+    "support": 15,
+    "sources": 1,
+    "score": 2.5993
+   },
+   {
+    "term": "endometrial",
+    "precision": 0.84,
+    "support": 21,
+    "sources": 1,
+    "score": 2.5965
+   },
+   {
+    "term": "no adnexal",
+    "precision": 0.8947,
+    "support": 17,
+    "sources": 1,
+    "score": 2.5861
+   },
+   {
+    "term": "right fallopian",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "underlying layer",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "pregnancy",
+    "precision": 0.6833,
+    "support": 41,
+    "sources": 1,
+    "score": 2.5541
+   },
+   {
+    "term": "delivery of",
+    "precision": 0.8333,
+    "support": 20,
+    "sources": 1,
+    "score": 2.5371
+   },
+   {
+    "term": "lower uterine",
+    "precision": 0.9333,
+    "support": 14,
+    "sources": 1,
+    "score": 2.5275
+   },
+   {
+    "term": "uterine segment",
+    "precision": 0.9333,
+    "support": 14,
+    "sources": 1,
+    "score": 2.5275
+   },
+   {
+    "term": "anterior lip",
+    "precision": 0.8889,
+    "support": 16,
+    "sources": 1,
+    "score": 2.5184
+   },
+   {
+    "term": "lip of",
+    "precision": 0.8889,
+    "support": 16,
+    "sources": 1,
+    "score": 2.5184
+   },
+   {
+    "term": "be hemostatic",
+    "precision": 0.8077,
+    "support": 21,
+    "sources": 1,
+    "score": 2.4966
+   },
+   {
+    "term": "bilateral tubal",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "female infant",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "fibroid uterus",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "tented up",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "pelvic pain",
+    "precision": 0.85,
+    "support": 17,
+    "sources": 1,
+    "score": 2.4568
+   },
+   {
+    "term": "bladder blade",
+    "precision": 0.9286,
+    "support": 13,
+    "sources": 1,
+    "score": 2.4506
+   },
+   {
+    "term": "sterilization",
+    "precision": 0.9286,
+    "support": 13,
+    "sources": 1,
+    "score": 2.4506
+   },
+   {
+    "term": "the infant",
+    "precision": 0.9286,
+    "support": 13,
+    "sources": 1,
+    "score": 2.4506
+   },
+   {
+    "term": "ovary",
+    "precision": 0.7667,
+    "support": 23,
+    "sources": 1,
+    "score": 2.4365
+   },
+   {
+    "term": "fetal",
+    "precision": 0.7297,
+    "support": 27,
+    "sources": 1,
+    "score": 2.4316
+   },
+   {
+    "term": "labor",
+    "precision": 0.7778,
+    "support": 21,
+    "sources": 1,
+    "score": 2.4041
+   },
+   {
+    "term": "the vaginal",
+    "precision": 0.7778,
+    "support": 21,
+    "sources": 1,
+    "score": 2.4041
+   },
+   {
+    "term": "in layman",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "layman",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "permanent sterilization",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "pitocin was",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "to labor",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "underlying rectus",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "infant",
+    "precision": 0.7353,
+    "support": 25,
+    "sources": 1,
+    "score": 2.3957
+   },
+   {
+    "term": "cervix and",
+    "precision": 0.8421,
+    "support": 16,
+    "sources": 1,
+    "score": 2.3859
+   },
+   {
+    "term": "bimanual exam",
+    "precision": 0.9231,
+    "support": 12,
+    "sources": 1,
+    "score": 2.3676
+   },
+   {
+    "term": "broad ligament",
+    "precision": 0.9231,
+    "support": 12,
+    "sources": 1,
+    "score": 2.3676
+   },
+   {
+    "term": "infundibulopelvic",
+    "precision": 0.9231,
+    "support": 12,
+    "sources": 1,
+    "score": 2.3676
+   },
+   {
+    "term": "uterosacral",
+    "precision": 0.9231,
+    "support": 12,
+    "sources": 1,
+    "score": 2.3676
+   },
+   {
+    "term": "cul",
+    "precision": 0.8095,
+    "support": 17,
+    "sources": 1,
+    "score": 2.3398
+   },
+   {
+    "term": "cul de",
+    "precision": 0.8095,
+    "support": 17,
+    "sources": 1,
+    "score": 2.3398
+   },
+   {
+    "term": "de sac",
+    "precision": 0.8095,
+    "support": 17,
+    "sources": 1,
+    "score": 2.3398
+   },
+   {
+    "term": "fetal heart",
+    "precision": 0.8095,
+    "support": 17,
+    "sources": 1,
+    "score": 2.3398
+   },
+   {
+    "term": "peritoneum was",
+    "precision": 0.7027,
+    "support": 26,
+    "sources": 1,
+    "score": 2.316
+   },
+   {
+    "term": "pitocin",
+    "precision": 0.8333,
+    "support": 15,
+    "sources": 1,
+    "score": 2.3105
+   },
+   {
+    "term": "and ovary",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "cm dilated",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "cord blood",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "delivered spontaneously",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "dorsal supine",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "extended superiorly",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "exteriorized and",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "fascial incision",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "pelvic adhesions",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "sounded to",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "the uterosacral",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "endometriosis",
+    "precision": 0.8667,
+    "support": 13,
+    "sources": 1,
+    "score": 2.2872
+   },
+   {
+    "term": "uterus with",
+    "precision": 0.8667,
+    "support": 13,
+    "sources": 1,
+    "score": 2.2872
+   }
+  ],
+  "ENT - Otolaryngology": [
+   {
+    "term": "adenoid",
+    "precision": 1.0,
+    "support": 15,
+    "sources": 1,
+    "score": 2.7726
+   },
+   {
+    "term": "gag was",
+    "precision": 1.0,
+    "support": 14,
+    "sources": 1,
+    "score": 2.7081
+   },
+   {
+    "term": "mouth gag",
+    "precision": 1.0,
+    "support": 14,
+    "sources": 1,
+    "score": 2.7081
+   },
+   {
+    "term": "mcivor",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "mirror",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "tonsils",
+    "precision": 0.8636,
+    "support": 19,
+    "sources": 1,
+    "score": 2.5872
+   },
+   {
+    "term": "middle ear",
+    "precision": 0.8947,
+    "support": 17,
+    "sources": 1,
+    "score": 2.5861
+   },
+   {
+    "term": "turbinates",
+    "precision": 0.8947,
+    "support": 17,
+    "sources": 1,
+    "score": 2.5861
+   },
+   {
+    "term": "tonsil was",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "tympanic membrane",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "myringotomy",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "soft palate",
+    "precision": 0.9231,
+    "support": 12,
+    "sources": 1,
+    "score": 2.3676
+   },
+   {
+    "term": "inferior turbinates",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "mcivor mouth",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "nasal obstruction",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "the tonsillar",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "otitis",
+    "precision": 0.8667,
+    "support": 13,
+    "sources": 1,
+    "score": 2.2872
+   },
+   {
+    "term": "otitis media",
+    "precision": 0.8667,
+    "support": 13,
+    "sources": 1,
+    "score": 2.2872
+   },
+   {
+    "term": "right tonsil",
+    "precision": 0.9167,
+    "support": 11,
+    "sources": 1,
+    "score": 2.2778
+   },
+   {
+    "term": "adenoids",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "anterior tonsillar",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "left tonsil",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "nasal cavity",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "nasopharynx was",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "suction cautery",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "the tonsil",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "the tympanic",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "suspended",
+    "precision": 0.9091,
+    "support": 10,
+    "sources": 1,
+    "score": 2.1799
+   },
+   {
+    "term": "eustachian",
+    "precision": 0.8462,
+    "support": 11,
+    "sources": 1,
+    "score": 2.1026
+   },
+   {
+    "term": "oral cavity",
+    "precision": 0.6774,
+    "support": 21,
+    "sources": 1,
+    "score": 2.0939
+   },
+   {
+    "term": "adenoidectomy",
+    "precision": 0.75,
+    "support": 15,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "chronic otitis",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "conductive",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "curved allis",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "ear was",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "inferior turbinate",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "salivary",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "salivary glands",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "the adenoid",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "the adenoids",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "the mcivor",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "the turbinates",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "tonsillar pillar",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "nasal septum",
+    "precision": 0.8,
+    "support": 12,
+    "sources": 1,
+    "score": 2.052
+   },
+   {
+    "term": "media",
+    "precision": 0.7647,
+    "support": 13,
+    "sources": 1,
+    "score": 2.0181
+   },
+   {
+    "term": "the nasal",
+    "precision": 0.6286,
+    "support": 22,
+    "sources": 1,
+    "score": 1.9709
+   },
+   {
+    "term": "the oral",
+    "precision": 0.6957,
+    "support": 16,
+    "sources": 1,
+    "score": 1.9709
+   },
+   {
+    "term": "pillar",
+    "precision": 0.8889,
+    "support": 8,
+    "sources": 1,
+    "score": 1.9531
+   },
+   {
+    "term": "tonsillitis",
+    "precision": 0.8889,
+    "support": 8,
+    "sources": 1,
+    "score": 1.9531
+   },
+   {
+    "term": "adenoids were",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "conductive hearing",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "ear canal",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "mayo stand",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "nasal passage",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "the tonsils",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "turbinate hypertrophy",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "tonsil",
+    "precision": 0.7222,
+    "support": 13,
+    "sources": 1,
+    "score": 1.906
+   },
+   {
+    "term": "the nasopharynx",
+    "precision": 0.7,
+    "support": 14,
+    "sources": 1,
+    "score": 1.8956
+   },
+   {
+    "term": "tympanic",
+    "precision": 0.6538,
+    "support": 17,
+    "sources": 1,
+    "score": 1.8899
+   },
+   {
+    "term": "100 000",
+    "precision": 0.6667,
+    "support": 16,
+    "sources": 1,
+    "score": 1.8888
+   },
+   {
+    "term": "the nose",
+    "precision": 0.6667,
+    "support": 16,
+    "sources": 1,
+    "score": 1.8888
+   },
+   {
+    "term": "laryngoscopy",
+    "precision": 0.8182,
+    "support": 9,
+    "sources": 1,
+    "score": 1.8839
+   },
+   {
+    "term": "larynx",
+    "precision": 0.7692,
+    "support": 10,
+    "sources": 1,
+    "score": 1.8445
+   },
+   {
+    "term": "left ear",
+    "precision": 0.7692,
+    "support": 10,
+    "sources": 1,
+    "score": 1.8445
+   },
+   {
+    "term": "turbinate",
+    "precision": 0.7692,
+    "support": 10,
+    "sources": 1,
+    "score": 1.8445
+   },
+   {
+    "term": "nasopharynx",
+    "precision": 0.6296,
+    "support": 17,
+    "sources": 1,
+    "score": 1.8199
+   },
+   {
+    "term": "afrin",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 1,
+    "score": 1.8195
+   },
+   {
+    "term": "ear canals",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 1,
+    "score": 1.8195
+   },
+   {
+    "term": "palate was",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 1,
+    "score": 1.8195
+   },
+   {
+    "term": "tonsillar",
+    "precision": 0.6522,
+    "support": 15,
+    "sources": 1,
+    "score": 1.8082
+   },
+   {
+    "term": "adenoid hypertrophy",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "adenotonsillitis",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "cerumen",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "crowe",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "crowe davis",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "cryptic",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "davis",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "doyle",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "ear the",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "gums",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "left nasal",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "lips teeth",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "myringotomy and",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "palate and",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "rhinoplasty",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "right nasal",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "rubber robinson",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "septoplasty",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "suction bovie",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "the hard",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "tonsils are",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "tonsils were",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "laryngoscope was",
+    "precision": 0.8,
+    "support": 8,
+    "sources": 1,
+    "score": 1.7578
+   },
+   {
+    "term": "red rubber",
+    "precision": 0.75,
+    "support": 9,
+    "sources": 1,
+    "score": 1.7269
+   },
+   {
+    "term": "uvula",
+    "precision": 0.7143,
+    "support": 10,
+    "sources": 1,
+    "score": 1.7128
+   },
+   {
+    "term": "splints",
+    "precision": 0.8571,
+    "support": 6,
+    "sources": 1,
+    "score": 1.6679
+   },
+   {
+    "term": "splints were",
+    "precision": 0.8571,
+    "support": 6,
+    "sources": 1,
+    "score": 1.6679
+   },
+   {
+    "term": "teeth and",
+    "precision": 0.8571,
+    "support": 6,
+    "sources": 1,
+    "score": 1.6679
+   },
+   {
+    "term": "tonsillar fossa",
+    "precision": 0.8571,
+    "support": 6,
+    "sources": 1,
+    "score": 1.6679
+   },
+   {
+    "term": "000 epinephrine",
+    "precision": 0.6,
+    "support": 15,
+    "sources": 1,
+    "score": 1.6636
+   }
+  ],
+  "Neurosurgery": [
+   {
+    "term": "the dura",
+    "precision": 0.6333,
+    "support": 38,
+    "sources": 1,
+    "score": 2.3203
+   },
+   {
+    "term": "dura",
+    "precision": 0.619,
+    "support": 39,
+    "sources": 1,
+    "score": 2.2836
+   },
+   {
+    "term": "dura was",
+    "precision": 0.6486,
+    "support": 24,
+    "sources": 1,
+    "score": 2.0879
+   },
+   {
+    "term": "bactiseal",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "ventricular catheter",
+    "precision": 0.875,
+    "support": 7,
+    "sources": 1,
+    "score": 1.8195
+   },
+   {
+    "term": "subgaleal",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "burr hole",
+    "precision": 0.7143,
+    "support": 10,
+    "sources": 1,
+    "score": 1.7128
+   },
+   {
+    "term": "burr",
+    "precision": 0.5862,
+    "support": 17,
+    "sources": 1,
+    "score": 1.6944
+   },
+   {
+    "term": "bone flap",
+    "precision": 0.6316,
+    "support": 12,
+    "sources": 1,
+    "score": 1.62
+   },
+   {
+    "term": "bactiseal catheter",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "bone flaps",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "by mastisol",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "csf was",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "drill the",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "the bactiseal",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "retaining retractors",
+    "precision": 0.6471,
+    "support": 11,
+    "sources": 1,
+    "score": 1.6079
+   },
+   {
+    "term": "temporalis",
+    "precision": 0.7273,
+    "support": 8,
+    "sources": 1,
+    "score": 1.598
+   },
+   {
+    "term": "after satisfactory",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 1,
+    "score": 1.4931
+   },
+   {
+    "term": "deep layers",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 1,
+    "score": 1.4931
+   },
+   {
+    "term": "frontal area",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 1,
+    "score": 1.4931
+   },
+   {
+    "term": "routine manner",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 1,
+    "score": 1.4931
+   },
+   {
+    "term": "scalp incision",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 1,
+    "score": 1.4931
+   },
+   {
+    "term": "was reopened",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 1,
+    "score": 1.4931
+   },
+   {
+    "term": "mayfield",
+    "precision": 0.6429,
+    "support": 9,
+    "sources": 1,
+    "score": 1.4802
+   },
+   {
+    "term": "midas rex",
+    "precision": 0.6667,
+    "support": 8,
+    "sources": 1,
+    "score": 1.4648
+   },
+   {
+    "term": "rex",
+    "precision": 0.6667,
+    "support": 8,
+    "sources": 1,
+    "score": 1.4648
+   },
+   {
+    "term": "headrest",
+    "precision": 0.7,
+    "support": 7,
+    "sources": 1,
+    "score": 1.4556
+   },
+   {
+    "term": "temporalis muscle",
+    "precision": 0.7,
+    "support": 7,
+    "sources": 1,
+    "score": 1.4556
+   },
+   {
+    "term": "the temporalis",
+    "precision": 0.7,
+    "support": 7,
+    "sources": 1,
+    "score": 1.4556
+   },
+   {
+    "term": "the ventricular",
+    "precision": 0.7,
+    "support": 7,
+    "sources": 1,
+    "score": 1.4556
+   },
+   {
+    "term": "galea",
+    "precision": 0.5789,
+    "support": 11,
+    "sources": 1,
+    "score": 1.4386
+   },
+   {
+    "term": "scalp was",
+    "precision": 0.5882,
+    "support": 10,
+    "sources": 1,
+    "score": 1.4105
+   },
+   {
+    "term": "kerrison rongeur",
+    "precision": 0.6,
+    "support": 9,
+    "sources": 1,
+    "score": 1.3816
+   },
+   {
+    "term": "horseshoe",
+    "precision": 0.6364,
+    "support": 7,
+    "sources": 1,
+    "score": 1.3233
+   },
+   {
+    "term": "leksell",
+    "precision": 0.6667,
+    "support": 6,
+    "sources": 1,
+    "score": 1.2973
+   },
+   {
+    "term": "the galea",
+    "precision": 0.5625,
+    "support": 9,
+    "sources": 1,
+    "score": 1.2952
+   },
+   {
+    "term": "all connections",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "decompressed the",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "drill with",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "intracranial pressure",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "rongeur at",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "the drilling",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "chloraprep",
+    "precision": 0.7143,
+    "support": 5,
+    "sources": 1,
+    "score": 1.2798
+   },
+   {
+    "term": "cruciate fashion",
+    "precision": 0.7143,
+    "support": 5,
+    "sources": 1,
+    "score": 1.2798
+   },
+   {
+    "term": "head holder",
+    "precision": 0.7143,
+    "support": 5,
+    "sources": 1,
+    "score": 1.2798
+   },
+   {
+    "term": "and screws",
+    "precision": 0.5714,
+    "support": 8,
+    "sources": 1,
+    "score": 1.2556
+   },
+   {
+    "term": "galea was",
+    "precision": 0.5714,
+    "support": 8,
+    "sources": 1,
+    "score": 1.2556
+   },
+   {
+    "term": "midas",
+    "precision": 0.5714,
+    "support": 8,
+    "sources": 1,
+    "score": 1.2556
+   },
+   {
+    "term": "of csf",
+    "precision": 0.5714,
+    "support": 8,
+    "sources": 1,
+    "score": 1.2556
+   },
+   {
+    "term": "positioned supine",
+    "precision": 0.5714,
+    "support": 8,
+    "sources": 1,
+    "score": 1.2556
+   },
+   {
+    "term": "dura and",
+    "precision": 0.5833,
+    "support": 7,
+    "sources": 1,
+    "score": 1.213
+   },
+   {
+    "term": "coronal suture",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 1,
+    "score": 1.1675
+   },
+   {
+    "term": "csf leak",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 1,
+    "score": 1.1675
+   },
+   {
+    "term": "foraminotomy",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 1,
+    "score": 1.1675
+   },
+   {
+    "term": "interspace and",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 1,
+    "score": 1.1675
+   },
+   {
+    "term": "lamina of",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 1,
+    "score": 1.1675
+   },
+   {
+    "term": "space at",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 1,
+    "score": 1.1675
+   },
+   {
+    "term": "the locking",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 1,
+    "score": 1.1675
+   },
+   {
+    "term": "cottonoid",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 1,
+    "score": 1.1198
+   },
+   {
+    "term": "mastisol and",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 1,
+    "score": 1.1198
+   },
+   {
+    "term": "reopened",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 1,
+    "score": 1.1198
+   },
+   {
+    "term": "rex drill",
+    "precision": 0.625,
+    "support": 5,
+    "sources": 1,
+    "score": 1.1198
+   },
+   {
+    "term": "bengal",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "bur hole",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "c7 and",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "cages",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "complications sponge",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "connections",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "craniotome",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "foraminotomies were",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "leksell rongeur",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "linear skin",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "shunt revision",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "three point",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "allograft bone",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "autologous bone",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "bengal cages",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "brain injury",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "caprosyn",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "colorless",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "copiously with",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "decorticate the",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "dictate the",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "fluoroscope",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "l4 l4",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "lumbar fascia",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "microscissors",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "microscopic assisted",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "nicely we",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "ordered the",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "pericranium",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "pituitary rongeur",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "plates were",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "raney",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "raney clips",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "reflected anteriorly",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "resting on",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "sagittal sinus",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "shelf to",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "skin followed",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   }
+  ],
+  "Hematology - Oncology": [
+   {
+    "term": "ecog",
+    "precision": 1.0,
+    "support": 5,
+    "sources": 1,
+    "score": 1.7918
+   },
+   {
+    "term": "and prednisone",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "bladder habits",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "cell lymphoma",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "hpi otherwise",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "lymphoma history",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "sweats no",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "adenopathy in",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 1,
+    "score": 1.4931
+   },
+   {
+    "term": "lymphoma",
+    "precision": 0.6667,
+    "support": 8,
+    "sources": 1,
+    "score": 1.4648
+   },
+   {
+    "term": "blood count",
+    "precision": 0.75,
+    "support": 6,
+    "sources": 1,
+    "score": 1.4594
+   },
+   {
+    "term": "performance status",
+    "precision": 0.75,
+    "support": 6,
+    "sources": 1,
+    "score": 1.4594
+   },
+   {
+    "term": "or night",
+    "precision": 0.7,
+    "support": 7,
+    "sources": 1,
+    "score": 1.4556
+   },
+   {
+    "term": "newly diagnosed",
+    "precision": 0.6364,
+    "support": 7,
+    "sources": 1,
+    "score": 1.3233
+   },
+   {
+    "term": "with frozen",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "clinic today",
+    "precision": 0.5833,
+    "support": 7,
+    "sources": 1,
+    "score": 1.213
+   },
+   {
+    "term": "anc",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "breast mass",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "her review",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "initially diagnosed",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "no peripheral",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "node biopsy",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "80 year",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "adjuvant therapy",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "biopsy proven",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "chemotherapy she",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "complaint newly",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "data cbc",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "excisional biopsy",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "left axillary",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "pleural biopsy",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "temodar",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "no adenopathy",
+    "precision": 0.5556,
+    "support": 5,
+    "sources": 1,
+    "score": 0.9954
+   },
+   {
+    "term": "the hpi",
+    "precision": 0.5556,
+    "support": 5,
+    "sources": 1,
+    "score": 0.9954
+   },
+   {
+    "term": "basal cell",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "cancer history",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "marrow biopsy",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "adjuvant",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "deep dermal",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "excisional",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "gland was",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "his review",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "history father",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "infiltrating",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "initially taken",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "mucositis",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "nodes in",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "note she",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "petechiae",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "proven",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "signs the",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "taxol",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "the social",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "therapist and",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "thrombolytic",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "thrombosis dvt",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   }
+  ],
+  "Ophthalmology": [
+   {
+    "term": "lid speculum",
+    "precision": 1.0,
+    "support": 30,
+    "sources": 1,
+    "score": 3.434
+   },
+   {
+    "term": "anterior chamber",
+    "precision": 1.0,
+    "support": 29,
+    "sources": 1,
+    "score": 3.4012
+   },
+   {
+    "term": "lid",
+    "precision": 0.8889,
+    "support": 40,
+    "sources": 1,
+    "score": 3.301
+   },
+   {
+    "term": "limbus",
+    "precision": 1.0,
+    "support": 22,
+    "sources": 1,
+    "score": 3.1355
+   },
+   {
+    "term": "shield",
+    "precision": 1.0,
+    "support": 22,
+    "sources": 1,
+    "score": 3.1355
+   },
+   {
+    "term": "eye was",
+    "precision": 0.9615,
+    "support": 25,
+    "sources": 1,
+    "score": 3.1328
+   },
+   {
+    "term": "the eye",
+    "precision": 0.9091,
+    "support": 30,
+    "sources": 1,
+    "score": 3.1218
+   },
+   {
+    "term": "intraocular",
+    "precision": 0.9032,
+    "support": 28,
+    "sources": 1,
+    "score": 3.0414
+   },
+   {
+    "term": "right eye",
+    "precision": 0.8372,
+    "support": 36,
+    "sources": 1,
+    "score": 3.0231
+   },
+   {
+    "term": "intraocular lens",
+    "precision": 1.0,
+    "support": 19,
+    "sources": 1,
+    "score": 2.9957
+   },
+   {
+    "term": "the limbus",
+    "precision": 1.0,
+    "support": 18,
+    "sources": 1,
+    "score": 2.9444
+   },
+   {
+    "term": "phacoemulsification",
+    "precision": 1.0,
+    "support": 17,
+    "sources": 1,
+    "score": 2.8904
+   },
+   {
+    "term": "retrobulbar",
+    "precision": 1.0,
+    "support": 17,
+    "sources": 1,
+    "score": 2.8904
+   },
+   {
+    "term": "the lens",
+    "precision": 1.0,
+    "support": 17,
+    "sources": 1,
+    "score": 2.8904
+   },
+   {
+    "term": "lens",
+    "precision": 0.8333,
+    "support": 30,
+    "sources": 1,
+    "score": 2.8617
+   },
+   {
+    "term": "lens was",
+    "precision": 0.95,
+    "support": 19,
+    "sources": 1,
+    "score": 2.8459
+   },
+   {
+    "term": "chamber was",
+    "precision": 1.0,
+    "support": 16,
+    "sources": 1,
+    "score": 2.8332
+   },
+   {
+    "term": "eye postoperative",
+    "precision": 1.0,
+    "support": 16,
+    "sources": 1,
+    "score": 2.8332
+   },
+   {
+    "term": "posterior chamber",
+    "precision": 1.0,
+    "support": 16,
+    "sources": 1,
+    "score": 2.8332
+   },
+   {
+    "term": "eye and",
+    "precision": 0.913,
+    "support": 21,
+    "sources": 1,
+    "score": 2.8223
+   },
+   {
+    "term": "capsular bag",
+    "precision": 1.0,
+    "support": 15,
+    "sources": 1,
+    "score": 2.7726
+   },
+   {
+    "term": "capsulorrhexis",
+    "precision": 1.0,
+    "support": 15,
+    "sources": 1,
+    "score": 2.7726
+   },
+   {
+    "term": "keratome",
+    "precision": 1.0,
+    "support": 15,
+    "sources": 1,
+    "score": 2.7726
+   },
+   {
+    "term": "cornea",
+    "precision": 0.9444,
+    "support": 17,
+    "sources": 1,
+    "score": 2.7298
+   },
+   {
+    "term": "chamber intraocular",
+    "precision": 1.0,
+    "support": 14,
+    "sources": 1,
+    "score": 2.7081
+   },
+   {
+    "term": "paracentesis",
+    "precision": 0.875,
+    "support": 21,
+    "sources": 1,
+    "score": 2.7047
+   },
+   {
+    "term": "eye the",
+    "precision": 0.8696,
+    "support": 20,
+    "sources": 1,
+    "score": 2.6474
+   },
+   {
+    "term": "eye procedure",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "the intraocular",
+    "precision": 1.0,
+    "support": 13,
+    "sources": 1,
+    "score": 2.6391
+   },
+   {
+    "term": "peritomy",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "viscoelastic",
+    "precision": 1.0,
+    "support": 12,
+    "sources": 1,
+    "score": 2.5649
+   },
+   {
+    "term": "clear corneal",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "intraocular pressure",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "the cornea",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "viscoelastic was",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "wire lid",
+    "precision": 1.0,
+    "support": 11,
+    "sources": 1,
+    "score": 2.4849
+   },
+   {
+    "term": "the conjunctiva",
+    "precision": 0.9286,
+    "support": 13,
+    "sources": 1,
+    "score": 2.4506
+   },
+   {
+    "term": "and shield",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "balanced salt",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "chamber and",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "eye anesthesia",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "viscoat",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "vitreous",
+    "precision": 1.0,
+    "support": 10,
+    "sources": 1,
+    "score": 2.3979
+   },
+   {
+    "term": "bss",
+    "precision": 0.9231,
+    "support": 12,
+    "sources": 1,
+    "score": 2.3676
+   },
+   {
+    "term": "conjunctiva was",
+    "precision": 0.9231,
+    "support": 12,
+    "sources": 1,
+    "score": 2.3676
+   },
+   {
+    "term": "chamber",
+    "precision": 0.6667,
+    "support": 32,
+    "sources": 1,
+    "score": 2.331
+   },
+   {
+    "term": "cataract extraction",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "conjunctival peritomy",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "crescent",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "nucleus was",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "operative eye",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "salt solution",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "shield were",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "sterile ophthalmic",
+    "precision": 1.0,
+    "support": 9,
+    "sources": 1,
+    "score": 2.3026
+   },
+   {
+    "term": "speculum was",
+    "precision": 0.6364,
+    "support": 35,
+    "sources": 1,
+    "score": 2.2804
+   },
+   {
+    "term": "lids",
+    "precision": 0.9167,
+    "support": 11,
+    "sources": 1,
+    "score": 2.2778
+   },
+   {
+    "term": "conjunctival",
+    "precision": 0.8,
+    "support": 16,
+    "sources": 1,
+    "score": 2.2666
+   },
+   {
+    "term": "cataract",
+    "precision": 0.675,
+    "support": 27,
+    "sources": 1,
+    "score": 2.2492
+   },
+   {
+    "term": "cataract right",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "chamber the",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "corneal incision",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "eye with",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "maxitrol",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "mm posterior",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "peritomy was",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "phacoemulsification with",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "provisc",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "retrobulbar block",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "westcott",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "westcott scissors",
+    "precision": 1.0,
+    "support": 8,
+    "sources": 1,
+    "score": 2.1972
+   },
+   {
+    "term": "balanced",
+    "precision": 0.8462,
+    "support": 11,
+    "sources": 1,
+    "score": 2.1026
+   },
+   {
+    "term": "hydrodissection",
+    "precision": 0.8462,
+    "support": 11,
+    "sources": 1,
+    "score": 2.1026
+   },
+   {
+    "term": "speculum",
+    "precision": 0.5806,
+    "support": 36,
+    "sources": 1,
+    "score": 2.0967
+   },
+   {
+    "term": "capsulorrhexis was",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "crescent blade",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "extraction with",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "eye using",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "inferotemporal",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "lens implantation",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "maxitrol ointment",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "old wo",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "ophthalmic fashion",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "paracentesis was",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "the phacoemulsification",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "the scleral",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "the xxx",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "utrata",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "utrata forceps",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "with bss",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "wo man",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "xx year",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "xxx eye",
+    "precision": 1.0,
+    "support": 7,
+    "sources": 1,
+    "score": 2.0794
+   },
+   {
+    "term": "eye patch",
+    "precision": 0.9,
+    "support": 9,
+    "sources": 1,
+    "score": 2.0723
+   },
+   {
+    "term": "the lid",
+    "precision": 0.9,
+    "support": 9,
+    "sources": 1,
+    "score": 2.0723
+   },
+   {
+    "term": "an eye",
+    "precision": 0.8,
+    "support": 12,
+    "sources": 1,
+    "score": 2.052
+   },
+   {
+    "term": "globe",
+    "precision": 0.8,
+    "support": 12,
+    "sources": 1,
+    "score": 2.052
+   },
+   {
+    "term": "ophthalmic",
+    "precision": 0.7143,
+    "support": 15,
+    "sources": 1,
+    "score": 1.9804
+   },
+   {
+    "term": "temporally",
+    "precision": 0.8889,
+    "support": 8,
+    "sources": 1,
+    "score": 1.9531
+   },
+   {
+    "term": "bss was",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   },
+   {
+    "term": "clear cornea",
+    "precision": 1.0,
+    "support": 6,
+    "sources": 1,
+    "score": 1.9459
+   }
+  ],
+  "Nephrology": [
+   {
+    "term": "renal disease",
+    "precision": 0.7143,
+    "support": 15,
+    "sources": 1,
+    "score": 1.9804
+   },
+   {
+    "term": "the kidney",
+    "precision": 0.6429,
+    "support": 18,
+    "sources": 1,
+    "score": 1.8929
+   },
+   {
+    "term": "kidney was",
+    "precision": 0.7333,
+    "support": 11,
+    "sources": 1,
+    "score": 1.8223
+   },
+   {
+    "term": "the renal",
+    "precision": 0.6071,
+    "support": 17,
+    "sources": 1,
+    "score": 1.7549
+   },
+   {
+    "term": "dialysis",
+    "precision": 0.6364,
+    "support": 14,
+    "sources": 1,
+    "score": 1.7233
+   },
+   {
+    "term": "stage renal",
+    "precision": 0.6316,
+    "support": 12,
+    "sources": 1,
+    "score": 1.62
+   },
+   {
+    "term": "renal mass",
+    "precision": 0.7778,
+    "support": 7,
+    "sources": 1,
+    "score": 1.6173
+   },
+   {
+    "term": "dialysis today",
+    "precision": 1.0,
+    "support": 4,
+    "sources": 1,
+    "score": 1.6094
+   },
+   {
+    "term": "the transplant",
+    "precision": 0.8333,
+    "support": 5,
+    "sources": 1,
+    "score": 1.4931
+   },
+   {
+    "term": "end stage",
+    "precision": 0.5652,
+    "support": 13,
+    "sources": 1,
+    "score": 1.4916
+   },
+   {
+    "term": "av fistula",
+    "precision": 0.75,
+    "support": 6,
+    "sources": 1,
+    "score": 1.4594
+   },
+   {
+    "term": "gerota",
+    "precision": 0.75,
+    "support": 6,
+    "sources": 1,
+    "score": 1.4594
+   },
+   {
+    "term": "upper pole",
+    "precision": 0.7,
+    "support": 7,
+    "sources": 1,
+    "score": 1.4556
+   },
+   {
+    "term": "ureter and",
+    "precision": 0.6667,
+    "support": 6,
+    "sources": 1,
+    "score": 1.2973
+   },
+   {
+    "term": "arteriovenous fistula",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "chronic kidney",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "diagnosis end",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "dialysis and",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "nephrology",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "on dialysis",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "partial nephrectomy",
+    "precision": 0.8,
+    "support": 4,
+    "sources": 1,
+    "score": 1.2876
+   },
+   {
+    "term": "his creatinine",
+    "precision": 0.7143,
+    "support": 5,
+    "sources": 1,
+    "score": 1.2798
+   },
+   {
+    "term": "the fistula",
+    "precision": 0.6,
+    "support": 6,
+    "sources": 1,
+    "score": 1.1675
+   },
+   {
+    "term": "clamped proximally",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "fistula was",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "flank position",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "gfr",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "kidney were",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "nephrostomy",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "nephrostomy tube",
+    "precision": 0.6667,
+    "support": 4,
+    "sources": 1,
+    "score": 1.073
+   },
+   {
+    "term": "after institution",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "and kidney",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "baseline creatinine",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "his urine",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "with stage",
+    "precision": 0.75,
+    "support": 3,
+    "sources": 1,
+    "score": 1.0397
+   },
+   {
+    "term": "thrill",
+    "precision": 0.5556,
+    "support": 5,
+    "sources": 1,
+    "score": 0.9954
+   },
+   {
+    "term": "upj",
+    "precision": 0.5556,
+    "support": 5,
+    "sources": 1,
+    "score": 0.9954
+   },
+   {
+    "term": "duodenum was",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "on hemodialysis",
+    "precision": 0.5714,
+    "support": 4,
+    "sources": 1,
+    "score": 0.9197
+   },
+   {
+    "term": "any alcohol",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "edema laboratory",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "for dialysis",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "his stay",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "institution of",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "kidney is",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "of kidney",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "organ",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "renal biopsy",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "renal vein",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "side fashion",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "ureter to",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "was spatulated",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   },
+   {
+    "term": "with renal",
+    "precision": 0.6,
+    "support": 3,
+    "sources": 1,
+    "score": 0.8318
+   }
+  ]
+ }
+}

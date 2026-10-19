@@ -1,0 +1,84 @@
+{
+  "key": "medical",
+  "display_name": "Clinical Specialty",
+  "description": "Clinical transcriptions classified by the medical specialty they belong to.",
+  "base_model": "emilyalsentzer/Bio_ClinicalBERT",
+  "model_path": "./models/MedicalModelShared",
+  "max_length": 256,
+  "markers_file": "graph/medical_concept_markers.json",
+  "dataset": "datasets/medical_v1.csv",
+  "labels": [
+    {
+      "id": 0,
+      "name": "Cardiovascular / Pulmonary",
+      "description": "Heart, vasculature and lungs: catheterisation, echocardiography, respiratory failure.",
+      "related": ["Nephrology", "Radiology"]
+    },
+    {
+      "id": 1,
+      "name": "Orthopedic",
+      "description": "Bones, joints, ligaments and the musculoskeletal system, including arthroplasty and fracture repair.",
+      "related": ["Radiology", "Neurosurgery"]
+    },
+    {
+      "id": 2,
+      "name": "Radiology",
+      "description": "Imaging studies and their interpretation: MRI, CT, ultrasound, plain films.",
+      "related": ["Orthopedic", "Neurology", "Cardiovascular / Pulmonary"]
+    },
+    {
+      "id": 3,
+      "name": "Gastroenterology",
+      "description": "Digestive tract, liver, biliary system and pancreas, including endoscopy and colonoscopy.",
+      "related": ["Hematology - Oncology"]
+    },
+    {
+      "id": 4,
+      "name": "Neurology",
+      "description": "Disorders of the brain, spinal cord, nerves and muscles, managed without surgery.",
+      "related": ["Neurosurgery", "Radiology"]
+    },
+    {
+      "id": 5,
+      "name": "Urology",
+      "description": "Urinary tract and the male reproductive system: stones, prostate, bladder.",
+      "related": ["Nephrology"]
+    },
+    {
+      "id": 6,
+      "name": "Obstetrics / Gynecology",
+      "description": "Pregnancy, childbirth and the female reproductive system.",
+      "related": ["Urology"]
+    },
+    {
+      "id": 7,
+      "name": "ENT - Otolaryngology",
+      "description": "Ear, nose, throat, head and neck: tonsillectomy, sinus surgery, hearing loss.",
+      "related": ["Ophthalmology"]
+    },
+    {
+      "id": 8,
+      "name": "Neurosurgery",
+      "description": "Operative treatment of the brain, spine and peripheral nerves.",
+      "related": ["Neurology", "Orthopedic"]
+    },
+    {
+      "id": 9,
+      "name": "Hematology - Oncology",
+      "description": "Blood disorders and cancer: chemotherapy, staging, haematological malignancy.",
+      "related": ["Gastroenterology"]
+    },
+    {
+      "id": 10,
+      "name": "Ophthalmology",
+      "description": "The eye and visual system: cataract extraction, retinal disease, glaucoma.",
+      "related": ["ENT - Otolaryngology"]
+    },
+    {
+      "id": 11,
+      "name": "Nephrology",
+      "description": "Kidney function and disease, including dialysis and renal failure.",
+      "related": ["Urology", "Cardiovascular / Pulmonary"]
+    }
+  ]
+}

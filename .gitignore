@@ -31,9 +31,19 @@ dist/
 # NOTE: backend/models/ also holds request_models.py / response_models.py,
 # which ARE tracked — so the ignores below are deliberately specific.
 # ---------------------------------------------------------------------------
-prototype-v1/backend/models/LegalModelShared
-prototype-v1/backend/models/LegalModelShared/
-prototype-v1/backend/models/v-*/
+# Any checkpoint directory under backend/models/. Named by pattern rather
+# than one by one: the per-name list below used to be the whole rule, so
+# adding a second domain quietly staged a 414 MB model.safetensors that
+# GitHub would have rejected on push. The .py files in that folder are
+# tracked; the weight directories are not.
+prototype-v1/backend/models/*/
+!prototype-v1/backend/models/*.py
+*.safetensors
+
+# Raw corpora as downloaded. Re-fetchable in one command, and the curated
+# split derived from them (datasets/medical_v1.csv) is what the training
+# actually reads.
+prototype-v1/datasets/medical-raw/
 
 # Per-retrain metrics are generated output, but baseline_metrics.json is a
 # measured result the API reads at startup to register the deployed model —
