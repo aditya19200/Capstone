@@ -5,7 +5,7 @@
   "base_model": "law-ai/InLegalBERT",
   "model_path": "./models/LegalModelShared",
   "max_length": 256,
-  "markers_file": "graph/concept_markers.json",
+  "markers_file": "graph/legal_concept_markers.json",
   "dataset": "datasets/v1.csv",
   "labels": [
     {

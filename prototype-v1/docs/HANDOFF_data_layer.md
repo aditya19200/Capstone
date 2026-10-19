@@ -268,3 +268,101 @@ Must return the same 10 nodes as before the change.
 Say which step, paste the error, and say whether `is_configured()` is
 returning True. Most problems are that it is still False and everything is
 silently running on the mock.
+
+---
+
+# UPDATE — 19 Oct: read this before starting Job 2
+
+Three things changed after this document was written. All of them make Job 2
+simpler; one of them was a bug that would have cost you an afternoon.
+
+## 1. The loader does both files now, per domain
+
+`load_ontology.py` previously loaded one hardcoded file. It now takes
+`--domain` and loads that domain's two seeds in order:
+
+```
+cd graph
+export NEO4J_URI="neo4j+s://xxxx.databases.neo4j.io"
+export NEO4J_USER="neo4j"
+export NEO4J_PASSWORD="..."
+export NEO4J_DATABASE="neo4j"
+
+python load_ontology.py --domain legal       # 32 + 1505 statements
+python load_ontology.py --domain medical     # 32 + 2217 statements
+```
+
+`--dry-run` counts the statements without connecting, which is a quick way
+to check your checkout is complete before you touch the database.
+
+The earlier instruction to add a `--file` argument yourself is obsolete.
+
+## 2. There is a second domain
+
+A clinical specialty domain was added, with its own model, label set and
+concept layer. Nothing about the data layer changes because of it — the
+schema already carries a `domain` column from migration 007 — but it means
+there are two sets of seeds, and the naming is now uniform:
+
+```
+graph/legal_ontology_seed.cypher      10 domain nodes, 21 RELATED_TO edges
+graph/legal_concept_seed.cypher       752 concepts
+graph/medical_ontology_seed.cypher    12 domain nodes
+graph/medical_concept_seed.cypher     1,108 concepts
+```
+
+The old `ontology_seed.cypher`, `concept_seed.cypher` and
+`concept_markers.json` are gone — renamed with their domain prefix. If you
+have a branch referring to them, that is why.
+
+Every one of these is **generated** by `graph/mine_concept_markers.py` from
+`domains/<key>.json`. Do not hand-edit them; re-run the miner.
+
+## 3. The bug: concept seeds used to attach to nothing
+
+The concept seed attached each edge with:
+
+```cypher
+MATCH (c:Concept {...}), (d:OntologyNode {label: "..."}) MERGE (c)-[:INDICATES]->(d)
+```
+
+A `MATCH` that finds nothing is **not an error** in Cypher — it does nothing.
+So loading a concept seed into a database whose domain nodes did not exist
+would have reported success and created **zero edges**, silently. The legal
+seed never hit this only because the hand-written ontology seed always
+happened to be loaded first.
+
+It now MERGEs the domain node, so each concept seed stands alone and order
+is forgiving.
+
+**What this means for you:** if you already loaded seeds and
+`verify_ontology.py` behaved oddly, wipe and reload rather than debugging it:
+
+```cypher
+MATCH (n) DETACH DELETE n;
+```
+
+then re-run the loader. And check the edges actually landed:
+
+```cypher
+MATCH (:Concept)-[r:INDICATES]->(:OntologyNode) RETURN count(r);
+// expect 752 for legal, 1108 for medical
+```
+
+## 4. Verification takes a domain too
+
+```
+python verify_ontology.py --domain legal
+python verify_ontology.py --domain medical
+```
+
+It checks the graph against `domains/<key>.json` — the same file
+`mock_db.ONTOLOGY` is projected from, so passing it means the mock and the
+graph genuinely agree.
+
+## Still true, and still the thing that wastes the most time
+
+If nothing persists after you wire up Supabase, check that `SUPABASE_URL` no
+longer contains the word `placeholder`. `is_configured()` returns False and
+everything silently keeps using the in-memory mock, which looks exactly like
+it is working.

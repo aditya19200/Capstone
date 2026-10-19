@@ -37,6 +37,12 @@ dist/
 # GitHub would have rejected on push. The .py files in that folder are
 # tracked; the weight directories are not.
 prototype-v1/backend/models/*/
+# ...and the symlink. A pattern ending in "/" matches directories only, and
+# LegalModelShared is a symlink to a checkout elsewhere on this machine, so
+# the rule above does not catch it — git sees a file. Committing it would
+# put an absolute path from one laptop into the repository, which resolves
+# to nothing on anyone else's.
+prototype-v1/backend/models/LegalModelShared
 !prototype-v1/backend/models/*.py
 *.safetensors
 

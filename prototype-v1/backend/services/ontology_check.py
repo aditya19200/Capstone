@@ -12,7 +12,7 @@ own confidence is the thing deciding whether anyone checks its work.
 Where the concepts live
 -----------------------
 The concept layer is modelled in the ontology itself —
-graph/concept_seed.cypher defines each term as
+graph/<domain>_concept_seed.cypher defines each term as
 
     (:Concept {term, precision, support})
         -[:INDICATES {weight}]-> (:OntologyNode {label})
@@ -23,16 +23,16 @@ layer as it stands is expressible as a flat table, and the JSON mirror is
 exactly that. The graph representation earns its place only once concepts
 carry edges to several domains at different weights, which is the honest
 next step — "violence" occurs in criminal matters too, and modelling that
-is what a table cannot do. graph/concept_markers.json, read below, is
+is what a table cannot do. graph/<domain>_concept_markers.json, read below, is
 the flat mirror of that same model, generated in the same run so the two
 cannot drift. Reading the mirror is the arrangement the rest of the graph
-layer already uses: ontology_seed.cypher mirrors mock_db's ONTOLOGY exactly
+layer already uses: <domain>_ontology_seed.cypher mirrors mock_db's ONTOLOGY exactly
 so that swapping to a live Neo4j is a query-for-query replacement with no
 behaviour change. No instance is stood up yet; when one is, this service
 reads the same edges over bolt instead of from the export.
 
 This check is deliberately independent of the model. It reads the text for
-legal-concept markers (graph/concept_markers.json, mined from the corpus's
+legal-concept markers (graph/<domain>_concept_markers.json, mined from the corpus's
 human gold labels — never from model predictions) and asks a different
 question: does the vocabulary in this document actually belong to the domain
 the model chose?

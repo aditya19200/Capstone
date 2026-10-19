@@ -105,7 +105,7 @@ class Domain:
         The label set in the shape mock_db.ONTOLOGY and the /ontology endpoint
         use. parent/children are always empty here: the domain nodes are a flat
         set of ten peers, and the hierarchy below them lives in the concept
-        layer (graph/concept_seed.cypher), not in this file.
+        layer (graph/<domain>_concept_seed.cypher), not in this file.
         """
         return {
             l.name: {
