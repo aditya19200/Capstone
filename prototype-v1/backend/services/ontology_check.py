@@ -96,6 +96,9 @@ MARKERS_FILE = _DOMAIN.markers_path
 # alone would route them. That is the cost of catching a class of error the
 # confidence thresholds detect at 0%.
 
+# Defaults, and the legal domain's operating point. A pack may override any
+# of the three — see _thresholds() below for why that is not optional.
+#
 # A domain needs at least this much accumulated evidence before its
 # disagreement counts for anything — one stray term is not a case.
 MIN_EVIDENCE = 5.0
@@ -114,6 +117,38 @@ DOMINANCE_RATIO = 1.5
 MIN_MATCHED_TERMS = 2
 
 
+def _thresholds(domain) -> Dict[str, float]:
+    """
+    This domain's operating point, from its pack, falling back to legal's.
+
+    These were global constants until a second domain arrived, and that was
+    wrong in a way worth recording. Tuned on legal, applied unchanged to
+    clinical text, they produced a 21.1% false-positive rate against legal's
+    8.0% while catching 0 of 5 confident errors — strictly worse than not
+    running at all.
+
+    Raising the bar fixes the noise and nothing else. Swept across 30
+    combinations of all three values, the medical domain catches 0/5 at every
+    one of them. The reason is not the numbers: this check works by finding
+    vocabulary that CONTRADICTS the chosen label, and medicine's confusions
+    are between specialties that SHARE vocabulary. A spine operation reads
+    the same whether it is filed Orthopedic or Neurosurgery; Urology and
+    Nephrology both describe the kidney. There is no contradiction to find.
+    Legal's confusions are the opposite — "ipc, prosecution, punishable"
+    against "child, marriage, custody" — which is why the same mechanism
+    catches three of five there.
+
+    So medical ships with a high bar: 1.6% false positives, and no claim to
+    catch anything. That is an honest no-op rather than an expensive one.
+    """
+    pack = getattr(domain, "ontology_thresholds", None) or {}
+    return {
+        "min_evidence": float(pack.get("min_evidence", MIN_EVIDENCE)),
+        "dominance_ratio": float(pack.get("dominance_ratio", DOMINANCE_RATIO)),
+        "min_matched_terms": int(pack.get("min_matched_terms", MIN_MATCHED_TERMS)),
+    }
+
+
 class OntologyCheck:
     """Compares the vocabulary in a text against the label the model chose."""
 
@@ -121,6 +156,7 @@ class OntologyCheck:
         self._markers: Dict[str, List[Dict]] = {}
         self._patterns: Dict[str, List] = {}
         self._loaded = False
+        self._thresholds = _thresholds(_DOMAIN)
 
     def load(self) -> None:
         """Read the domain's markers file and precompile one regex per marker."""
@@ -203,17 +239,20 @@ class OntologyCheck:
         if not ev:
             return None
 
+        min_evidence = self._thresholds["min_evidence"]
+        dominance = self._thresholds["dominance_ratio"]
+        min_terms = self._thresholds["min_matched_terms"]
         predicted_score = ev.get(predicted_label, {}).get("score", 0.0)
 
         ranked = sorted(ev.items(), key=lambda kv: kv[1]["score"], reverse=True)
         for label, detail in ranked:
             if label == predicted_label:
                 continue
-            if detail["score"] < MIN_EVIDENCE:
+            if detail["score"] < min_evidence:
                 break                      # ranked, so nothing below qualifies
-            if len(detail["terms"]) < MIN_MATCHED_TERMS:
+            if len(detail["terms"]) < min_terms:
                 continue
-            if detail["score"] < predicted_score * DOMINANCE_RATIO:
+            if detail["score"] < predicted_score * dominance:
                 continue
             return {
                 "suggested_label": label,

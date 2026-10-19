@@ -74,6 +74,11 @@ class Domain:
     max_length: int = 256
     markers_file: str = ""
     dataset: str = ""
+    # Optional per-domain operating point for services/ontology_check.py.
+    # Omitted means the module defaults, which are legal's. A domain whose
+    # classes share vocabulary rather than contradicting it needs its own —
+    # see _thresholds() there for the measurement that forced this.
+    ontology_thresholds: Optional[Dict] = None
 
     # -- derived views, so callers never rebuild these ---------------------
 
@@ -176,6 +181,7 @@ def _parse(data: Dict, source: Path) -> Domain:
         max_length=int(data.get("max_length", 256)),
         markers_file=str(data.get("markers_file", "")),
         dataset=str(data.get("dataset", "")),
+        ontology_thresholds=data.get("ontology_thresholds") or None,
     )
 
 

@@ -51,7 +51,10 @@ from utils.text import normalize                        # noqa: E402
 
 DATASET = BACKEND_DIR.parent / "datasets" / "v1.csv"
 OUT_DIR = BACKEND_DIR / "metrics"
-OUT_FILE = OUT_DIR / "baseline_metrics.json"
+# Per-domain, so evaluating one deployed checkpoint never overwrites
+# another's recorded metrics. baseline.py reads the same name.
+from config.domains import active_domain as _active_domain
+OUT_FILE = OUT_DIR / f"{_active_domain().key}_baseline_metrics.json"
 BATCH_SIZE = 32
 
 

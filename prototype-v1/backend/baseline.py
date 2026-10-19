@@ -27,7 +27,23 @@ from repositories import model_versions as model_versions_repo
 
 logger = logging.getLogger(__name__)
 
-METRICS_FILE = Path(__file__).resolve().parent / "metrics" / "baseline_metrics.json"
+_METRICS_DIR = Path(__file__).resolve().parent / "metrics"
+
+
+def _metrics_file() -> Path:
+    """
+    The active domain's baseline metrics.
+
+    Per-domain, because a second domain means a second deployed checkpoint
+    with its own accuracy and its own per-class F1 — registering legal's
+    numbers against a medical model would be worse than registering nothing.
+    Falls back to the original un-prefixed name so an existing checkout with
+    only metrics/baseline_metrics.json keeps working.
+    """
+    from config.domains import active_domain
+    preferred = _METRICS_DIR / f"{active_domain().key}_baseline_metrics.json"
+    legacy = _METRICS_DIR / "baseline_metrics.json"
+    return preferred if preferred.exists() else legacy
 
 
 def register_baseline_if_absent() -> None:
@@ -41,17 +57,18 @@ def register_baseline_if_absent() -> None:
     if existing:
         return  # already registered, or real versions exist from retraining
 
-    if not METRICS_FILE.exists():
+    metrics_file = _metrics_file()
+    if not metrics_file.exists():
         logger.info(
             "[baseline] %s not found — the deployed model has no recorded "
             "metrics, so the admin version table will start empty. Run "
             "evaluate_baseline.py to populate it.",
-            METRICS_FILE.name,
+            metrics_file.name,
         )
         return
 
     try:
-        metrics = json.loads(METRICS_FILE.read_text())
+        metrics = json.loads(metrics_file.read_text())
         row = model_versions_repo.insert(
             version_number=metrics["version_number"],
             accuracy=metrics["accuracy"],
