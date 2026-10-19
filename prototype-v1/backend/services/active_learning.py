@@ -134,16 +134,47 @@ class ActiveLearningEngine:
         Apply threshold rules and return (decision, reason).
 
         Rules (applied in priority order):
-          1. confidence > high AND margin is not suspiciously low
+          1. confidence > high
              → AUTO_ACCEPT
           2. confidence < low
              → ROUTE_TO_REVIEWER
           3. Otherwise (medium band)
              → NEEDS_EXPLANATION
 
-        The margin guard on rule 1 catches the edge case where confidence is
-        high but the top-2 gap is still very narrow (e.g. 0.86 vs 0.84),
-        suggesting genuine ambiguity that warrants an explanation.
+        There was a fourth rule here, a margin guard: override AUTO_ACCEPT
+        when confidence cleared `high` but the top-2 gap was under 0.10, on
+        the reasoning that a near-tie deserves an explanation however
+        confident the winner looks. It could never fire, and the reasoning
+        does not survive being written down.
+
+        The probabilities are a softmax, so they sum to one, so the runner-up
+        is at most 1 - p1, so
+
+            margin = p1 - p2 >= p1 - (1 - p1) = 2*p1 - 1
+
+        At p1 > 0.85 the margin is necessarily above 0.70 — it cannot be
+        under 0.10 unless p1 is under 0.55, and below 0.55 rule 2 has already
+        sent the prediction to a reviewer. The guard's own example, "0.86 vs
+        0.84", sums to 1.70 and is not a distribution; the unit test that
+        covered it passed confidence=0.90 with margin=0.05 as two independent
+        scalars, which no prediction can produce.
+
+        Measured rather than argued, on the 435-row medical held-out set:
+        of the 181 predictions above the threshold the smallest margin
+        observed was 0.7727, and the guard fired zero times. See
+        backend/confident_error_analysis.py and
+        metrics/medical_confident_errors.json.
+
+        Removing it changes no behaviour, because unreachable code has none.
+        What it changes is the claim: there is no margin-based protection on
+        auto-accept, and there never was. The protection that does exist is
+        the threshold itself, plus services/ontology_check.py, which flags a
+        confident prediction whose text carries vocabulary pointing at a
+        different label.
+
+        `margin` stays in the signature and in the reason string. It is real
+        information about the prediction and both are stored — it is simply
+        not a gate.
         """
         # Theoretical max entropy is log(num_labels) for a uniform
         # distribution, so it belongs to the active domain and not to a
@@ -151,27 +182,13 @@ class ActiveLearningEngine:
         # for the 12-class medical pack, and the figure is printed in the
         # reason string a reviewer reads.
         max_entropy = math.log(active_domain().num_labels)
-        # Margin threshold below which AUTO_ACCEPT is overridden
-        margin_low_guard = 0.10
 
-        if confidence > high and margin >= margin_low_guard:
+        if confidence > high:
             return (
                 "AUTO_ACCEPT",
                 (
                     f"Confidence {confidence:.4f} exceeds HIGH threshold {high} "
-                    f"and margin {margin:.4f} is sufficiently large. "
-                    "Prediction accepted automatically."
-                ),
-            )
-
-        if confidence > high and margin < margin_low_guard:
-            # High raw confidence but top-2 are very close → treat as medium
-            return (
-                "NEEDS_EXPLANATION",
-                (
-                    f"Confidence {confidence:.4f} exceeds HIGH threshold {high} "
-                    f"but margin {margin:.4f} < {margin_low_guard} indicates "
-                    "ambiguity between top labels. SHAP explanation requested."
+                    f"(margin {margin:.4f}). Prediction accepted automatically."
                 ),
             )
 

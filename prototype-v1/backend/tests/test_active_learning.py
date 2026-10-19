@@ -3,7 +3,8 @@ tests/test_active_learning.py — Tests for the Active Learning Engine.
 
 Covers:
   - All three routing decisions (AUTO_ACCEPT, NEEDS_EXPLANATION, ROUTE_TO_REVIEWER)
-  - Margin guard: high confidence + low margin → NEEDS_EXPLANATION (not AUTO_ACCEPT)
+  - That a high-confidence prediction cannot also have a narrow top-2 margin,
+    which is why the margin guard that used to live here was removed
   - Exact threshold boundary conditions (at, just above, just below)
   - requires_shap and requires_review flags
   - reason string is non-empty for every decision
@@ -17,6 +18,7 @@ import math
 
 import pytest
 
+from config.settings import settings
 from services.active_learning import ActiveLearningEngine, ActiveLearningResult, active_learning_engine
 
 
@@ -50,8 +52,15 @@ def _certain_probs(top_label: str = "Contract Law") -> dict:
 
 def _make_probs(top_conf: float, second_conf: float, top_label: str = "Contract Law") -> dict:
     """
-    Build a realistic probability dict with controlled top-1 and top-2 values.
-    Remaining probability is split evenly among the other 8 labels.
+    Build a probability dict with controlled top-1 and top-2 values.
+    Remaining probability is split evenly among the other labels.
+
+    NOT always a distribution: when top_conf + second_conf > 1 the remainder
+    clamps at zero and the values sum to more than one. That is tolerable
+    because _route() reads confidence, entropy and margin as independent
+    scalars, so these tests exercise the threshold logic directly — but it
+    does mean a test here can assert on a prediction no model could emit,
+    and one of them used to. See TestMarginIsNotAGate.
     """
     remaining = max(0.0, 1.0 - top_conf - second_conf)
     per_other = remaining / (NUM_LABELS - 2) if NUM_LABELS > 2 else 0.0
@@ -138,15 +147,17 @@ class TestNeedsExplanation:
         result = _evaluate(confidence=0.849, margin=0.20)
         assert result.routing_decision == "NEEDS_EXPLANATION"
 
-    def test_high_confidence_low_margin_overrides_auto_accept(self):
-        """confidence > HIGH but margin < 0.10 → NEEDS_EXPLANATION."""
-        result = _evaluate(confidence=0.90, margin=0.05)
-        assert result.routing_decision == "NEEDS_EXPLANATION"
+    def test_high_confidence_auto_accepts_whatever_the_margin_says(self):
+        """
+        confidence > HIGH → AUTO_ACCEPT, and the margin does not get a vote.
 
-    def test_high_confidence_exactly_at_margin_guard(self):
-        """confidence > HIGH and margin == 0.10 → AUTO_ACCEPT (boundary inclusive)."""
-        result = _evaluate(confidence=0.90, margin=0.10)
-        assert result.routing_decision == "AUTO_ACCEPT"
+        Both margins below are unreachable in practice at this confidence —
+        see TestMarginIsNotAGate — which is exactly the point: there is no
+        input at all for which a high confidence fails to auto-accept.
+        """
+        for margin in (0.05, 0.10, 0.30):
+            result = _evaluate(confidence=0.90, margin=margin)
+            assert result.routing_decision == "AUTO_ACCEPT", f"margin={margin}"
 
     def test_requires_shap_true(self):
         """NEEDS_EXPLANATION → requires_shap is True."""
@@ -337,3 +348,55 @@ class TestUtilityHelpers:
         probs = _make_probs(top_conf=0.80, second_conf=0.10)
         summary = ActiveLearningEngine.uncertainty_summary(probs)
         assert summary["confidence"] == pytest.approx(0.80, abs=1e-4)
+
+
+# ===========================================================================
+# Why there is no margin guard
+# ===========================================================================
+
+class TestMarginIsNotAGate:
+    """
+    A softmax sums to one, so a confident prediction cannot be a near-tie.
+
+    The engine used to override AUTO_ACCEPT when confidence was above HIGH
+    but the top-2 margin was under 0.10. No prediction can satisfy both, so
+    the branch never executed, and the test that covered it passed
+    confidence and margin as unrelated scalars rather than as two entries of
+    one distribution.
+
+    Measured on the 435-row medical held-out set: of 181 predictions above
+    the threshold, the smallest margin was 0.7727 and the guard fired zero
+    times (backend/confident_error_analysis.py).
+    """
+
+    def test_margin_is_bounded_below_by_confidence(self):
+        """For any real distribution, margin >= 2*p1 - 1."""
+        for top in (0.56, 0.70, 0.85, 0.90, 0.99):
+            # Give the runner-up everything that is left: the single most
+            # generous case, and therefore the smallest possible margin.
+            probs = {label: 0.0 for label in LABELS}
+            probs[LABELS[0]] = top
+            probs[LABELS[1]] = 1.0 - top
+            margin = ActiveLearningEngine.compute_margin(probs)
+            assert margin == pytest.approx(2 * top - 1, abs=1e-9)
+            assert margin >= 2 * top - 1 - 1e-9
+
+    def test_no_distribution_is_both_confident_and_a_near_tie(self):
+        """
+        Above CONFIDENCE_HIGH the margin cannot reach the old 0.10 guard.
+
+        Sweeping the whole reachable range rather than asserting the algebra,
+        so this fails if CONFIDENCE_HIGH is ever lowered past 0.55 and the
+        combination becomes possible again.
+        """
+        high = settings.CONFIDENCE_HIGH
+        assert high > 0.55, (
+            "below 0.55 a confident near-tie becomes arithmetically possible "
+            "and the removed margin guard would need reconsidering"
+        )
+        for i in range(1, 1000):
+            top = high + (1.0 - high) * i / 1000
+            probs = {label: 0.0 for label in LABELS}
+            probs[LABELS[0]] = top
+            probs[LABELS[1]] = 1.0 - top
+            assert ActiveLearningEngine.compute_margin(probs) > 0.10

@@ -208,16 +208,29 @@ class TestPredictRouting:
         assert data["xai_job_id"] is not None
         assert len(mock_db._xai_jobs) == 1
 
-    def test_high_confidence_low_margin_needs_explanation(self, client, monkeypatch):
-        """High raw confidence but low margin → NEEDS_EXPLANATION (not AUTO_ACCEPT)."""
+    def test_high_confidence_auto_accepts_regardless_of_margin(self, client, monkeypatch):
+        """
+        High confidence → AUTO_ACCEPT, and a narrow margin does not override it.
+
+        This asserted NEEDS_EXPLANATION until 19 Oct, on the strength of a
+        margin guard in services/active_learning.py that could not execute: a
+        softmax sums to one, so margin >= 2*p1 - 1, so a prediction at 0.87
+        has a margin of at least 0.74 and never 0.05. The mock is the only
+        place such a prediction exists. Measured on the medical held-out set
+        the smallest margin above the threshold was 0.7727 and the guard
+        fired zero times out of 181, so it was removed.
+
+        Kept, with the impossible margin intact, as the regression test for
+        that removal: the routing must not depend on a signal that cannot
+        vary independently of confidence.
+        """
         _patch_model(monkeypatch, _make_inference_result(confidence=0.87, margin=0.05))
 
         resp = client.post("/predict", json={"text": "The contract clause is ambiguous."})
 
         data = resp.json()
-        # margin < 0.10 guard overrides AUTO_ACCEPT
-        assert data["routing_decision"] == "NEEDS_EXPLANATION"
-        assert data["xai_job_id"] is not None
+        assert data["routing_decision"] == "AUTO_ACCEPT"
+        assert data["xai_job_id"] is None
 
 
 # ===========================================================================
