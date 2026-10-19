@@ -245,6 +245,27 @@ export async function exportBatchUrl(batchId) {
   return `${base}/batches/${batchId}/export`
 }
 
+// The validated corpus as JSONL. Goes through axiosClient rather than a
+// plain link because the endpoint is admin-only and a browser download
+// carries no X-Role header — the interceptor adds it here.
+export async function downloadDataset() {
+  if (USE_MOCKS) return mocks.downloadDataset()
+  const resp = await axiosClient.get('/admin/dataset', { responseType: 'blob' })
+  return {
+    blob: resp.data,
+    count: Number(resp.headers['x-example-count'] ?? 0),
+    filename:
+      /filename="([^"]+)"/.exec(resp.headers['content-disposition'] || '')?.[1] ||
+      'dataset.jsonl',
+  }
+}
+
+export async function getDatasetCard() {
+  if (USE_MOCKS) return mocks.getDatasetCard()
+  const { data } = await axiosClient.get('/admin/dataset/card')
+  return data
+}
+
 export async function getLowConfidenceQueue() {
   if (USE_MOCKS) return mocks.getLowConfidenceQueue()
   // Real LowConfidenceItem calls the field text_excerpt; every consumer

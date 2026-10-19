@@ -12,9 +12,11 @@ GET  /admin/metrics
 """
 
 import logging
+from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from fastapi import APIRouter, Header, HTTPException, status
+from fastapi.responses import StreamingResponse
 
 from models.response_models import (
     AdminMetricsResponse,
@@ -30,6 +32,7 @@ from repositories import batch_items as batch_items_repo
 from repositories import batches as batches_repo
 from repositories import predictions as predictions_repo
 from repositories import model_versions as model_versions_repo
+from services import dataset_export
 from services.model_service import model_service
 from utils.text import normalize
 
@@ -172,6 +175,62 @@ async def get_admin_metrics(
         ],
     )
 
+
+
+# ---------------------------------------------------------------------------
+# GET /admin/dataset  and  /admin/dataset/card
+# ---------------------------------------------------------------------------
+
+@router.get(
+    "/dataset",
+    status_code=status.HTTP_200_OK,
+    summary="Download the validated corpus as JSONL",
+    description=(
+        "Every human-validated annotation as JSON Lines, one example per "
+        "line, ready for datasets.load_dataset(\"json\", ...). This is the "
+        "output of the framework: the model pre-labels, the routing layer "
+        "decides what a human sees, and what comes out is training data. "
+        "Assembled from exactly what the retrain worker consumes, so the "
+        "file and the thing we retrain on cannot drift apart."
+    ),
+)
+async def export_dataset(
+    x_role: Optional[str] = Header(default=None, alias="X-Role"),
+) -> StreamingResponse:
+    _require_admin(x_role)
+    records, skipped = dataset_export.rows()
+    if skipped:
+        logger.warning("Dataset export skipped %d unusable annotation(s)", skipped)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    return StreamingResponse(
+        dataset_export.to_jsonl(records),
+        media_type="application/x-ndjson",
+        headers={
+            "Content-Disposition":
+                f'attachment; filename="dataset-{stamp}.jsonl"',
+            # Lets the UI show the count without reading the stream.
+            "X-Example-Count": str(len(records)),
+        },
+    )
+
+
+@router.get(
+    "/dataset/card",
+    status_code=status.HTTP_200_OK,
+    summary="Dataset card for the validated corpus",
+    description=(
+        "Markdown describing what the export contains — size, label "
+        "distribution, fields, and the limits that matter. Returned "
+        "alongside the raw counts so the UI can render either."
+    ),
+)
+async def dataset_card(
+    x_role: Optional[str] = Header(default=None, alias="X-Role"),
+) -> Dict:
+    _require_admin(x_role)
+    records, _ = dataset_export.rows()
+    return {"stats": dataset_export.stats(records),
+            "card_markdown": dataset_export.card(records)}
 
 # ---------------------------------------------------------------------------
 # GET /admin/batches  and  GET /admin/compare

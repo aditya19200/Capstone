@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { activateModelVersion, getAdminMetrics } from '../api/client.js'
+import DatasetExportCard from '../components/admin/DatasetExportCard.jsx'
 import ModelVersionsTable from '../components/admin/ModelVersionsTable.jsx'
 import StatsCard from '../components/dashboard/StatsCard.jsx'
 
@@ -122,6 +123,8 @@ function AdminPage() {
             activatingId={activatingId}
             onActivate={handleActivate}
           />
+
+          <DatasetExportCard />
         </>
       )}
     </section>
