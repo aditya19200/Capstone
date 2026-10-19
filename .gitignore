@@ -63,6 +63,7 @@ prototype-v1/backend/metrics/*
 !prototype-v1/backend/metrics/*_retrain_experiment*.json
 !prototype-v1/backend/metrics/*_confident_errors.json
 !prototype-v1/backend/metrics/*_v1_vs_v2.csv
+!prototype-v1/backend/metrics/*_calibration_*.json
 
 # Local model dumps and scratch copies sitting in the working folder
 LegalModel/

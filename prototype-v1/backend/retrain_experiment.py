@@ -113,12 +113,12 @@ def stratified_split(rows, queue_frac, seed):
 # ---------------------------------------------------------------------------
 
 def fine_tune(model, tok, rows, label2id, max_length, device, epochs, batch_size, lr,
-              tag=""):
+              tag="", seed=SEED):
     optimizer = AdamW(model.parameters(), lr=lr)
     for epoch in range(epochs):
         model.train()
         order = list(range(len(rows)))
-        random.Random(SEED + epoch).shuffle(order)
+        random.Random(seed + epoch).shuffle(order)
         total, batches = 0.0, 0
         for start in range(0, len(order), batch_size):
             idx = order[start:start + batch_size]
@@ -220,6 +220,11 @@ def main():
                     help="epochs for the fine-tune; defaults to --epochs")
     ap.add_argument("--batch-size", type=int, default=BATCH_SIZE)
     ap.add_argument("--lr", type=float, default=LEARNING_RATE)
+    ap.add_argument("--seed", type=int, default=SEED,
+                    help="drives the split, the head init and the shuffling. Varying it "
+                         "is the only way to tell a real gain from training noise: a "
+                         "single run of this script cannot distinguish +0.7pp of "
+                         "learning from +0.7pp of cuBLAS summation order.")
     ap.add_argument("--corrections-only", action="store_true",
                     help="fine-tune on the rows the reviewer changed, not on the whole "
                          "validated queue; isolates what a correction is worth")
@@ -232,7 +237,7 @@ def main():
                     choices=("all", "baseline", "queue", "retrain", "measure"))
     args = ap.parse_args()
 
-    pin_randomness()
+    pin_randomness(args.seed)
     domain = get_domain(args.domain)
     known = set(domain.names)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -251,7 +256,7 @@ def main():
     all_rows, skipped = load_csv(ROOT / domain.dataset, known)
     heldout_path = ROOT / "sample-data/evaluation" / f"{domain.key}_heldout.csv"
     held_rows, _ = load_csv(heldout_path, known)
-    train_rows, queue_rows = stratified_split(all_rows, args.queue_frac, SEED)
+    train_rows, queue_rows = stratified_split(all_rows, args.queue_frac, args.seed)
 
     print(f"domain       : {domain.key} ({domain.num_labels} labels)")
     print(f"corpus       : {len(all_rows)} rows" + (f" ({skipped} skipped)" if skipped else ""))
@@ -259,7 +264,16 @@ def main():
     print(f"  queue      : {len(queue_rows)}  (stands in for post-deployment arrivals)")
     print(f"held-out     : {len(held_rows)} rows from {heldout_path.name}  — never trained on")
     print(f"device       : {device}")
-    print(f"work dir     : {work.relative_to(HERE)}\n")
+    print(f"seed         : {args.seed}")
+    # A work dir outside backend/ is legitimate -- a per-seed scratch directory,
+    # a path on another disk -- so show it plainly rather than insisting it sit
+    # under HERE. relative_to raises on anything else, and raising inside a
+    # progress print killed three seeds' worth of training.
+    try:
+        shown = work.relative_to(HERE)
+    except ValueError:
+        shown = work
+    print(f"work dir     : {shown}\n")
 
     if not held_rows:
         sys.exit("no held-out file — every number below would be meaningless")
@@ -273,7 +287,7 @@ def main():
               f"from {domain.base_model}", flush=True)
         model, tok = load_model(domain.base_model, domain, device)
         fine_tune(model, tok, train_rows, domain.label2id, domain.max_length, device,
-                  args.epochs, args.batch_size, args.lr, tag="v1 ")
+                  args.epochs, args.batch_size, args.lr, tag="v1 ", seed=args.seed)
         v1_dir.mkdir(parents=True, exist_ok=True)
         model.save_pretrained(v1_dir)
         tok.save_pretrained(v1_dir)
@@ -318,7 +332,7 @@ def main():
               + (" (corrections only)" if args.corrections_only else ""), flush=True)
         r_epochs = args.retrain_epochs if args.retrain_epochs is not None else args.epochs
         fine_tune(model, tok, validated, domain.label2id, domain.max_length, device,
-                  r_epochs, args.batch_size, args.lr, tag="v2 ")
+                  r_epochs, args.batch_size, args.lr, tag="v2 ", seed=args.seed)
         v2_dir.mkdir(parents=True, exist_ok=True)
         model.save_pretrained(v2_dir)
         tok.save_pretrained(v2_dir)
@@ -366,6 +380,7 @@ def main():
             "rows": len(held_rows),
             "results": results,
         }
+        state["seed"] = args.seed
         state["measured_at"] = datetime.now(timezone.utc).isoformat()
         state_path.write_text(json.dumps(state, indent=1))
 
@@ -397,7 +412,10 @@ def main():
             x, y = a["f1_per_class"][n], b["f1_per_class"][n]
             print(f"  {n[:32]:34}{x:>10.3f}{y:>10.3f}{pp(x, y):>10}")
 
-        print(f"\nwrote {state_path.relative_to(HERE)}")
+        try:
+            print(f"\nwrote {state_path.relative_to(HERE)}")
+        except ValueError:
+            print(f"\nwrote {state_path}")
 
 
 if __name__ == "__main__":
