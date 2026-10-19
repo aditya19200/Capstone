@@ -211,7 +211,13 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--domain", required=True)
     ap.add_argument("--queue-frac", type=float, default=0.2)
-    ap.add_argument("--epochs", type=int, default=EPOCHS)
+    ap.add_argument("--epochs", type=int, default=EPOCHS,
+                    help="epochs for the BASELINE. This is the model a team would have "
+                         "deployed, so it gets a full training run whatever the retrain "
+                         "recipe is -- passing one value for both made the baseline "
+                         "undertrained and the comparison meaningless.")
+    ap.add_argument("--retrain-epochs", type=int, default=None,
+                    help="epochs for the fine-tune; defaults to --epochs")
     ap.add_argument("--batch-size", type=int, default=BATCH_SIZE)
     ap.add_argument("--lr", type=float, default=LEARNING_RATE)
     ap.add_argument("--corrections-only", action="store_true",
@@ -310,8 +316,9 @@ def main():
         ]
         print(f"[3/4] fine-tuning the baseline on {len(validated)} validated row(s)"
               + (" (corrections only)" if args.corrections_only else ""), flush=True)
+        r_epochs = args.retrain_epochs if args.retrain_epochs is not None else args.epochs
         fine_tune(model, tok, validated, domain.label2id, domain.max_length, device,
-                  args.epochs, args.batch_size, args.lr, tag="v2 ")
+                  r_epochs, args.batch_size, args.lr, tag="v2 ")
         v2_dir.mkdir(parents=True, exist_ok=True)
         model.save_pretrained(v2_dir)
         tok.save_pretrained(v2_dir)
@@ -319,7 +326,8 @@ def main():
             "validated_rows": len(validated),
             "corrections_only": args.corrections_only,
             "from_checkpoint": v1_dir.name,
-            "epochs": args.epochs, "batch_size": args.batch_size, "lr": args.lr,
+            "baseline_epochs": args.epochs, "retrain_epochs": r_epochs,
+            "batch_size": args.batch_size, "lr": args.lr,
         }
         state_path.write_text(json.dumps(state, indent=1))
         print(f"      saved {v2_dir.name}\n")
