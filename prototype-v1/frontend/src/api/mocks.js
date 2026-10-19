@@ -399,6 +399,34 @@ export async function exportBatchUrl(batchId) {
   return `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/batches/${batchId}/export`
 }
 
+export async function downloadDataset() {
+  await delay(300)
+  const rows = [
+    { text: 'The vendor shall supply the goods per the annexed schedule.', label: 'Contract Law', label_id: 0, domain: 'legal', predicted_label: 'Contract Law', confidence: 0.99, corrected: false, model_version: 'mock', annotated_at: new Date().toISOString() },
+    { text: 'The child witness gave testimony and corroboration was considered.', label: 'Criminal Law', label_id: 1, domain: 'legal', predicted_label: 'Family Law', confidence: 0.977, corrected: true, model_version: 'mock', annotated_at: new Date().toISOString() },
+  ]
+  const text = rows.map((r) => JSON.stringify(r)).join('\n') + '\n'
+  return {
+    blob: new Blob([text], { type: 'application/x-ndjson' }),
+    count: rows.length,
+    filename: 'dataset-mock.jsonl',
+  }
+}
+
+export async function getDatasetCard() {
+  await delay()
+  return {
+    stats: {
+      domain: 'legal', display_name: 'Indian Legal', total: 2,
+      corrected: 1, confirmed: 1,
+      label_counts: { 'Contract Law': 1, 'Criminal Law': 1 },
+      labels_unused: [], mean_confidence: 0.9835, model_versions: ['mock'],
+    },
+    card_markdown:
+      '# Indian Legal \u2014 annotated corpus\n\nMocked card for offline development.\n',
+  }
+}
+
 export async function getLowConfidenceQueue() {
   await delay()
   return Array.from({ length: 6 }, (_, index) => {

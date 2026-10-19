@@ -37,6 +37,13 @@ torch_stub.cuda = cuda_stub
 sys.modules["torch"] = torch_stub
 sys.modules["torch.nn"] = MagicMock()
 sys.modules["torch.nn.functional"] = MagicMock()
+# torch.optim too, because workers/retrain_worker.py imports it at module
+# level. Without this entry "import torch.optim" fails with "'torch' is not
+# a package" — a MagicMock is not one — and the whole retrain worker becomes
+# unimportable under test, which is how it ended up with no tests at all.
+sys.modules["torch.optim"] = MagicMock()
+sys.modules["torch.utils"] = MagicMock()
+sys.modules["torch.utils.data"] = MagicMock()
 
 # ---------------------------------------------------------------------------
 # Stub: transformers
