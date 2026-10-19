@@ -236,7 +236,11 @@ def main():
     suffix = f"_{args.tag}" if args.tag else ""
     v1_dir = work / "v1_baseline"
     v2_dir = work / f"v2_retrained{suffix}"
-    state_path = work / f"experiment{suffix}.json"
+    # Results go to metrics/, not into the checkpoint directory: backend/models
+    # is gitignored wholesale (the weights are 400MB each), so a result file
+    # written beside them is a measurement nobody else can see.
+    state_path = (HERE / "metrics" / f"{domain.key}_retrain_experiment{suffix}.json")
+    state_path.parent.mkdir(exist_ok=True)
 
     all_rows, skipped = load_csv(ROOT / domain.dataset, known)
     heldout_path = ROOT / "sample-data/evaluation" / f"{domain.key}_heldout.csv"

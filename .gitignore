@@ -57,6 +57,11 @@ prototype-v1/datasets/medical-raw/
 prototype-v1/backend/metrics/*
 !prototype-v1/backend/metrics/baseline_metrics.json
 !prototype-v1/backend/metrics/*_baseline_metrics.json
+# Measurements docs/RESULTS.md cites by name. Per-retrain job metrics above are
+# generated output that changes on every run; these are the recorded result of
+# a specific experiment, so losing them loses the evidence for a claim.
+!prototype-v1/backend/metrics/*_retrain_experiment*.json
+!prototype-v1/backend/metrics/*_confident_errors.json
 
 # Local model dumps and scratch copies sitting in the working folder
 LegalModel/

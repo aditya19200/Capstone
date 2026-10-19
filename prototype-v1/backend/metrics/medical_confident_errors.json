@@ -1,0 +1,43 @@
+{
+ "domain": "medical",
+ "checkpoint": "/home/ankush/Documents/Capstone/prototype-v1/backend/models/MedicalModelShared",
+ "heldout": "sample-data/evaluation/medical_heldout.csv",
+ "rows": 435,
+ "confidence_high": 0.85,
+ "accuracy": 0.6828,
+ "top2_accuracy": 0.9218,
+ "above_high": 181,
+ "above_high_wrong": 5,
+ "above_high_wrong_runner_up_was_gold": 3,
+ "below_high_wrong": 133,
+ "below_high_wrong_runner_up_was_gold": 101,
+ "margin_above_high_min": 0.7727,
+ "margin_guard_fired": 0,
+ "confident_error_pairs": [
+  [
+   "Neurosurgery",
+   "Orthopedic",
+   1
+  ],
+  [
+   "Nephrology",
+   "Urology",
+   1
+  ],
+  [
+   "Radiology",
+   "Cardiovascular / Pulmonary",
+   1
+  ],
+  [
+   "Gastroenterology",
+   "Cardiovascular / Pulmonary",
+   1
+  ],
+  [
+   "Cardiovascular / Pulmonary",
+   "Gastroenterology",
+   1
+  ]
+ ]
+}
