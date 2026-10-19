@@ -234,7 +234,7 @@ correct; the mechanism is simpler than it looks.
 - Frontend builds clean; one pre-existing lint error in `AuthContext.jsx`
 - Label set is one file per domain in `domains/`; adding a domain is a file,
   not a code change
-- `concept_markers.json` and `concept_seed.cypher` are regenerated
+- `<domain>_concept_markers.json` and the `.cypher` seeds are regenerated
   byte-identically by `graph/mine_concept_markers.py` — reproducible across
   hash seeds
 

@@ -790,7 +790,7 @@ def get_pending_prediction_jobs() -> List[Dict]:
 # exactly the same shape, so the descriptions and related edges live in one
 # file instead of being repeated here.
 #
-# ontology_seed.cypher still mirrors this for the real Neo4j path. That
+# <domain>_ontology_seed.cypher still mirrors this for the real Neo4j path. It
 # mirroring is what makes the swap a query-for-query replacement, and it is
 # checked by graph/verify_ontology.py, which reads the same pack.
 

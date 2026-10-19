@@ -18,7 +18,7 @@ def check():
     c = OntologyCheck()
     c.load()
     if not c.is_loaded():
-        pytest.skip("concept_markers.json not present — run graph/mine_concept_markers.py")
+        pytest.skip("concept markers not present — run graph/mine_concept_markers.py")
     return c
 
 
