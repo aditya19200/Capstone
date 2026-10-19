@@ -116,12 +116,18 @@ you would expect the opposite. Weak evidence against heavy contamination.
 
 ## 4. The ontology consistency check
 
-> **Stale, flagged 19 Oct:** the medical figures in this section (21.1% FP
-> with legal's thresholds, 1.6% after tuning, 0/5 at thirty combinations)
-> were measured against the contaminated corpus described in section 9. The
-> conclusion — that the check needs classes which contradict rather than
-> share vocabulary — is unaffected, because it rests on which vocabulary the
-> classes use and not on the split. The percentages have not been re-run.
+> **Re-measured 19 Oct, after the corpus rebuild of section 9.** The medical
+> markers had been mined from the contaminated corpus (`sample_count: 1738`).
+> Re-mined from the clean 1,472-row corpus: **1,179 markers across 12
+> classes**, and the false-positive rate on the clean 273-row held-out set is
+> **1.1%** (3 rows), against 1.6% before. Still an honest no-op: medical's
+> thresholds are set where the check almost never fires, because it cannot
+> catch this domain's errors (0 of 5, at thirty threshold combinations) and a
+> check that only produces false positives is worth less than nothing.
+>
+> **Legal is unchanged and was regression-checked: 136/1,701 = 8.0% false
+> positives, exactly as recorded below.** Re-mining medical touched only
+> medical's files.
 
 
 Catches confidently-wrong predictions, which uncertainty sampling is
