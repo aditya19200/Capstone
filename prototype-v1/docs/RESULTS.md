@@ -428,11 +428,42 @@ held-out rows, which no stage touches.
 | ECE | 0.039 | 0.043 | 0.030 |
 | wrong above auto-accept | 8 | 11 | **15** |
 
-**The aggregate gain is inside the noise floor and must not be claimed.**
-+0.7pp sits exactly on the ±0.7pp training variance from section 8. One
-epoch made it *worse*. An earlier revision of this document reported +1.6pp
-with improved calibration; that was measured on the contaminated set, where
-30% of the rows were unanswerable and created headroom that does not exist.
+One epoch made it *worse*, so the worker's three epochs stay. An earlier
+revision reported +1.6pp with improved calibration; that was measured on the
+contaminated set, where 30% of the rows were unanswerable and created
+headroom that does not exist.
+
+### Three seeds, because one run cannot tell a gain from noise
+
++0.7pp sits exactly on the ±0.7pp training variance of section 8, so the
+whole pipeline was re-run at three seeds. Each seed re-splits the corpus,
+re-trains the baseline, re-works the queue and re-trains, so the queue
+contents vary too and not only the floating-point order.
+
+| seed | baseline | retrained | delta | ECE before | ECE after | wrong above 0.85 |
+|---|---|---|---|---|---|---|
+| 42 | 0.8938 | 0.9011 | +0.7pp | 0.0390 | 0.0302 | 8 → 15 |
+| 1337 | 0.8974 | 0.9304 | **+3.3pp** | 0.0474 | 0.0452 | 6 → 7 |
+| 7 | 0.8864 | 0.9121 | +2.6pp | 0.0452 | 0.0321 | 10 → 9 |
+
+```
+baseline mean   0.8925        retrained mean  0.9145
+accuracy delta  +2.20pp mean, sd 1.32pp, min +0.7pp, positive in 3 of 3
+ECE             improved in 3 of 3, mean -0.80pp
+```
+
+**The gain is real and bigger than one run suggested.** Seed 42 — the run
+quoted everywhere above, and the only one measured at first — was the worst
+of the three. The mean is +2.20pp against a ±0.7pp noise floor, every seed is
+positive, and calibration error improved in every seed with no calibration
+step applied.
+
+**Quote +2.2pp across three seeds.** Not +0.7pp, and not +3.3pp.
+
+The confidently-wrong count is the one thing that moved the wrong way, and
+only on one seed: 8 → 15 at seed 42 against 6 → 7 and 10 → 9 at the others,
+mean 8.0 → 10.3. The earlier claim that retraining systematically doubles
+confident errors was an artefact of a single run.
 
 **Where the loop does pay, and this is above the noise:**
 
@@ -453,20 +484,49 @@ with one number.
 
 The honest summary is three sentences, not one:
 
-> "Sixty-five corrections moved our two weakest measurable classes by 16 and
-> 17 points of F1. Aggregate accuracy moved 0.7 points, which is inside our
-> training variance, so we do not claim it. The cost was seven more wrong
-> predictions reaching auto-accept, because we do not refit the calibration
-> temperature after retraining, and that is the next thing to fix."
+> "Retraining on human corrections raised medical held-out accuracy by 2.2
+> points on average across three seeds — positive in all three, against a
+> training variance of 0.7 — and improved calibration error in all three. Our
+> two weakest measurable classes moved 16 and 17 points of F1."
 
-**Not done, and it is the same gap as before:** nothing refits
-`settings.CALIBRATION_TEMPERATURE` after a retrain. It is one global constant
-at 1.0, not per-domain. Both recipes raised the confidently-wrong rate, which
-is exactly the condition temperature scaling exists to correct.
+### Temperature scaling does not transfer to medical either
 
-**Also not done:** three seeds. Every delta in this section is one run
-against one split. The per-class movements are large enough to survive
-±0.7pp; the aggregate is not, and is reported as not.
+`backend/calibrate.py` was legal-only — it hardcoded the legal PDF manifest.
+It now takes any labelled CSV (`--set csv`) and any checkpoint (`--model`),
+so a retrained model can be calibrated separately from the one the domain
+pack serves. Fitted on half the medical held-out set, measured on the other:
+
+| checkpoint | accuracy | ECE before | ECE after | fitted T |
+|---|---|---|---|---|
+| medical baseline | 0.8978 | 0.0632 | 0.0633 | 0.854 |
+| medical retrained | 0.8978 | 0.0475 | **0.0502** | 0.947 |
+
+**It makes things very slightly worse, and both fitted temperatures are below
+1.0** — meaning the fit wants the model to be *more* confident. Legal's is
+1.313, which lowers confidence.
+
+The reason is in the bins. Medical is badly **under**confident at the bottom
+(the 0.3–0.4 bin is right 100% of the time, 0.5–0.6 is right 80%) and mildly
+**over**confident at the top (0.9–1.0 claims 0.960, delivers 0.934).
+Temperature is one scalar dividing every logit, so it moves every bin the
+same direction. It cannot pull the top down and push the bottom up at once,
+and the two errors largely cancel in the fit.
+
+> "Temperature scaling corrects a model that is uniformly overconfident. Ours
+> is overconfident at the top and underconfident at the bottom, so a single
+> scalar has nothing to fix. Legal is uniformly overconfident and gets a real
+> 0.083 to 0.060 improvement out of the same code."
+
+That is the third technique measured to work on legal and not on medical,
+after the ontology thresholds and the ontology check itself, and the third
+time the cause is a property of the domain rather than a bug. **Medical needs
+no calibration step:** retraining improved its ECE in all three seeds on its
+own.
+
+**Still not done:** nothing refits the temperature automatically after a
+retrain. That matters for legal, where the temperature is real and a new
+checkpoint inherits the old one's. It is one setting per checkpoint and the
+script now prints it.
 
 ### Confident errors on the clean set
 
@@ -548,9 +608,9 @@ one that still needs work.
 > 68.3%. We did not change the model — we fixed a test set that was asking
 > unanswerable questions."
 
-> "Sixty-five corrections moved our two weakest measurable classes by 16 and
-> 17 points of F1. Aggregate accuracy moved 0.7 points, which is inside our
-> training variance, so we do not claim it."
+> "Retraining raised medical held-out accuracy 2.2 points on average across
+> three seeds, positive in all three against a training variance of 0.7, and
+> improved calibration error in all three."
 
 > "Active learning improves the tail, not the average. Our large classes
 > were already above 0.94 and dominate the aggregate, so the right way to
@@ -591,9 +651,12 @@ one that still needs work.
 - ~~"our retrained model scored 100%"~~ — on an 11-row test split
 - ~~"the margin guard catches confident near-ties"~~ — arithmetically
   impossible, fired 0/181, removed 19 Oct
-- ~~"retraining improved the medical model"~~ — aggregate gain was +0.7pp,
-  inside the ±0.7pp training variance. Claim the per-class tail gains
-  (+17.5pp Hematology, +16.2pp Neurosurgery) and say the aggregate is noise
+- ~~"retraining improved medical by 0.7pp"~~ — that was seed 42 alone, the
+  worst of three. The three-seed mean is +2.2pp, positive in 3/3
+- ~~"retraining doubles our confident errors"~~ — 8→15 was seed 42 alone; the
+  other two seeds gave 6→7 and 10→9
+- ~~"we calibrate both domains"~~ — temperature scaling helps legal
+  (0.083→0.060) and does nothing for medical (0.0475→0.0502)
 - ~~"we improved medical from 68.3% to 90.5%"~~ — the model did not change;
   the test set was repaired. Say that, or there is nothing to point at
 - ~~"all twelve specialties work"~~ — Radiology and Neurosurgery have four

@@ -41,6 +41,24 @@ error triple.
     python calibrate.py                     # held-out, Stamp Act excluded
     python calibrate.py --set v1
     python calibrate.py --exclude ""
+
+Other domains, and other checkpoints
+------------------------------------
+The two loaders above are legal-specific: one reads datasets/v1.csv, the
+other walks a manifest of PDFs. A second domain has neither, so --set csv
+takes any labelled CSV with `text` and `label_name` columns, which is the
+shape every held-out set other than legal's is already in:
+
+    ACTIVE_DOMAIN=medical python calibrate.py --set csv \
+        --csv ../sample-data/evaluation/medical_heldout.csv
+
+--model calibrates a checkpoint other than the one the domain pack points at.
+That matters because a retrained model is a different model: temperature is
+fitted per checkpoint, and nothing in the retrain pipeline refits it, so a new
+version inherits whatever the previous one was given. If retraining raises
+accuracy and also raises the confidently-wrong rate -- which is what both
+medical recipes did -- this is the script that says by how much, and what
+temperature puts it back.
 """
 
 import argparse
@@ -51,6 +69,7 @@ import sys
 
 import torch
 
+from config.domains import active_domain
 from config.settings import settings
 from services import pdf_extract
 from services.model_service import ID2LABEL, model_service
@@ -69,6 +88,28 @@ def logits_for(texts, model, tok, device, batch_size=16):
                   return_tensors="pt").to(device)
         out.append(model(**enc).logits.float().cpu())
     return torch.cat(out)
+
+
+def load_csv_set(label_to_id, path):
+    """
+    Any CSV with `text` and `label_name`, which is what every held-out set
+    except legal's looks like. Rows whose label is not in the active domain
+    are skipped rather than crashing, because pointing this at the wrong
+    domain's file is an easy mistake and a KeyError does not say so.
+    """
+    rows = list(csv.DictReader(open(path, encoding="utf-8")))
+    texts, labels, skipped = [], [], 0
+    for r in rows:
+        name = (r.get("label_name") or "").strip()
+        text = normalize(r.get("text") or "")
+        if not text or name not in label_to_id:
+            skipped += 1
+            continue
+        texts.append(text)
+        labels.append(label_to_id[name])
+    if skipped:
+        print(f"  skipped {skipped} row(s) with no text or an unknown label")
+    return texts, torch.tensor(labels)
 
 
 def load_v1(label_to_id):
@@ -144,7 +185,11 @@ def fit_temperature(logits, y):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--set", choices=("heldout", "v1"), default="heldout")
+    ap.add_argument("--set", choices=("heldout", "v1", "csv"), default="heldout")
+    ap.add_argument("--csv", default=None,
+                    help="required with --set csv: a CSV with text and label_name")
+    ap.add_argument("--model", default=None,
+                    help="checkpoint to calibrate; defaults to the active domain's")
     ap.add_argument("--exclude", default=DEFAULT_EXCLUDE,
                     help='document to drop from the held-out set; "" keeps all')
     ap.add_argument("--bins", type=int, default=10)
@@ -152,13 +197,30 @@ def main():
     ap.add_argument("--out", default=None, help="write results as JSON")
     args = ap.parse_args()
 
-    model_service.load()
-    model, tok = model_service._snapshot()
-    device = next(model.parameters()).device
+    if args.model:
+        # Bypass model_service deliberately: it serves the pack's checkpoint and
+        # caches it, and the point here is to measure a different one.
+        from transformers import AutoModelForSequenceClassification, AutoTokenizer
+        domain = active_domain()
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        tok = AutoTokenizer.from_pretrained(args.model)
+        model = AutoModelForSequenceClassification.from_pretrained(
+            args.model, num_labels=domain.num_labels,
+            id2label=domain.id2label, label2id=domain.label2id,
+        ).to(device).eval()
+        print(f"checkpoint: {args.model}")
+    else:
+        model_service.load()
+        model, tok = model_service._snapshot()
+        device = next(model.parameters()).device
     label_to_id = {v: k for k, v in ID2LABEL.items()}
 
     exclude = {e for e in [args.exclude] if e}
-    if args.set == "v1":
+    if args.set == "csv":
+        if not args.csv:
+            sys.exit("--set csv needs --csv PATH")
+        texts, y = load_csv_set(label_to_id, args.csv)
+    elif args.set == "v1":
         texts, y = load_v1(label_to_id)
         print("WARNING: v1.csv may be this checkpoint's training data — see "
               "evaluate_baseline.py. These numbers say nothing about unseen text.")
