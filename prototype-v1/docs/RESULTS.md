@@ -187,34 +187,46 @@ The verdict varies with the evidence rather than tracking confidence.
 
 ## 6. Retraining — the active-learning loop
 
-Measured earlier in the project.
+**Retracted 19 Oct.** An earlier revision of this section carried a
+before/after table — 70.7% to 75.3% on the 1,701-row set, ILC 52.4 to 59.3,
+MILPaC 41.9 to 66.7, Family Law F1 0.690 to 0.807, 0/8 to 7-8/8 on held-out
+probes, "15 corrections is the measured minimum". **None of those figures can
+be sourced in this repository.** `75.3` appears in no metrics file, no script
+output and no model_versions record. It appeared only in this document, which
+exists specifically to stop that from happening. It has been removed rather
+than caveated, because a number nobody can re-derive is not a measurement.
 
-> **Caveat added 19 Oct:** the three corpus rows below (1,701 set, ILC,
-> MILPaC) were measured before the held-out set of section 1 existed, so
-> they are movements on data that may be the model's own training data. The
-> held-out probe row is the only contamination-free line in the table, and
-> it is eight probes. The medical equivalent, measured properly in section
-> 10, came out at +0.7pp aggregate — so treat +4.6pp here as an upper bound
-> and re-run it against `sample-data/evaluation/` before quoting it.
+### What the project can actually show about retraining
 
-| | before | after |
-|---|---|---|
-| Held-out probes (never corrected) | 0/8 | 7–8/8 |
-| Full 1,701 set | 70.7% | 75.3% |
-| ILC subset | 52.4% | 59.3% |
-| MILPaC subset | 41.9% | 66.7% |
-| Criminal Law F1 | 0.646 | 0.726 |
-| **Family Law F1** | 0.690 | **0.807** |
-| stress_test | 68.9% | 68.0% |
+The loop is built and it runs. Five retrain jobs are recorded in
+`backend/metrics/v-*_metrics.json` with their checkpoints in
+`backend/models/v-*/`:
 
-**Family F1 went up**, which is the interesting part: the model stopped
-over-applying Family Law rather than trading one class for another.
+| version | trained on | tested on | accuracy |
+|---|---|---|---|
+| v-20260904-091128 | 47 rows | 11 rows | 1.000 |
+| v-20260910-102339 | 48 rows | 12 rows | 1.000 |
+| v-20260928-154348 | 60 rows | 15 rows | 1.000 |
+| v-20260928-185817 | 65 rows | 16 rows | 0.813 |
+| v-20260929-090239 | 65 rows | 16 rows | 0.813 |
 
-**15 corrections** is the measured minimum for 8/8 probes; 5 and 10 both give
-7/8.
+These are demonstration runs. 47 to 65 training rows, an 11 to 16 row test
+split, and three of them scoring exactly 1.000 — which at that size says the
+split was easy, not that the model is perfect. They prove the pipeline
+executes end to end: annotations in, fine-tune from the active checkpoint,
+new version written, not auto-activated, metrics recorded. **They do not
+measure whether corrections improve the model**, and were never intended to.
 
-**stress_test went slightly down and that is reported as-is.** It is also not
-an independent test set (section 1).
+So the honest statement about legal retraining is that **it has never been
+measured**, not that it was measured and improved. Section 10 is the only
+properly controlled retrain measurement in the project, and it is on medical:
++0.7pp aggregate, which is inside the noise, and +17.5pp / +16.2pp on the two
+weakest measurable classes, which is not.
+
+**To make a legal claim, the section 10 procedure has to be run on legal
+against `sample-data/evaluation/`.** Until then, the claim is "the loop is
+implemented and demonstrably executes", which is true and considerably less
+than what this section used to say.
 
 ---
 
@@ -488,8 +500,8 @@ one that still needs work.
 > both recall and false positives, so we kept the simpler representation."
 
 > "We don't sell the model. We produce the annotated dataset and the system
-> that makes it, and we prove the output is training-grade by retraining on
-> it ourselves and measuring the gain."
+> that makes it, and the retraining loop is how we show the output is
+> training-grade."
 
 > "Our medical held-out set shared 129 rows with training, and every one of
 > them carried a conflicting label, because the source corpus files the same
@@ -528,6 +540,10 @@ one that still needs work.
 - ~~"fine-tuned to suit the domain perfectly"~~
 - ~~"it annotates diagnoses"~~ — this is single-label document classification,
   not entity extraction
+- ~~"retraining took legal from 70.7% to 75.3%"~~ — retracted 19 Oct, no
+  source in the repo for any figure in that table
+- ~~"15 corrections is the measured minimum"~~ — same, unsourced
+- ~~"our retrained model scored 100%"~~ — on an 11-row test split
 - ~~"the margin guard catches confident near-ties"~~ — arithmetically
   impossible, fired 0/181, removed 19 Oct
 - ~~"retraining improved the medical model"~~ — aggregate gain was +0.7pp,
