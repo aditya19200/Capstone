@@ -187,46 +187,78 @@ The verdict varies with the evidence rather than tracking confidence.
 
 ## 6. Retraining — the active-learning loop
 
-**Retracted 19 Oct.** An earlier revision of this section carried a
-before/after table — 70.7% to 75.3% on the 1,701-row set, ILC 52.4 to 59.3,
-MILPaC 41.9 to 66.7, Family Law F1 0.690 to 0.807, 0/8 to 7-8/8 on held-out
-probes, "15 corrections is the measured minimum". **None of those figures can
-be sourced in this repository.** `75.3` appears in no metrics file, no script
-output and no model_versions record. It appeared only in this document, which
-exists specifically to stop that from happening. It has been removed rather
-than caveated, because a number nobody can re-derive is not a measurement.
+Re-measured 19 Oct 2026 with `backend/compare_checkpoints.py`, after an
+earlier revision of this section was retracted for quoting figures that could
+not be sourced.
 
-### What the project can actually show about retraining
+### What is retracted and stays retracted
 
-The loop is built and it runs. Five retrain jobs are recorded in
-`backend/metrics/v-*_metrics.json` with their checkpoints in
-`backend/models/v-*/`:
+70.7% to 75.3% on the 1,701-row set, ILC 52.4 to 59.3, MILPaC 41.9 to 66.7,
+Family Law F1 0.690 to 0.807, "15 corrections is the measured minimum".
+`75.3` appears in no metrics file, no script output and no model record. Gone.
 
-| version | trained on | tested on | accuracy |
-|---|---|---|---|
-| v-20260904-091128 | 47 rows | 11 rows | 1.000 |
-| v-20260910-102339 | 48 rows | 12 rows | 1.000 |
-| v-20260928-154348 | 60 rows | 15 rows | 1.000 |
-| v-20260928-185817 | 65 rows | 16 rows | 0.813 |
-| v-20260929-090239 | 65 rows | 16 rows | 0.813 |
+### What is measured, and now has a source
 
-These are demonstration runs. 47 to 65 training rows, an 11 to 16 row test
-split, and three of them scoring exactly 1.000 — which at that size says the
-split was easy, not that the model is perfect. They prove the pipeline
-executes end to end: annotations in, fine-tune from the active checkpoint,
-new version written, not auto-activated, metrics recorded. **They do not
-measure whether corrections improve the model**, and were never intended to.
+The probe set — `sample-data/demo/2-probe-set.csv`, eight documents whose gold
+label is Criminal Law and whose vocabulary reads as Family Law: Section 498A
+cruelty, 467/471 will forgery, 494 bigamy, 361 kidnapping from guardianship,
+criminal trespass, 379 theft, unlawful assembly, abetment of suicide. Marked
+`PROBE - never correct these`.
 
-So the honest statement about legal retraining is that **it has never been
-measured**, not that it was measured and improved. Section 10 is the only
-properly controlled retrain measurement in the project, and it is on medical:
-+0.7pp aggregate, which is inside the noise, and +17.5pp / +16.2pp on the two
-weakest measurable classes, which is not.
+Run through the deployed checkpoint and each of the five recorded retrain
+checkpoints:
 
-**To make a legal claim, the section 10 procedure has to be run on legal
-against `sample-data/evaluation/`.** Until then, the claim is "the loop is
-implemented and demonstrably executes", which is true and considerably less
-than what this section used to say.
+| checkpoint | validated rows it trained on | probes correct |
+|---|---|---|
+| `LegalModelShared` (deployed) | — | **0 / 8** |
+| v-20260904-091128 | 47 | 0 / 8 |
+| v-20260910-102339 | 48 | 0 / 8 |
+| v-20260928-154348 | 60 | 7 / 8 |
+| v-20260928-185817 | 65 | 7 / 8 |
+| v-20260929-090239 | 65 | **8 / 8** |
+
+**All eight of the deployed model's errors are confident errors**, at 0.985 to
+0.996. Every one clears the 0.85 auto-accept threshold, so in production all
+eight would have been labelled Family Law and filed with no human ever seeing
+them. After retraining, all eight are correct, at 0.502 to 0.985.
+
+Example, verbatim:
+
+```
+gold  Criminal Law
+v1    Family Law  @ 0.996   <- would have been auto-accepted
+v2    Criminal Law @ 0.984
+text  The accused was charged with abetting the suicide of his daughter-in-law
+      following sustained harassment at the matrimonial home.
+```
+
+**Contamination checked before quoting any of this.** The eight probe texts
+appear in none of `datasets/v1.csv` (1,701 rows), `sample-data/demo/1-intake.csv`,
+`sample-data/demo/teaching-set-only.csv` or the inline corpus in
+`seed_retrain_data.py` — zero overlap after normalisation. They are genuinely
+held out from every path into the retrain corpus.
+
+So the "0/8 to 7-8/8" claim retracted earlier **was true**. What was missing
+was its provenance, which is a different failure and was the right thing to
+retract for. Row 1 of the table is the measurement; `backend/compare_checkpoints.py`
+regenerates it, and `backend/metrics/legal_probe_v1_vs_v2.csv` holds the rows.
+
+### The incidental gain curve
+
+The flip happens between 48 and 60 validated annotations: two checkpoints
+below it score 0/8, three at or above it score 7/8 or better. That is weaker
+than a designed sweep — the checkpoints differ in which annotations they got,
+not only how many — but it is measured, and it bounds the useful answer to
+"how many corrections does this take" at somewhere under 60 for this probe
+set.
+
+### What this does not claim
+
+Eight documents, one class pair, chosen to be confidently wrong. It shows the
+loop fixes the failure it was aimed at, not that overall accuracy improves.
+The only controlled aggregate measurement is section 10, on medical: +0.7pp
+overall, inside the noise, with +17.5pp and +16.2pp on the two weakest
+classes.
 
 ---
 
@@ -532,6 +564,12 @@ one that still needs work.
 > to one, so a high-confidence prediction cannot be a near-tie — the test
 > that covered it was asserting on inputs no model can produce."
 
+> "Eight documents our model called Family Law at 99% confidence are actually
+> Criminal Law — IPC charges in a domestic setting. All eight would have been
+> auto-accepted with no human seeing them. After retraining on corrected
+> annotations, all eight are right. We checked first that none of the eight
+> appears anywhere in the training corpus."
+
 ## Sentences that are not
 
 - ~~"94.4% accurate"~~ without saying document-level, on 18 documents, 5 domains
@@ -542,7 +580,8 @@ one that still needs work.
   not entity extraction
 - ~~"retraining took legal from 70.7% to 75.3%"~~ — retracted 19 Oct, no
   source in the repo for any figure in that table
-- ~~"15 corrections is the measured minimum"~~ — same, unsourced
+- ~~"15 corrections is the measured minimum"~~ — same, unsourced. The
+  measured bound is "under 60 validated annotations" (section 6)
 - ~~"our retrained model scored 100%"~~ — on an 11-row test split
 - ~~"the margin guard catches confident near-ties"~~ — arithmetically
   impossible, fired 0/181, removed 19 Oct
