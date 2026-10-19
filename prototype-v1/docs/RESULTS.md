@@ -254,7 +254,153 @@ correct; the mechanism is simpler than it looks.
 
 ---
 
-## 9. Sentences that are safe to say
+## 9. The correction loop on a second domain
+
+`backend/retrain_experiment.py`. Measured 19 Oct 2026.
+
+**Setup, which must be stated whenever these numbers are quoted.** The
+1,738-row medical corpus is split 1,391 train / 347 "incoming queue",
+stratified by label, seed 42. A baseline is trained on the train part only,
+so it is a *weaker* model than the shipped checkpoint (68.3%), which saw all
+1,738 rows. The baseline then predicts the queue: 238 rows agree with the
+gold label (confirmations), 109 disagree (corrections). No label is invented
+anywhere — "the reviewer" is the dataset's own specialty field, so this
+measures the loop's mechanics and not our medical opinion. Both checkpoints
+are measured on the same 435-row held-out file, which no stage touches.
+
+Three retrain recipes, one baseline, one held-out set:
+
+| | accuracy | conf. right | conf. wrong | confidently wrong | ECE | wrong >0.85 |
+|---|---|---|---|---|---|---|
+| v1 baseline (1,391 rows) | 0.6782 | 0.830 | 0.610 | 7.8% | 0.083 | 17 |
+| **A** all 347, 3 epochs | 0.6920 | 0.857 | 0.653 | **9.2%** | **0.096** | **22** |
+| **B** corrections only (109), 3 ep. | **0.7172** | 0.735 | 0.594 | 7.3% | 0.070 | 8 |
+| **C** all 347, 1 epoch | 0.6943 | 0.797 | 0.578 | **5.8%** | **0.059** | **11** |
+
+**Recipe A is what the shipped worker would actually run** — 3 epochs on
+every validated annotation (`workers/retrain_worker.py`) — and it is the
+worst of the three. It buys +1.4pp of accuracy and pays with *more*
+confidence on the predictions it got wrong (+4.3pp) than on the ones it got
+right (+2.8pp), a higher confidently-wrong rate and worse calibration. That
+is the signature of a model that got louder rather than better, and it is
+why the confidence columns are in this table at all. An accuracy-only
+comparison would have reported recipe A as a success.
+
+**Recipe B has the best headline and should not be used.** Fine-tuning on
+only the corrected rows shifts the class prior toward whatever was corrected
+— 39 of the 109 corrections were Radiology — so Radiology F1 goes 0.302 →
+0.594 (+29.2pp) and Orthopedic 0.693 → 0.811, while Neurosurgery loses
+14.8pp, Neurology 13.0pp and Nephrology 12.6pp. It trades classes rather
+than improving the model. The aggregate hides that; per-class F1 does not.
+
+**Recipe C is the result to quote.**
+
+| | v1 | v2 | |
+|---|---|---|---|
+| held-out accuracy | 0.6782 | 0.6943 | +1.6pp |
+| mean confidence | 0.759 | 0.730 | −2.9pp |
+| confidently-wrong rate | 7.8% | 5.8% | **−2.0pp** |
+| ECE | 0.083 | 0.059 | **−2.4pp** |
+| wrong above auto-accept | 17 | 11 | **−6** |
+
+Accuracy up, confidence *down*, calibration better, six fewer wrong
+predictions reaching auto-accept. Per-class: Neurosurgery +15.6pp, Urology
++4.4, Neurology +4.0, ENT +3.5, Orthopedic +2.7, Radiology +1.4; only
+Ophthalmology (−3.7) and Obstetrics (−1.2) lost ground.
+
+**The finding is about the system, not the model:** the retrain worker's 3
+epochs is too many when fine-tuning an already-converged checkpoint on a few
+hundred rows. One epoch is both more accurate and better calibrated. The
+worker's hyperparameters had never been measured against an alternative,
+because until there was a second domain there was nothing to measure them
+on.
+
+**Caveat on size.** +1.6pp sits against a training-run variance of ±0.7pp
+(section 8) — about twice the noise, not comfortably clear of it. The
+calibration movement is the more interesting number, but run-to-run variance
+of ECE has *not* been measured, so quote it as observed on this pair of
+checkpoints rather than as a guaranteed effect. Repeating recipe C with
+three seeds is the honest way to firm either number up, and has not been
+done.
+
+**Not done:** nothing in the pipeline refits the calibration temperature
+after a retrain. `settings.CALIBRATION_TEMPERATURE` is one global constant
+shipping at 1.0 (off), not per-domain and not re-measured, so a retrained
+model inherits whatever calibration the previous one was given. Recipe A
+shows that is exactly when calibration moves.
+
+---
+
+## 10. Confident errors in medical, and a guard that could never fire
+
+`backend/confident_error_analysis.py` → `metrics/medical_confident_errors.json`.
+Shipped medical checkpoint, 435 held-out rows, 19 Oct 2026.
+
+```
+accuracy                          297/435   68.3%
+top-2 accuracy                    401/435   92.2%
+above CONFIDENCE_HIGH (0.85)      181/435   41.6%
+  of those, wrong                     5      2.8%
+  of those five, gold was runner-up   3     60.0%
+below the threshold, wrong          133
+  of those, gold was runner-up      101     75.9%
+```
+
+**Medical is far safer at auto-accept than legal.** 2.8% of confident
+medical predictions are wrong, against roughly one in ten for legal
+(section 3). This reframes section 4: the ontology check catching 0 of 5
+planted medical errors is a smaller loss than it first appears, because
+there are only five confident errors in the entire held-out set to catch.
+Medical's errors are overwhelmingly *low-confidence* errors — 133 of 138 —
+and those the routing already escalates to a reviewer. The failure mode the
+ontology check exists for is one this domain barely exhibits.
+
+The five confident errors are exactly the shared-vocabulary pairs predicted
+in section 4: Neurosurgery→Orthopedic, Nephrology→Urology,
+Radiology→Cardiovascular, and the Gastroenterology/Cardiovascular pair in
+both directions.
+
+**Top-2 accuracy is 92.2% against a top-1 of 68.3%.** When the model is
+wrong the right answer is usually its second choice. That is a product
+finding rather than a model one: showing a reviewer two candidates instead
+of one puts the correct label in front of them nine times out of ten.
+
+### The margin guard could not fire
+
+`services/active_learning.py` overrode AUTO_ACCEPT when confidence cleared
+0.85 but the top-2 margin was under 0.10. **The branch was unreachable.** A
+softmax sums to one, so the runner-up is at most 1 − p1, so
+
+```
+margin = p1 − p2  ≥  p1 − (1 − p1)  =  2·p1 − 1
+```
+
+At p1 > 0.85 the margin is necessarily above 0.70. It cannot be under 0.10
+unless p1 is under 0.55, and below 0.55 the ROUTE_TO_REVIEWER rule has
+already fired. The guard's own docstring gave its motivating example as
+"0.86 vs 0.84", which sums to 1.70 and is not a probability distribution,
+and the unit test covering it passed confidence 0.90 with margin 0.05 as two
+unrelated scalars — which is the only place such a prediction has ever
+existed.
+
+Measured rather than argued: of the 181 predictions above the threshold the
+smallest margin observed was **0.7727**, and the guard fired **zero** times.
+
+Removed 19 Oct. It changes no behaviour, because unreachable code has none.
+What it changes is the claim: **there is no margin-based protection on
+auto-accept and there never was.** Two tests now assert the arithmetic bound
+so it cannot be reintroduced, and the API-level test that asserted the dead
+branch has been inverted and kept as the regression test.
+
+**If asked what does protect auto-accept:** the threshold itself; the
+ontology check, in domains whose classes contradict each other; and — on the
+evidence of section 9 recipe C — retraining in a way that stops wrong
+predictions reaching the threshold at all, which is the only one of the
+three that measurably improved.
+
+---
+
+## 11. Sentences that are safe to say
 
 > "On 18 held-out documents the system had never seen — real Supreme Court
 > judgments and commercial contracts — it assigned the correct domain to 17.
@@ -277,6 +423,26 @@ correct; the mechanism is simpler than it looks.
 > that makes it, and we prove the output is training-grade by retraining on
 > it ourselves and measuring the gain."
 
+> "On the medical domain the loop raised held-out accuracy 1.6 points while
+> *lowering* mean confidence and cutting confidently-wrong predictions by
+> two points. The model got better, not louder — and we report the recipe
+> that failed that test alongside the one that passed."
+
+> "Our retrain worker runs three epochs. We measured one epoch against it on
+> a second domain and one epoch won on both accuracy and calibration. We
+> only found that because we added a domain."
+
+> "2.8% of confident medical predictions are wrong, against about one in ten
+> for legal. The two domains fail differently, so they need different
+> safeguards, and we measured which one each needs."
+
+> "Top-1 is 68.3% and top-2 is 92.2%, so a reviewer shown two candidates
+> finds the right label nine times out of ten."
+
+> "We removed a safeguard after proving it could never fire. A softmax sums
+> to one, so a high-confidence prediction cannot be a near-tie — the test
+> that covered it was asserting on inputs no model can produce."
+
 ## Sentences that are not
 
 - ~~"94.4% accurate"~~ without saying document-level, on 18 documents, 5 domains
@@ -285,3 +451,11 @@ correct; the mechanism is simpler than it looks.
 - ~~"fine-tuned to suit the domain perfectly"~~
 - ~~"it annotates diagnoses"~~ — this is single-label document classification,
   not entity extraction
+- ~~"the margin guard catches confident near-ties"~~ — arithmetically
+  impossible, fired 0/181, removed 19 Oct
+- ~~"retraining improved the medical model"~~ without naming the recipe —
+  the shipped worker's recipe made calibration *worse*
+- ~~"Radiology F1 went from 0.30 to 0.59"~~ — true only for recipe B, which
+  bought it by losing 12–15pp on three other classes
+- ~~"the loop is calibrated after retraining"~~ — nothing refits the
+  temperature; it ships at 1.0 and is not per-domain
