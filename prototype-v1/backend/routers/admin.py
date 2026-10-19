@@ -21,7 +21,7 @@ from fastapi.responses import StreamingResponse
 from models.response_models import (
     AdminMetricsResponse,
     BatchComparisonResponse,
-    BatchSummary,
+    ComparisonBatchSummary,
     BatchThroughputItem,
     ComparisonRow,
     ModelVersionOut,
@@ -262,22 +262,22 @@ def _batch_predictions(batch_id: str) -> List[Dict]:
 
 @router.get(
     "/batches",
-    response_model=List[BatchSummary],
+    response_model=List[ComparisonBatchSummary],
     status_code=status.HTTP_200_OK,
     summary="Batches available for comparison, newest first",
 )
 async def list_comparable_batches(
     x_role: Optional[str] = Header(default=None, alias="X-Role"),
-) -> List[BatchSummary]:
+) -> List[ComparisonBatchSummary]:
     _require_admin(x_role)
 
-    out: List[BatchSummary] = []
+    out: List[ComparisonBatchSummary] = []
     for batch in batches_repo.list_all():
         preds = _batch_predictions(batch["id"])
         if not preds:
             continue
         versions = sorted({p.get("model_version") or "unknown" for p in preds})
-        out.append(BatchSummary(
+        out.append(ComparisonBatchSummary(
             batch_id=batch["id"],
             created_at=batch.get("created_at", ""),
             item_count=len(preds),

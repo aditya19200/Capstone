@@ -481,8 +481,24 @@ class HealthResponse(BaseModel):
 # Batch comparison — GET /admin/compare
 # ---------------------------------------------------------------------------
 
-class BatchSummary(BaseModel):
-    """One selectable batch in the comparison picker."""
+class ComparisonBatchSummary(BaseModel):
+    """
+    One selectable batch in the comparison picker.
+
+    Named ComparisonBatchSummary and not BatchSummary because there is
+    already a BatchSummary above, for GET /batches, with different fields.
+    Two classes of one name in one module is not an error in Python: the
+    second simply replaces the first in the module namespace. Everything
+    defined before it -- BatchListResponse's own annotation -- had already
+    bound the first class, while every later `from models.response_models
+    import BatchSummary` got this one.
+
+    So GET /batches built this class, validated it against the other one,
+    and returned 500 for every request. The endpoint had never worked, and
+    the Annotate page's "Could not load recent batches" was that 500. No
+    test covered the route, and nothing about the collision looks wrong at
+    the point where either class is read.
+    """
 
     batch_id: str
     created_at: str

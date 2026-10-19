@@ -609,3 +609,93 @@ class TestSubmitBatchPdf:
         detail = resp.json()["detail"]
         assert "OCR" in detail and "scan" in detail.lower()
         assert not mock_db._batches, "a refused upload must not create a batch"
+
+
+# ===========================================================================
+# GET /batches — the listing route
+# ===========================================================================
+
+class TestListBatches:
+    """
+    This route returned 500 for every request until 19 Oct and no test
+    covered it.
+
+    models/response_models.py defined BatchSummary twice: once for this
+    route, once for the comparison picker, with different fields. Python
+    does not object -- the second definition just replaces the first in the
+    module namespace. BatchListResponse, defined between them, had already
+    bound the first class; routers/batches.py, importing the name later, got
+    the second. So the handler built the picker's class and validated it
+    against the listing's, and every call raised ValidationError on a
+    missing `item_count`.
+
+    The Annotate page's "Could not load recent batches" was that 500. The
+    second class is now ComparisonBatchSummary. These tests assert the
+    fields the Annotate page actually reads, so the route cannot go back to
+    returning something the UI does not understand.
+    """
+
+    def test_returns_200_with_the_fields_the_ui_reads(self, client):
+        client.post("/batches/paste", json={
+            "texts": [
+                "The buyer failed to deliver the goods specified in the sales agreement.",
+                "The petitioner argues the state law violates the right to free speech.",
+            ],
+        })
+        resp = client.get("/batches")
+        assert resp.status_code == 200, resp.text
+
+        batches = resp.json()["batches"]
+        assert len(batches) == 1
+        # pages/Annotate.jsx reads exactly these six.
+        assert set(batches[0]) == {
+            "batch_id", "source", "status", "total_items",
+            "completed_items", "created_at",
+        }
+        assert batches[0]["source"] == "paste"
+        assert batches[0]["total_items"] == 2
+
+    def test_empty_before_anything_is_uploaded(self, client):
+        resp = client.get("/batches")
+        assert resp.status_code == 200
+        assert resp.json()["batches"] == []
+
+    def test_newest_first(self, client):
+        first = client.post("/batches/paste", json={
+            "texts": ["The tenant filed suit for wrongful eviction by the landlord."],
+        }).json()["batch_id"]
+        second = client.post("/batches/paste", json={
+            "texts": ["The assessee challenged the tax authority's demand notice."],
+        }).json()["batch_id"]
+
+        ids = [b["batch_id"] for b in client.get("/batches").json()["batches"]]
+        assert ids == [second, first]
+
+    def test_limit_is_honoured(self, client):
+        for text in (
+            "A dispute arose over the boundary line between two plots.",
+            "The employee alleges wrongful termination and seeks reinstatement.",
+            "The board approved a merger subject to shareholder ratification.",
+        ):
+            client.post("/batches/paste", json={"texts": [text]})
+
+        resp = client.get("/batches", params={"limit": 2})
+        assert resp.status_code == 200
+        assert len(resp.json()["batches"]) == 2
+
+    def test_the_two_summary_schemas_stayed_distinct(self):
+        """
+        The collision itself, asserted directly.
+
+        Renaming is only a fix for as long as the names stay apart, and the
+        next person to add a summary model to that file will not know this
+        happened.
+        """
+        from models.response_models import BatchSummary, ComparisonBatchSummary
+
+        assert BatchSummary is not ComparisonBatchSummary
+        assert set(BatchSummary.model_fields) == {
+            "batch_id", "source", "status", "total_items",
+            "completed_items", "created_at",
+        }
+        assert "item_count" in ComparisonBatchSummary.model_fields

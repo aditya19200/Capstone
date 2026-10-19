@@ -1,0 +1,9 @@
+text,gold_label,v1_label,v1_confidence,v2_label,v2_confidence,transition
+The wife lodged an FIR under Section 498A IPC alleging that her husband and mother-in-law subjected her to cruelty and repeated dowry demands after the marriage.,Criminal Law,Family Law,0.9961,Criminal Law,0.9695,fixed
+"During the partition dispute, the younger brother was booked under Sections 467 and 471 IPC for forging the father's will to claim a larger share.",Criminal Law,Family Law,0.9853,Criminal Law,0.8446,fixed
+The husband was prosecuted under Section 494 IPC for contracting a second marriage during the subsistence of the first.,Criminal Law,Family Law,0.996,Criminal Law,0.9797,fixed
+"The father was booked for kidnapping his own minor child from lawful guardianship in violation of the custody order, under Section 361 IPC.",Criminal Law,Family Law,0.9963,Criminal Law,0.5019,fixed
+The accused was charged with criminal trespass after forcibly entering his estranged wife's residence in violation of the restraining order.,Criminal Law,Family Law,0.9946,Criminal Law,0.9851,fixed
+The husband was charged with theft under Section 379 IPC for removing his wife's personal belongings from the shared residence.,Criminal Law,Family Law,0.9942,Criminal Law,0.9833,fixed
+The police filed charges of unlawful assembly against the in-laws who gathered to forcibly evict the daughter-in-law.,Criminal Law,Family Law,0.9948,Criminal Law,0.9798,fixed
+The accused was charged with abetting the suicide of his daughter-in-law following sustained harassment at the matrimonial home.,Criminal Law,Family Law,0.9961,Criminal Law,0.9838,fixed
