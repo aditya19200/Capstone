@@ -56,6 +56,7 @@ prototype-v1/datasets/medical-raw/
 # without it every checkout opens with an empty admin table, so it ships.
 prototype-v1/backend/metrics/*
 !prototype-v1/backend/metrics/baseline_metrics.json
+!prototype-v1/backend/metrics/*_baseline_metrics.json
 
 # Local model dumps and scratch copies sitting in the working folder
 LegalModel/
