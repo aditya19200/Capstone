@@ -56,11 +56,21 @@ def main():
                     help="count the statements without connecting to anything")
     args = ap.parse_args()
 
-    files = [
+    required = [
         HERE / f"{args.domain}_ontology_seed.cypher",
         HERE / f"{args.domain}_concept_seed.cypher",
     ]
-    missing = [f for f in files if not f.exists()]
+    # NARROWS and CO_OCCURS between concepts (graph/mine_graph_depth.py).
+    # Genuinely optional: a domain whose depth has not been mined yet still
+    # has a complete, working graph, so its absence is reported and skipped
+    # rather than treated as a broken install.
+    depth = HERE / f"{args.domain}_depth_seed.cypher"
+    files = required + ([depth] if depth.exists() else [])
+    if not depth.exists():
+        print(f"note: {depth.name} not present — loading without concept-level "
+              f"depth (run mine_graph_depth.py --domain {args.domain} to add it)")
+
+    missing = [f for f in required if not f.exists()]
     if missing:
         available = sorted({p.name.split("_")[0] for p in HERE.glob("*_ontology_seed.cypher")})
         sys.exit(
