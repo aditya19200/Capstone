@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     NEO4J_URI: str = "bolt://localhost:7687"
     NEO4J_USER: str = "neo4j"
     NEO4J_PASSWORD: str = "password"
+    # Some Aura Free instances use the instance ID as the database name
+    # instead of "neo4j". If queries come back empty, check this first.
+    NEO4J_DATABASE: str = "neo4j"
 
     # --- Confidence calibration ---
     # Divides the logits before softmax. 1.0 is off, leaving confidence
@@ -69,6 +72,13 @@ class Settings(BaseSettings):
     MIN_TEXT_CHARS: int = 50        # reject shorter text — model mislabels short strings
 
     # --- Worker / inference ---
+    # Run the batch / XAI / retrain workers as threads inside the API process
+    # even when a real database is configured. Without a database they always
+    # run in-process (see local_workers.py). With one, the default is that
+    # they run as separate `python -m workers.X` processes — which
+    # run_local_demo.sh doesn't start, so it sets this to true. Safe to
+    # combine with separate workers: both queues claim with SKIP LOCKED.
+    RUN_WORKERS_IN_PROCESS: bool = False
     BATCH_SIZE: int = 16
     POLL_INTERVAL: int = 5          # seconds between queue polls (classify worker)
 

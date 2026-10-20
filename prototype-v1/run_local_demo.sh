@@ -3,9 +3,13 @@
 #
 # Starts: backend API (which also runs the batch + SHAP-explain workers as
 # background threads internally — see backend/local_workers.py for why)
-# and the frontend. Everything runs on this machine only — no internet, no
-# cloud accounts. Data lives in memory and resets whenever the backend
-# restarts.
+# and the frontend.
+#
+# Data: with no backend/.env (or placeholder credentials) everything runs on
+# this machine only — no internet, no cloud accounts — and data lives in
+# memory, resetting whenever the backend restarts. With real Supabase / Neo4j
+# credentials in backend/.env, data persists there instead. Check which one
+# you're on with:  cd backend && ./venv/bin/python check_data_layer.py
 #
 # Usage:   ./run_local_demo.sh
 # Stop:    Ctrl+C (stops everything it started)
@@ -29,7 +33,10 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 echo "[1/2] Starting backend API on http://localhost:8000 (batch + explain workers run inside it) ..."
-(cd backend && venv/bin/python -m uvicorn main:app --port 8000) > backend.log 2>&1 &
+# RUN_WORKERS_IN_PROCESS: once Supabase is connected the workers would
+# otherwise expect separate processes, which this script doesn't start —
+# uploads would sit at 0%. See config/settings.py. No effect on the mock.
+(cd backend && RUN_WORKERS_IN_PROCESS=true venv/bin/python -m uvicorn main:app --port 8000) > backend.log 2>&1 &
 PIDS+=($!)
 
 echo "Waiting for the model to load..."

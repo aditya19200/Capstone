@@ -1,14 +1,19 @@
 """
 services/supabase_service.py — Supabase data access layer.
 
-All functions delegate to mock_db for now. When the real Supabase schema is
-ready, replace each mock_db call with the real supabase-py client call —
-function signatures stay identical so no router or worker code needs to change.
+Two paths behind one set of signatures:
 
-Swap checklist (per function):
-  1. Remove the mock_db import / call.
-  2. Use `supabase_client.table("<table>").<operation>(<payload>).execute()`.
-  3. Map the returned `.data` list/dict back to the same return type.
+  * Mock (default) — mock_db, in memory. Used whenever SUPABASE_URL still
+    contains "placeholder" (repositories._client.is_configured() is False).
+    This is what the local demo runs on, and every mock body below is as it
+    was before the real path existed.
+  * Real — when Supabase is configured, each function that touches a table
+    in the real schema returns services/_supabase_real.<same name>(...)
+    first. Those build on the repositories, so the routers, the workers and
+    the repositories all read and write the same database.
+
+Users, legal documents and the legacy prediction-job queue have no table in
+the real schema and nothing persists them; they stay on the mock either way.
 """
 
 import logging
@@ -16,16 +21,11 @@ from typing import Dict, List, Optional
 
 import services.mock_db as db
 from config.settings import settings
+from repositories._client import is_configured
+from services import _supabase_real as _real
 
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Real Supabase client (initialised but not used while mocked)
-# ---------------------------------------------------------------------------
-# Uncomment the block below when swapping to real Supabase:
-#
-# from supabase import create_client, Client
-# supabase_client: Client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_KEY)
 
 
 # ===========================================================================
@@ -84,6 +84,8 @@ def create_prediction(
     Returns a dict with keys: id, text_content, predicted_label, label_id,
     confidence, all_probabilities, model_version, created_at.
     """
+    if is_configured():
+        return _real.create_prediction(text_content=text_content, predicted_label=predicted_label, label_id=label_id, confidence=confidence, all_probabilities=all_probabilities, model_version=model_version)
     logger.debug(
         "supabase_service.create_prediction: label=%s conf=%.4f",
         predicted_label, confidence,
@@ -100,16 +102,22 @@ def create_prediction(
 
 def get_prediction(prediction_id: str) -> Optional[Dict]:
     """Fetch a prediction by id. Returns None if not found."""
+    if is_configured():
+        return _real.get_prediction(prediction_id=prediction_id)
     return db.get_prediction(prediction_id=prediction_id)
 
 
 def list_predictions(predicted_label: Optional[str] = None) -> List[Dict]:
     """List predictions, optionally filtered by predicted_label."""
+    if is_configured():
+        return _real.list_predictions(predicted_label=predicted_label)
     return db.list_predictions(predicted_label=predicted_label)
 
 
 def list_low_confidence_predictions(threshold: float) -> List[Dict]:
     """Return predictions with confidence < threshold, newest first."""
+    if is_configured():
+        return _real.list_low_confidence_predictions(threshold=threshold)
     return db.list_low_confidence_predictions(threshold=threshold)
 
 
@@ -134,6 +142,8 @@ def create_annotation(
     Returns a dict with keys: id, prediction_id, validated_label,
     annotator_id, status, has_conflict, annotated_at, document_id.
     """
+    if is_configured():
+        return _real.create_annotation(prediction_id=prediction_id, validated_label=validated_label, annotator_id=annotator_id, status=status, document_id=document_id)
     logger.debug(
         "supabase_service.create_annotation: pred=%s label=%s status=%s",
         prediction_id, validated_label, status,
@@ -149,6 +159,8 @@ def create_annotation(
 
 def get_annotation(annotation_id: str) -> Optional[Dict]:
     """Fetch an annotation by id. Returns None if not found."""
+    if is_configured():
+        return _real.get_annotation(annotation_id=annotation_id)
     return db.get_annotation(annotation_id=annotation_id)
 
 
@@ -163,6 +175,8 @@ def list_annotations(
 
     Sorted newest first by annotated_at.
     """
+    if is_configured():
+        return _real.list_annotations(prediction_id=prediction_id, annotator_id=annotator_id, status=status, has_conflict=has_conflict)
     rows = db.list_annotations(
         prediction_id=prediction_id,
         annotator_id=annotator_id,
@@ -174,6 +188,8 @@ def list_annotations(
 
 def update_annotation_status(annotation_id: str, new_status: str) -> Optional[Dict]:
     """Update the status of an existing annotation."""
+    if is_configured():
+        return _real.update_annotation_status(annotation_id=annotation_id, new_status=new_status)
     logger.debug(
         "supabase_service.update_annotation_status: id=%s → %s",
         annotation_id, new_status,
@@ -187,6 +203,8 @@ def set_annotation_has_conflict(annotation_id: str, has_conflict: bool) -> Optio
 
     Real Supabase path: UPDATE annotations SET has_conflict=$1 WHERE id=$2
     """
+    if is_configured():
+        return _real.set_annotation_has_conflict(annotation_id=annotation_id, has_conflict=has_conflict)
     logger.debug(
         "supabase_service.set_annotation_has_conflict: id=%s has_conflict=%s",
         annotation_id, has_conflict,
@@ -196,6 +214,8 @@ def set_annotation_has_conflict(annotation_id: str, has_conflict: bool) -> Optio
 
 def count_validated_annotations() -> int:
     """Return the count of annotations with status='validated'."""
+    if is_configured():
+        return _real.count_validated_annotations()
     return db.count_validated_annotations()
 
 
@@ -224,6 +244,8 @@ def detect_and_flag_conflict(
 
     Returns True if any conflict was detected.
     """
+    if is_configured():
+        return _real.detect_and_flag_conflict(prediction_id=prediction_id, new_annotation_id=new_annotation_id, new_final_label=new_final_label, predicted_label=predicted_label)
     conflict = False
 
     # Rule 1: model vs human
@@ -259,15 +281,21 @@ def detect_and_flag_conflict(
 # ===========================================================================
 
 def create_explanation(prediction_id: str) -> Dict:
+    if is_configured():
+        return _real.create_explanation(prediction_id=prediction_id)
     logger.debug("supabase_service.create_explanation: pred=%s", prediction_id)
     return db.create_explanation(prediction_id=prediction_id)
 
 
 def get_explanation(explanation_id: str) -> Optional[Dict]:
+    if is_configured():
+        return _real.get_explanation(explanation_id=explanation_id)
     return db.get_explanation(explanation_id=explanation_id)
 
 
 def get_explanation_by_prediction(prediction_id: str) -> Optional[Dict]:
+    if is_configured():
+        return _real.get_explanation_by_prediction(prediction_id=prediction_id)
     return db.get_explanation_by_prediction(prediction_id=prediction_id)
 
 
@@ -276,6 +304,8 @@ def update_explanation(
     shap_values: List[Dict],
     status: str = "completed",
 ) -> Optional[Dict]:
+    if is_configured():
+        return _real.update_explanation(explanation_id=explanation_id, shap_values=shap_values, status=status)
     logger.debug(
         "supabase_service.update_explanation: id=%s status=%s tokens=%d",
         explanation_id, status, len(shap_values),
@@ -323,12 +353,16 @@ def enqueue_xai_job(prediction_id: str) -> Dict:
     Returns a dict with keys: id, prediction_id, status, token_importance,
     summary, attempts, locked_at, error_message, created_at.
     """
+    if is_configured():
+        return _real.enqueue_xai_job(prediction_id=prediction_id)
     logger.debug("supabase_service.enqueue_xai_job: pred=%s", prediction_id)
     return db.enqueue_xai_job(prediction_id=prediction_id)
 
 
 def get_xai_job(job_id: str) -> Optional[Dict]:
     """Fetch an XAI job by id. Returns None if not found."""
+    if is_configured():
+        return _real.get_xai_job(job_id=job_id)
     return db.get_xai_job(job_id=job_id)
 
 
@@ -339,11 +373,15 @@ def update_xai_job(job_id: str, **fields) -> Optional[Dict]:
     Accepts any real schema field: status, token_importance, summary,
     attempts, locked_at, error_message.
     """
+    if is_configured():
+        return _real.update_xai_job(job_id=job_id, **fields)
     return db.update_xai_job(job_id=job_id, **fields)
 
 
 def get_pending_xai_jobs() -> List[Dict]:
     """Return all XAI jobs with status='pending'."""
+    if is_configured():
+        return _real.get_pending_xai_jobs()
     return db.get_pending_xai_jobs()
 
 
@@ -362,6 +400,8 @@ def enqueue_retrain_job(
     Returns a dict with keys: id, status, triggered_by, triggered_at,
     completed_at, model_version_id, notes, min_annotations.
     """
+    if is_configured():
+        return _real.enqueue_retrain_job(triggered_by=triggered_by, notes=notes, min_annotations=min_annotations)
     logger.debug(
         "supabase_service.enqueue_retrain_job: triggered_by=%s", triggered_by
     )
@@ -374,11 +414,15 @@ def enqueue_retrain_job(
 
 def get_retrain_job(job_id: str) -> Optional[Dict]:
     """Fetch a retrain job by id. Returns None if not found."""
+    if is_configured():
+        return _real.get_retrain_job(job_id=job_id)
     return db.get_retrain_job(job_id=job_id)
 
 
 def get_latest_retrain_job() -> Optional[Dict]:
     """Return the most recently created retrain job, or None."""
+    if is_configured():
+        return _real.get_latest_retrain_job()
     return db.get_latest_retrain_job()
 
 
@@ -389,6 +433,8 @@ def update_retrain_job(
     completed_at: Optional[str] = None,
 ) -> Optional[Dict]:
     """Update status and completion fields of a retrain job."""
+    if is_configured():
+        return _real.update_retrain_job(job_id=job_id, status=status, model_version_id=model_version_id, completed_at=completed_at)
     return db.update_retrain_job(
         job_id=job_id,
         status=status,
@@ -407,6 +453,8 @@ def create_dataset_version(
     label_distribution: Dict[str, int],
 ) -> Dict:
     """Record a new dataset snapshot created for a retraining run."""
+    if is_configured():
+        return _real.create_dataset_version(version_id=version_id, sample_count=sample_count, label_distribution=label_distribution)
     return db.create_dataset_version(
         version_id=version_id,
         sample_count=sample_count,
@@ -422,6 +470,8 @@ def create_model_version(
     dataset_version_id: Optional[str] = None,
 ) -> Dict:
     """Record a newly trained model version (is_active defaults to False)."""
+    if is_configured():
+        return _real.create_model_version(version_number=version_number, accuracy=accuracy, f1_per_class=f1_per_class, file_path=file_path, dataset_version_id=dataset_version_id)
     return db.create_model_version(
         version_number=version_number,
         accuracy=accuracy,
@@ -434,4 +484,6 @@ def create_model_version(
 
 def get_active_model_version() -> Optional[Dict]:
     """Return the model version row where is_active=True, or None."""
+    if is_configured():
+        return _real.get_active_model_version()
     return db.get_active_model_version()
