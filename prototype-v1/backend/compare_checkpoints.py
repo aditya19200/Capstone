@@ -47,13 +47,13 @@ from config.domains import get_domain
 from config.settings import settings
 from services import pdf_extract
 from train_domain import load_csv
-from utils.text import count_tokens, normalize
+from utils.text import normalize
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 HERE = pathlib.Path(__file__).resolve().parent
 
 
-def load_pdf_manifest(manifest, pdf_dir, known, exclude):
+def load_pdf_manifest(manifest, pdf_dir, known, exclude, token_counter):
     """
     The legal held-out set is PDFs plus a manifest, not a CSV.
 
@@ -76,7 +76,7 @@ def load_pdf_manifest(manifest, pdf_dir, known, exclude):
             continue
         try:
             extracted = pdf_extract.extract(
-                path.read_bytes(), token_counter=count_tokens,
+                path.read_bytes(), token_counter=token_counter,
                 max_tokens=settings.MAX_LENGTH,
             )
         except pdf_extract.PdfExtractionError as exc:
@@ -160,7 +160,19 @@ def main():
         manifest = pathlib.Path(args.pdf_manifest)
         pdf_dir = pathlib.Path(args.pdf_dir) if args.pdf_dir else manifest.parent / "heldout"
         exclude = {e.strip() for e in args.exclude.split(",") if e.strip()}
-        rows, sources, skipped = load_pdf_manifest(manifest, pdf_dir, known, exclude)
+        # utils.text.count_tokens asks model_service for the tokeniser, and
+        # model_service serves the pack's checkpoint, not the two being
+        # compared. Splitting must use the same tokeniser the predictions
+        # will use, so it comes from the v1 checkpoint directly -- which
+        # also avoids loading a third copy of the weights.
+        split_tok = AutoTokenizer.from_pretrained(args.v1)
+
+        def token_counter(text):
+            return len(split_tok(text, truncation=False,
+                                 add_special_tokens=True)["input_ids"])
+
+        rows, sources, skipped = load_pdf_manifest(
+            manifest, pdf_dir, known, exclude, token_counter)
         data = manifest
         for name, why in skipped:
             print(f"  skipped {name}: {why}")

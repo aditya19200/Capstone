@@ -258,13 +258,59 @@ not only how many — but it is measured, and it bounds the useful answer to
 "how many corrections does this take" at somewhere under 60 for this probe
 set.
 
+### The same checkpoint on the real held-out set
+
+The probes show the loop fixing what it was aimed at. The obvious next
+question is what it did to everything else, so the same two checkpoints were
+run over the 21-document held-out set — 1,477 passages from 18 documents,
+three refused as scans.
+
+| | v1 deployed | v2 retrained | |
+|---|---|---|---|
+| **document-level** | **17/18 = 94.4%** | **17/18 = 94.4%** | unchanged |
+| pooled passage | 55.2% | 50.9% | **−4.3pp** |
+| passages fixed | — | 31 | 12 of them confidently wrong |
+| passages broken | — | 95 | 2 of them confidently wrong |
+
+**Document-level accuracy did not move, and pooled passage accuracy got
+worse.** Both models miss the same single document, the Indian Stamp Act.
+
+Where the breakage is concentrated:
+
+| gold label | passages | fixed | broken |
+|---|---|---|---|
+| Taxation Law | 854 | 13 | **73** |
+| Contract Law | 476 | 13 | 16 |
+| Labour & Employment | 99 | 1 | 5 |
+| **Criminal Law** | 28 | **4** | **0** |
+| Property / Real Estate | 20 | 0 | 1 |
+
+**Criminal Law — the class the corrections were about — improves and breaks
+nothing.** 4 fixed, 0 broken, which is the probe result showing up on real
+documents.
+
+**77% of the damage is Taxation**, and Taxation here is 854 passages of which
+821 are the Indian Stamp Act: one 356-page document whose gold label this
+document already calls the weaker of two defensible readings (section 2).
+Both checkpoints were already poor on it — v1 got 558 of its 854 Taxation
+passages wrong before any retraining.
+
+So the honest reading: **the correction loop fixed the failure it was aimed
+at and did not improve the model overall.** That is the same shape as the
+medical result in section 10 and the medical corrections-only recipe —
+a small correction set moves the class it concerns and trades elsewhere.
+
+**And this one is weaker evidence than the medical experiment**, which
+should be said before it is quoted. `v-20260929-090239` is a demonstration
+checkpoint from a September session with 65 ad-hoc annotations, not a
+controlled run: there is no matched baseline, no seed sweep, and no record
+of which 65 items were validated. Section 10 is the controlled measurement.
+
 ### What this does not claim
 
-Eight documents, one class pair, chosen to be confidently wrong. It shows the
-loop fixes the failure it was aimed at, not that overall accuracy improves.
-The only controlled aggregate measurement is section 10, on medical: +0.7pp
-overall, inside the noise, with +17.5pp and +16.2pp on the two weakest
-classes.
+Eight probes, one class pair, chosen to be confidently wrong. It shows the
+loop fixes the failure it was aimed at. It does **not** show overall accuracy
+improving on legal — measured above, it does not.
 
 ---
 
@@ -443,14 +489,21 @@ contents vary too and not only the floating-point order.
 | seed | baseline | retrained | delta | ECE before | ECE after | wrong above 0.85 |
 |---|---|---|---|---|---|---|
 | 42 | 0.8938 | 0.9011 | +0.7pp | 0.0390 | 0.0302 | 8 → 15 |
-| 1337 | 0.8974 | 0.9304 | **+3.3pp** | 0.0474 | 0.0452 | 6 → 7 |
+| 1337 | 0.8974 | 0.9304 | +3.3pp | 0.0474 | 0.0452 | 6 → 7 |
 | 7 | 0.8864 | 0.9121 | +2.6pp | 0.0452 | 0.0321 | 10 → 9 |
+| 2024 | 0.8718 | 0.9267 | **+5.5pp** | 0.0654 | 0.0485 | 11 → 9 |
+| 99 | 0.8901 | 0.9377 | +4.8pp | 0.0537 | 0.0361 | 10 → 6 |
 
 ```
-baseline mean   0.8925        retrained mean  0.9145
-accuracy delta  +2.20pp mean, sd 1.32pp, min +0.7pp, positive in 3 of 3
-ECE             improved in 3 of 3, mean -0.80pp
+baseline mean   0.8879        retrained mean  0.9216
+accuracy delta  +3.37pp mean, sd 1.87pp, min +0.7pp, positive in 5 of 5
+ECE             improved in 5 of 5, mean -1.17pp
+wrong above 0.85  mean 9.0 -> 9.2, flat
 ```
+
+Seeds were chosen before any of them was run — 42 because it was already the
+project's seed, the rest arbitrary — and all five are reported. None was
+discarded.
 
 **The gain is real and bigger than one run suggested.** Seed 42 — the run
 quoted everywhere above, and the only one measured at first — was the worst
@@ -458,12 +511,13 @@ of the three. The mean is +2.20pp against a ±0.7pp noise floor, every seed is
 positive, and calibration error improved in every seed with no calibration
 step applied.
 
-**Quote +2.2pp across three seeds.** Not +0.7pp, and not +3.3pp.
+**Quote +3.4pp across five seeds, positive in all five.** Not +0.7pp, which
+was seed 42 alone, and not +5.5pp, which was the luckiest.
 
-The confidently-wrong count is the one thing that moved the wrong way, and
-only on one seed: 8 → 15 at seed 42 against 6 → 7 and 10 → 9 at the others,
-mean 8.0 → 10.3. The earlier claim that retraining systematically doubles
-confident errors was an artefact of a single run.
+The confidently-wrong count is flat across five seeds, 9.0 → 9.2 on average.
+Seed 42's 8 → 15 is the only run where it rose materially; the others gave
+6 → 7, 10 → 9, 11 → 9 and 10 → 6. The earlier claim that retraining doubles
+confident errors was an artefact of that single run.
 
 **Where the loop does pay, and this is above the noise:**
 
@@ -484,10 +538,11 @@ with one number.
 
 The honest summary is three sentences, not one:
 
-> "Retraining on human corrections raised medical held-out accuracy by 2.2
-> points on average across three seeds — positive in all three, against a
-> training variance of 0.7 — and improved calibration error in all three. Our
-> two weakest measurable classes moved 16 and 17 points of F1."
+> "Retraining on human corrections raised medical held-out accuracy by 3.4
+> points on average across five seeds — positive in all five, against a
+> training variance of 0.7 — and improved calibration error in all five. On
+> legal the same loop fixed the eight probes it was aimed at and did not
+> improve the model overall, and we report both."
 
 ### Temperature scaling does not transfer to medical either
 
@@ -608,9 +663,9 @@ one that still needs work.
 > 68.3%. We did not change the model — we fixed a test set that was asking
 > unanswerable questions."
 
-> "Retraining raised medical held-out accuracy 2.2 points on average across
-> three seeds, positive in all three against a training variance of 0.7, and
-> improved calibration error in all three."
+> "Retraining raised medical held-out accuracy 3.4 points on average across
+> five seeds, positive in all five against a training variance of 0.7, and
+> improved calibration error in all five."
 
 > "Active learning improves the tail, not the average. Our large classes
 > were already above 0.94 and dominate the aggregate, so the right way to
@@ -652,7 +707,10 @@ one that still needs work.
 - ~~"the margin guard catches confident near-ties"~~ — arithmetically
   impossible, fired 0/181, removed 19 Oct
 - ~~"retraining improved medical by 0.7pp"~~ — that was seed 42 alone, the
-  worst of three. The three-seed mean is +2.2pp, positive in 3/3
+  worst of five. The five-seed mean is +3.4pp, positive in 5/5
+- ~~"retraining improves the model"~~ as a general claim — true on medical
+  across five seeds, false on legal, where document-level accuracy was
+  unchanged and pooled passage accuracy fell 4.3pp (section 6)
 - ~~"retraining doubles our confident errors"~~ — 8→15 was seed 42 alone; the
   other two seeds gave 6→7 and 10→9
 - ~~"we calibrate both domains"~~ — temperature scaling helps legal

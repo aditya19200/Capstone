@@ -1,0 +1,167 @@
+{
+ "retrain": {
+  "validated_rows": 295,
+  "corrections_only": false,
+  "from_checkpoint": "v1_baseline",
+  "baseline_epochs": 3,
+  "retrain_epochs": 3,
+  "batch_size": 8,
+  "lr": 2e-05
+ },
+ "heldout": {
+  "file": "sample-data/evaluation/medical_heldout.csv",
+  "rows": 273,
+  "results": {
+   "v1_baseline": {
+    "accuracy": 0.8901,
+    "f1_per_class": {
+     "Cardiovascular / Pulmonary": 0.8224,
+     "Orthopedic": 0.9691,
+     "Radiology": 0.4,
+     "Gastroenterology": 0.9189,
+     "Neurology": 0.8387,
+     "Urology": 0.9412,
+     "Obstetrics / Gynecology": 0.9787,
+     "ENT - Otolaryngology": 0.9091,
+     "Neurosurgery": 0.7273,
+     "Hematology - Oncology": 0.7407,
+     "Ophthalmology": 1.0,
+     "Nephrology": 0.9524
+    },
+    "per_label_recall": {
+     "Cardiovascular / Pulmonary": 0.7719,
+     "Orthopedic": 1.0,
+     "Radiology": 0.75,
+     "Gastroenterology": 0.9189,
+     "Neurology": 0.7222,
+     "Urology": 0.8889,
+     "Obstetrics / Gynecology": 0.9583,
+     "ENT - Otolaryngology": 0.8333,
+     "Neurosurgery": 1.0,
+     "Hematology - Oncology": 0.9091,
+     "Ophthalmology": 1.0,
+     "Nephrology": 1.0
+    },
+    "top_confusions": [
+     [
+      "Cardiovascular / Pulmonary",
+      "Radiology",
+      6
+     ],
+     [
+      "Cardiovascular / Pulmonary",
+      "Hematology - Oncology",
+      4
+     ],
+     [
+      "Gastroenterology",
+      "Cardiovascular / Pulmonary",
+      3
+     ],
+     [
+      "Cardiovascular / Pulmonary",
+      "Neurosurgery",
+      2
+     ],
+     [
+      "Neurology",
+      "Radiology",
+      2
+     ],
+     [
+      "Urology",
+      "Gastroenterology",
+      2
+     ]
+    ],
+    "confidence": {
+     "n": 273,
+     "accuracy": 0.8901,
+     "mean_confidence": 0.8706,
+     "mean_confidence_when_right": 0.8905,
+     "mean_confidence_when_wrong": 0.709,
+     "above_auto_accept": 209,
+     "above_auto_accept_wrong": 10,
+     "confidently_wrong_rate": 0.0478,
+     "ece": 0.0537
+    }
+   },
+   "v2_retrained": {
+    "accuracy": 0.9377,
+    "f1_per_class": {
+     "Cardiovascular / Pulmonary": 0.9123,
+     "Orthopedic": 0.9895,
+     "Radiology": 0.5,
+     "Gastroenterology": 0.9459,
+     "Neurology": 0.8824,
+     "Urology": 0.9818,
+     "Obstetrics / Gynecology": 1.0,
+     "ENT - Otolaryngology": 1.0,
+     "Neurosurgery": 0.8,
+     "Hematology - Oncology": 0.7059,
+     "Ophthalmology": 1.0,
+     "Nephrology": 0.9474
+    },
+    "per_label_recall": {
+     "Cardiovascular / Pulmonary": 0.9123,
+     "Orthopedic": 1.0,
+     "Radiology": 0.75,
+     "Gastroenterology": 0.9459,
+     "Neurology": 0.8333,
+     "Urology": 1.0,
+     "Obstetrics / Gynecology": 1.0,
+     "ENT - Otolaryngology": 1.0,
+     "Neurosurgery": 1.0,
+     "Hematology - Oncology": 0.5455,
+     "Ophthalmology": 1.0,
+     "Nephrology": 0.9
+    },
+    "top_confusions": [
+     [
+      "Cardiovascular / Pulmonary",
+      "Radiology",
+      3
+     ],
+     [
+      "Gastroenterology",
+      "Cardiovascular / Pulmonary",
+      2
+     ],
+     [
+      "Hematology - Oncology",
+      "Cardiovascular / Pulmonary",
+      2
+     ],
+     [
+      "Neurology",
+      "Radiology",
+      2
+     ],
+     [
+      "Cardiovascular / Pulmonary",
+      "Neurosurgery",
+      1
+     ],
+     [
+      "Cardiovascular / Pulmonary",
+      "Gastroenterology",
+      1
+     ]
+    ],
+    "confidence": {
+     "n": 273,
+     "accuracy": 0.9377,
+     "mean_confidence": 0.9104,
+     "mean_confidence_when_right": 0.92,
+     "mean_confidence_when_wrong": 0.7658,
+     "above_auto_accept": 226,
+     "above_auto_accept_wrong": 6,
+     "confidently_wrong_rate": 0.0265,
+     "ece": 0.0361
+    }
+   }
+  }
+ },
+ "seed": 99,
+ "measured_at": "2026-10-20T06:06:10.605826+00:00"
+}
