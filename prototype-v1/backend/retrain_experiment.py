@@ -228,6 +228,12 @@ def main():
     ap.add_argument("--corrections-only", action="store_true",
                     help="fine-tune on the rows the reviewer changed, not on the whole "
                          "validated queue; isolates what a correction is worth")
+    ap.add_argument("--random-sample", type=int, default=None,
+                    help="fine-tune on N queue rows chosen at random instead of on the "
+                         "corrections. This is the control for --corrections-only: same "
+                         "number of new documents, selected without looking at whether "
+                         "the model got them right. Without it, a gain from corrections "
+                         "cannot be told apart from a gain from simply having more data.")
     ap.add_argument("--tag", default="",
                     help="suffix for the v2 checkpoint and the result file, so several "
                          "retrain variants can be compared against one baseline")
@@ -324,10 +330,21 @@ def main():
         model, tok = load_model(v1_dir, domain, device)
         qp = predict_all(model, tok, queue_rows, domain.label2id, domain.id2label,
                          domain.max_length, device)
-        validated = [
-            (t, l) for (t, l), (g, p, _) in zip(queue_rows, qp)
-            if (g != p) or not args.corrections_only
-        ]
+        if args.random_sample is not None:
+            # Seeded off the run's own seed and offset, so the control is
+            # reproducible but is not the same draw as anything else here.
+            pool = list(range(len(queue_rows)))
+            random.Random(args.seed + 9001).shuffle(pool)
+            picked = sorted(pool[:args.random_sample])
+            validated = [queue_rows[i] for i in picked]
+            n_wrong = sum(1 for i in picked if qp[i][0] != qp[i][1])
+            print(f"      control: {len(validated)} random queue rows, "
+                  f"{n_wrong} of which the model had got wrong")
+        else:
+            validated = [
+                (t, l) for (t, l), (g, p, _) in zip(queue_rows, qp)
+                if (g != p) or not args.corrections_only
+            ]
         print(f"[3/4] fine-tuning the baseline on {len(validated)} validated row(s)"
               + (" (corrections only)" if args.corrections_only else ""), flush=True)
         r_epochs = args.retrain_epochs if args.retrain_epochs is not None else args.epochs
@@ -339,6 +356,7 @@ def main():
         state["retrain"] = {
             "validated_rows": len(validated),
             "corrections_only": args.corrections_only,
+            "random_sample": args.random_sample,
             "from_checkpoint": v1_dir.name,
             "baseline_epochs": args.epochs, "retrain_epochs": r_epochs,
             "batch_size": args.batch_size, "lr": args.lr,

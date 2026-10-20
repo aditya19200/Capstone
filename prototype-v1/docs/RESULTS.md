@@ -544,6 +544,89 @@ The honest summary is three sentences, not one:
 > legal the same loop fixed the eight probes it was aimed at and did not
 > improve the model overall, and we report both."
 
+### Do the corrections matter, or is it just more data?
+
+The five-seed result says feeding 295 validated rows back improves the
+model. It does not say *why*, and the obvious alternative is dull: v2 got
+25% more training data, and any model improves with 25% more data. If that
+is the whole story, the human in the loop is decorative.
+
+Two arms, same seed, same baseline, **the same number of new documents**,
+differing only in which documents:
+
+| arm | gets | n |
+|---|---|---|
+| **C** | the rows the model got **wrong** | 38–46 |
+| **D** | the same number of queue rows, drawn **at random** | 38–46 |
+
+| seed | baseline | C corrections | D random | C − D |
+|---|---|---|---|---|
+| 42 | 0.8938 | 0.8498 | 0.8974 | −4.8pp |
+| 1337 | 0.8974 | 0.9158 | 0.8901 | +2.6pp |
+| 7 | 0.8864 | 0.9121 | 0.8864 | +2.6pp |
+
+```
+corrections vs baseline    +0.00pp mean, positive 2/3
+random      vs baseline    -0.12pp mean, positive 1/3
+CORRECTIONS MINUS RANDOM   +0.13pp mean, range -4.8 to +2.6
+```
+
+**Correcting the model's mistakes is not measurably better than adding the
+same number of unselected documents.** The difference is +0.13pp against a
+spread of seven points. That is nothing.
+
+Said plainly, because it is the claim the project's own title leans on:
+**this experiment does not demonstrate that human correction specifically is
+what drives the improvement.** It demonstrates that feeding validated
+annotations back improves the model, which is weaker.
+
+Two honest qualifications, neither of which rescues the stronger claim:
+
+- The test is **underpowered**. At 38–46 rows *neither* arm moves the
+  held-out set at all (+0.00pp and −0.12pp), so of course they cannot be
+  told apart. The +3.4pp needs the full 295-row feedback. A sharper test
+  needs a bigger correction budget than this corpus has — there are only 65
+  corrections to be had.
+- One seed is not noise but a mechanism, below.
+
+### Why corrections alone go wrong, which is the useful part
+
+Seed 42's corrections arm fell 4.4pp *below* its own baseline. Per class:
+
+| | baseline | corrections only | |
+|---|---|---|---|
+| Neurosurgery | 0.727 | 1.000 | **+27.3pp** |
+| Nephrology | 0.818 | 0.900 | +8.2pp |
+| Radiology | 0.500 | 0.353 | **−14.7pp** |
+| ENT - Otolaryngology | 0.971 | 0.878 | −9.3pp |
+| Cardiovascular / Pulmonary | 0.855 | 0.768 | −8.7pp |
+| Gastroenterology | 0.919 | 0.849 | −7.0pp |
+
+The weak classes improve enormously and the strong ones fall apart. The top
+confusion afterwards is Cardiovascular predicted as Radiology, eight times.
+
+The cause is the class prior. **Corrections are by definition concentrated
+in the classes the model is bad at**, so a model trained only on them learns
+that those classes are far more common than they are, and starts reaching
+for them everywhere. It is the same effect as the corrections-only recipe
+measured earlier on the contaminated corpus, and it reproduces here on clean
+data.
+
+**So the confirmations are not padding.** The 230 rows the model already got
+right are what hold the prior in place while the 65 corrections do their
+work. Feeding corrections back *alone* is actively harmful.
+
+`workers/retrain_worker.py` trains on every validated annotation, not only
+the changed ones. That was not a considered choice when it was written — it
+is simply what `build_training_data()` does — but it is the right one, and
+this is the measurement that says so.
+
+> "Corrections alone made the model worse: the weakest class gained 27 points
+> of F1 and four strong classes lost between 7 and 15, because corrections are
+> concentrated where the model is weak and that skews what it thinks is
+> common. Fed back alongside the confirmations, the same loop gains 3.4 points
+> across five seeds. The confirmations are what keep the corrections honest."
+
 ### Temperature scaling does not transfer to medical either
 
 `backend/calibrate.py` was legal-only — it hardcoded the legal PDF manifest.
@@ -711,6 +794,12 @@ one that still needs work.
 - ~~"retraining improves the model"~~ as a general claim — true on medical
   across five seeds, false on legal, where document-level accuracy was
   unchanged and pooled passage accuracy fell 4.3pp (section 6)
+- ~~"human corrections are what improve the model"~~ — measured against a
+  random sample of the same size, corrections won by +0.13pp across three
+  seeds, which is nothing. Say "feeding validated annotations back", which
+  is what was measured
+- ~~"we retrain on the corrections"~~ — retraining on corrections *alone*
+  made it worse, by skewing the class prior toward the weak classes
 - ~~"retraining doubles our confident errors"~~ — 8→15 was seed 42 alone; the
   other two seeds gave 6→7 and 10→9
 - ~~"we calibrate both domains"~~ — temperature scaling helps legal
