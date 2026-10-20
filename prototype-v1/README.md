@@ -1,10 +1,20 @@
 # Prototype V1 — XAI Legal Annotation Framework
 
-Classifies Indian legal text into 10 legal domains, explains *why* it chose a
+Classifies documents into a domain's label set, explains *why* it chose a
 label, routes uncertain cases to a human, and retrains itself on the
 corrections those humans make.
 
-This prototype demonstrates that loop running **end to end**.
+This prototype demonstrates that loop running **end to end**, on **two
+domains that differ only by a config file**:
+
+| domain | base model | labels | held-out accuracy |
+|---|---|---|---|
+| legal | InLegalBERT | 10 Indian legal areas | **94.4%** document-level, 18 documents |
+| medical | Bio_ClinicalBERT | 12 clinical specialties | **90.5%**, 273 documents |
+
+Adding the second domain is what found most of the bugs worth finding. Every
+number here and its caveat lives in **`docs/RESULTS.md`** — read that before
+quoting anything.
 
 ---
 
@@ -87,8 +97,27 @@ python3 seed_retrain_data.py
 6. **Admin** → Compare → pick the two probe batches
 
 Seven or eight of the eight change from Family Law to Criminal Law, and none of
-them were ever corrected. 15 corrections is the measured minimum for all eight;
-5 and 10 both give 7/8.
+them were ever corrected.
+
+Measured offline on the five recorded retrain checkpoints
+(`backend/compare_checkpoints.py`), so the result does not depend on the live
+run going well:
+
+| checkpoint | validated rows it trained on | probes correct |
+|---|---|---|
+| `LegalModelShared` (deployed) | — | **0 / 8** |
+| v-20260904-091128 | 47 | 0 / 8 |
+| v-20260910-102339 | 48 | 0 / 8 |
+| v-20260928-154348 | 60 | 7 / 8 |
+| v-20260928-185817 | 65 | 7 / 8 |
+| v-20260929-090239 | 65 | **8 / 8** |
+
+All eight of the deployed model's errors sit at 0.985–0.996 confidence, above
+the 0.85 auto-accept threshold — in production they would be filed as Family
+Law with no human ever seeing them. The eight probe texts appear in none of
+`v1.csv`, `1-intake.csv`, `teaching-set-only.csv` or `seed_retrain_data.py`,
+checked before quoting any of this. The flip happens somewhere between 48 and
+60 validated annotations.
 
 ---
 
@@ -136,7 +165,9 @@ which this does not do — so it says so instead of pretending.
 | `demo/teaching-set-only.csv` | 25 | confident and wrong | The teaching set on its own, if you want it without the surrounding batch |
 | `archive/demo_batch_tough.csv` | 45 | 60% high / 29% med / 11% low | Older demo batch. Colour on every page, 5 items reach the review queue |
 | `archive/demo_batch_easy.csv` | 50 | 94% high / 4% / 2% | Safe fallback — but pages 2-4 are entirely green |
-| `evaluation/stress_test.csv` | 225 | — | Measuring accuracy. Real labelled court text with a `gold_label` answer key. 15 pages, ~75s to classify — not for live use |
+| `evaluation/stress_test.csv` | 225 | — | **Not a test set.** All 225 rows also appear in `v1.csv`, verified by exact match after normalisation — it is a slice of the training corpus. Kept for load-testing the UI, never for accuracy |
+| `evaluation/heldout/` + `heldout_manifest.csv` | 21 docs | — | **The real test set.** Documents in no CSV anywhere. 3 are scans the PDF guard refuses, so 18 reach the model |
+| `evaluation/medical_heldout.csv` | 273 | — | Medical held-out, rebuilt 19 Oct so no document straddles the split |
 
 The uploader reads only the `text` column, so the answer-key
 columns never reach the model.
@@ -144,6 +175,14 @@ columns never reach the model.
 ---
 
 ## Model performance — read the caveat
+
+> **A held-out set exists now, and these are not it.** Until 18 Oct every
+> number this project had came from `v1.csv`, which may be the deployed
+> checkpoint's own training data. The figures in this section are that old
+> measurement, kept because the source breakdown below is still the clearest
+> evidence of what the corpus is made of. **The headline accuracy is
+> 94.4% document-level on 18 held-out documents** — see `docs/RESULTS.md`
+> sections 1 and 2.
 
 Measured by `backend/evaluate_baseline.py` on all 1701 labelled samples:
 
@@ -164,9 +203,15 @@ Broken down by where the data came from:
 
 **100% on hand-written samples is memorisation, not skill.** The deployed
 checkpoint was almost certainly trained on part of this data, so 70.7% is an
-upper bound rather than a held-out result. The realistic figure is closer to
-**52%** — the score on genuine Supreme Court case summaries, which is the
-largest and most representative slice.
+upper bound rather than a held-out result, and the 52% on genuine Supreme
+Court summaries was the honest read of it at the time.
+
+On the held-out set built since — 21 documents appearing in no CSV, of which
+18 reached the model and 3 were scans the PDF guard refused — the model gets
+**17 of 18 at document level (94.4%)** and **84.5% mean per-document passage
+agreement**. The single miss is the Indian Stamp Act, labelled Taxation and
+predicted Property, where the prediction is arguably better than our label
+and is left as a miss on purpose.
 
 Worth stating plainly: for 10 classes, random guessing is 10%. The model is
 doing real work; it is also more confident than it is correct, which is
