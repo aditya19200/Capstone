@@ -35,6 +35,7 @@ import argparse
 import csv
 import pathlib
 import sys
+import collections
 from collections import Counter
 
 import torch
@@ -44,10 +45,67 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 from config.domains import get_domain
 from config.settings import settings
+from services import pdf_extract
 from train_domain import load_csv
+from utils.text import count_tokens, normalize
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 HERE = pathlib.Path(__file__).resolve().parent
+
+
+def load_pdf_manifest(manifest, pdf_dir, known, exclude):
+    """
+    The legal held-out set is PDFs plus a manifest, not a CSV.
+
+    Each PDF splits into many passages and every passage inherits its
+    DOCUMENT's label, which is weak by construction -- a tax judgment
+    contains procedural passages that are not tax law. The source filename
+    comes back with each passage so the caller can aggregate to the
+    document level, which is the figure docs/RESULTS.md quotes.
+    """
+    rows, sources, skipped = [], [], []
+    for row in csv.DictReader(open(manifest, encoding="utf-8")):
+        if row["file"] in exclude:
+            continue
+        path = pdf_dir / row["file"]
+        if not path.exists():
+            skipped.append((row["file"], "missing"))
+            continue
+        if row["gold_label"] not in known:
+            skipped.append((row["file"], f"unknown label {row['gold_label']!r}"))
+            continue
+        try:
+            extracted = pdf_extract.extract(
+                path.read_bytes(), token_counter=count_tokens,
+                max_tokens=settings.MAX_LENGTH,
+            )
+        except pdf_extract.PdfExtractionError as exc:
+            # Scans with no text layer are refused by the guard, not a bug.
+            skipped.append((row["file"], type(exc).__name__))
+            continue
+        for doc in extracted.documents:
+            rows.append((normalize(doc), row["gold_label"]))
+            sources.append(row["file"])
+    return rows, sources, skipped
+
+
+def document_level(rows, sources, preds):
+    """
+    One verdict per document: the label most of its passages got.
+
+    Aggregating ~80 passages smooths out individual errors, which is why
+    this number is higher than the passage figure and why both are reported.
+    """
+    by_doc = collections.defaultdict(list)
+    gold_of = {}
+    for (_, gold), src, (label, _) in zip(rows, sources, preds):
+        by_doc[src].append(label)
+        gold_of[src] = gold
+    verdict = {}
+    for src, labels in by_doc.items():
+        verdict[src] = Counter(labels).most_common(1)[0][0]
+    correct = sum(1 for src, v in verdict.items() if v == gold_of[src])
+    return correct, len(verdict), verdict, gold_of
 
 
 def predict(path, rows, domain, device, batch_size=32):
@@ -76,6 +134,15 @@ def main():
     ap.add_argument("--domain", required=True)
     ap.add_argument("--v1", required=True, help="the before checkpoint")
     ap.add_argument("--v2", required=True, help="the after checkpoint")
+    ap.add_argument("--pdf-manifest", default=None,
+                    help="a manifest CSV (file,gold_label) beside a directory of "
+                         "PDFs, as the legal held-out set is shaped. Reports both "
+                         "passage-level and document-level accuracy.")
+    ap.add_argument("--pdf-dir", default=None,
+                    help="where the manifest's PDFs live; defaults to a 'heldout' "
+                         "directory beside the manifest")
+    ap.add_argument("--exclude", default="",
+                    help="comma-separated filenames to drop from the manifest")
     ap.add_argument("--dataset", default=None,
                     help="defaults to the domain's held-out file, which is the only "
                          "safe choice unless you know the retrained checkpoint never "
@@ -88,10 +155,22 @@ def main():
     domain = get_domain(args.domain)
     known = set(domain.names)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    data = pathlib.Path(
-        args.dataset or ROOT / "sample-data/evaluation" / f"{domain.key}_heldout.csv"
-    )
-    rows, _ = load_csv(data, known)
+    sources = None
+    if args.pdf_manifest:
+        manifest = pathlib.Path(args.pdf_manifest)
+        pdf_dir = pathlib.Path(args.pdf_dir) if args.pdf_dir else manifest.parent / "heldout"
+        exclude = {e.strip() for e in args.exclude.split(",") if e.strip()}
+        rows, sources, skipped = load_pdf_manifest(manifest, pdf_dir, known, exclude)
+        data = manifest
+        for name, why in skipped:
+            print(f"  skipped {name}: {why}")
+        if exclude:
+            print(f"  excluded by request: {', '.join(sorted(exclude))}")
+    else:
+        data = pathlib.Path(
+            args.dataset or ROOT / "sample-data/evaluation" / f"{domain.key}_heldout.csv"
+        )
+        rows, _ = load_csv(data, known)
     if not rows:
         sys.exit(f"no usable rows in {data}")
 
@@ -111,6 +190,17 @@ def main():
 
     p1 = predict(args.v1, rows, domain, device)
     p2 = predict(args.v2, rows, domain, device)
+
+    if sources:
+        n_docs = len(set(sources))
+        print(f"  {len(rows)} passages from {n_docs} documents\n")
+        for name, preds in (("v1", p1), ("v2", p2)):
+            c, n, verdict, gold_of = document_level(rows, sources, preds)
+            print(f"{name} DOCUMENT-level  {c}/{n} = {c/n:.4f}")
+            for src in sorted(verdict):
+                if verdict[src] != gold_of[src]:
+                    print(f"     miss: {src}  gold {gold_of[src]} -> said {verdict[src]}")
+        print()
 
     fixed, broken, same_right, same_wrong = [], [], [], []
     for (text, gold), (l1, c1), (l2, c2) in zip(rows, p1, p2):

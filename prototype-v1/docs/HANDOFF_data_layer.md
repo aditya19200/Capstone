@@ -366,3 +366,87 @@ If nothing persists after you wire up Supabase, check that `SUPABASE_URL` no
 longer contains the word `placeholder`. `is_configured()` returns False and
 everything silently keeps using the in-memory mock, which looks exactly like
 it is working.
+
+---
+
+# UPDATE — 20 Oct: what changed again, and a third seed file
+
+Shorter than the last one. Nothing here breaks what you may have started;
+one item adds a file to load, the rest is context so numbers in the repo
+match what you see.
+
+## 1. There is now a third seed file per domain
+
+`graph/mine_graph_depth.py` mines structure *between* concepts and writes
+`<key>_depth_seed.cypher`:
+
+```
+legal_depth_seed.cypher      84 NARROWS +     6 CO_OCCURS
+medical_depth_seed.cypher   182 NARROWS + 1,205 CO_OCCURS
+```
+
+```
+(:Concept)-[:NARROWS]->(:Concept)
+    "cervical discectomy" is a kind of "discectomy"
+
+(:Concept)-[:CO_OCCURS {jaccard, documents}]-(:Concept)
+    "ankle tourniquet" and "sagittal saw" appear in the same operation note
+```
+
+**`load_ontology.py` already loads it** — third, after the ontology and
+concept seeds, and only if it exists. You do not need to change the loader.
+A domain without a depth seed prints a note and loads the other two, where
+previously any missing file aborted the run.
+
+Both ends of every edge are `MERGE`d, so the file is order-independent, but
+load the concept seed first anyway.
+
+**These edges are not read by anything yet.** `services/ontology_check.py`
+reads the markers JSON and never opens a Neo4j session, and
+`services/neo4j_service.py` queries only `(:OntologyNode)` with
+`HAS_CHILD`, `RELATED_TO` and `HAS_PARENT`. So you can load them, or not,
+without changing any API response or any measured number. If you want to
+expose them later, that is a new endpoint and a new measurement, not a swap.
+
+## 2. The medical corpus and markers were rebuilt
+
+`sample-data/evaluation/medical_heldout.csv` shared 129 of its 435 rows with
+`datasets/medical_v1.csv`, every one of them carrying a *different* label —
+mtsamples files the same transcription under two specialties. The corpus is
+rebuilt by `backend/build_medical_corpus.py`, which groups by text so copies
+cannot straddle the split and asserts zero overlap before writing.
+
+For you this means two things:
+
+- `datasets/medical_v1.csv` is now **1,472 rows**, not 1,738, and
+  `medical_heldout.csv` is **273**, not 435. If you cached row counts
+  anywhere, they moved.
+- `graph/medical_concept_markers.json` and `medical_concept_seed.cypher`
+  were regenerated from the clean corpus: **1,179 markers**, was 1,108.
+  Reload the medical graph if you had already loaded it; the old concept
+  set contains terms mined from rows that no longer exist.
+
+Legal is untouched: 752 markers, 8.0% false positives, regression-checked.
+
+## 3. One API bug fixed, in case you hit it
+
+`GET /batches` returned **500 on every request** since it was written —
+`models/response_models.py` defined `BatchSummary` twice with different
+fields and the second silently replaced the first. Fixed by renaming the
+comparison-picker one to `ComparisonBatchSummary`. If you saw the Annotate
+page say "Could not load recent batches", that was it, not your setup.
+
+## 4. You do not need a GPU, a model, or the weights
+
+Worth saying plainly because it changes how you can work:
+
+- The **test suite stubs torch**. All 221 tests run with no model loaded,
+  so `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./venv/bin/python -m pytest tests/ -q`
+  is a real pass/fail signal on any machine, including a Mac with no CUDA.
+- `backend/models/` is ~4.9 GB and gitignored. You will not get it from a
+  clone and you do not need it for this job.
+- Applying the SQL migrations and loading the Cypher needs Postgres and
+  Neo4j, nothing else. No PyTorch, no checkpoint.
+
+Only clicking through the live UI needs a model, and that is optional for
+the data layer.
