@@ -158,7 +158,7 @@ def run_worker() -> None:
     logger.info("Poll interval: %ds", POLL_INTERVAL_SECONDS)
 
     logger.info("Loading InLegalBERT...")
-    model_service.load()
+    model_service.ensure_loaded()
     logger.info("Model ready. Entering poll loop.")
 
     try:

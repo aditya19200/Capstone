@@ -130,8 +130,7 @@ def _process_single_item(item: Dict, inference: Dict) -> None:
 
 def main() -> None:
     logger.info("batch_worker starting up. Loading InLegalBERT...")
-    if not model_service.is_loaded():
-        model_service.load()
+    model_service.ensure_loaded()
     logger.info("Model ready. Polling batch_items every %ds.", POLL_INTERVAL_SECONDS)
 
     while True:

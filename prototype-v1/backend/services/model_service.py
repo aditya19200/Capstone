@@ -166,6 +166,29 @@ class ModelService:
         else:
             logger.info("InLegalBERT loaded successfully on %s.", self._device)
 
+    def ensure_loaded(self) -> None:
+        """
+        Load settings.MODEL_PATH only if nothing is resident.
+
+        Every worker needs a model and none of them should assume it owns the
+        process. With Supabase configured they each run standalone and this
+        does the initial load; with no Supabase they run as threads inside
+        the API (see local_workers.py), where the API has already loaded —
+        possibly an activated version rather than MODEL_PATH, and with a
+        version label attached. An unconditional load() there would quietly
+        swap the activated weights back out for the baseline and drop the
+        label, so every prediction would be stamped "baseline" whatever made
+        it.
+
+        Not a substitute for load(): activation still calls load() directly,
+        because replacing the resident model is exactly what it means to do.
+        """
+        if self.is_loaded():
+            logger.info("Model already resident (%s); not reloading.",
+                        self._loaded_version or self._loaded_path)
+            return
+        self.load()
+
     def unload(self) -> None:
         """Release model and tokenizer from memory."""
         with self._lock:
@@ -203,6 +226,22 @@ class ModelService:
     def loaded_version(self) -> Optional[str]:
         """version_number of the resident weights, if loaded via activation."""
         return self._loaded_version
+
+    def name_loaded_version(self, version_number: str) -> None:
+        """
+        Attach a version_number to weights that were loaded without one.
+
+        Startup loads settings.MODEL_PATH directly, so the resident weights
+        have a path and no name, and every prediction they make is stamped
+        the placeholder "baseline". The model_versions row describing those
+        same weights has a real name. Once startup has matched the two up,
+        this puts the name on the loaded model, so the stamp on a prediction
+        and the row in the version table say the same word.
+
+        Does not touch the weights — only what they are called.
+        """
+        with self._lock:
+            self._loaded_version = version_number
 
     @property
     def model_version(self) -> str:
