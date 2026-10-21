@@ -60,7 +60,7 @@ PLAN = [
     ("predictions", "every prediction (cascades annotations and xai_jobs)",
      "created_at", None),
     ("model_versions", "retrained versions, keeping the baseline row",
-     "trained_at", ("version_number", "baseline%")),   # matched case-insensitively
+     "trained_at", ("version_number", "baseline*")),   # see the delete loop
     ("dataset_versions", "every dataset version", "created_at", None),
 ]
 
@@ -118,15 +118,27 @@ def main() -> int:
             return 1
 
     print()
+    failures = []
     for table, description, stamp, keep in PLAN:
         try:
             query = client.table(table).delete()
             if keep:
                 column, pattern = keep
                 # Keep the baseline row: delete only what does NOT match it.
-                # ilike, not like: the row is named "Baseline" and a
-                # case-sensitive "baseline%" would miss it, which does not
-                # fail -- it deletes the one row this is here to protect.
+                #
+                # Two things about this pattern, both learned the hard way:
+                #
+                #   ilike, not like -- the row is named "Baseline", and a
+                #   case-sensitive "baseline..." would miss it. That failure
+                #   is silent and backwards: it deletes the one row this is
+                #   here to protect.
+                #
+                #   "*", not "%" -- PostgREST's wildcard is "*". A literal "%"
+                #   goes into the query string as the start of a percent
+                #   escape, and Supabase's edge worker 500s on it ("JSON could
+                #   not be generated", Cloudflare 1101) before the request ever
+                #   reaches Postgres. So the whole delete is skipped and any
+                #   retrained version survives the reset.
                 query = query.not_.ilike(column, pattern)
             else:
                 # PostgREST refuses an unfiltered delete, so match every row
@@ -136,12 +148,24 @@ def main() -> int:
             query.execute()
             print(f"  cleared  {table:<18} ({description})")
         except Exception as exc:
+            failures.append(table)
             print(f"  FAILED   {table:<18} {type(exc).__name__}: "
                   f"{str(exc).splitlines()[0][:110]}")
 
     print("\nAfter:")
     for table in AFTER:
         print(f"  {table:<18} {count(client, table):>6} rows")
+
+    if failures:
+        # Non-zero so reset_demo.sh (set -e) stops here rather than seeding on
+        # top of a half-cleared database. A FAILED line on its own scrolls past
+        # under the seed output, and the state it leaves -- old predictions or a
+        # leftover retrained version still in the Admin dropdown -- is exactly
+        # what this script exists to prevent.
+        print(f"\nNOT reset: {', '.join(failures)} still holds data. Fix that "
+              f"before seeding, or the demo starts from an unknown state.")
+        return 1
+
     print("\nNext:  python3 seed_retrain_data.py     (from the repo root)")
     return 0
 

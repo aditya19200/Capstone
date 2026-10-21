@@ -10,9 +10,10 @@
 #
 # Run it before a rehearsal and again before the real thing. Between those
 # two points nothing changes by itself: no retrain happens unless the Retrain
-# button is pressed, and the served model goes back to the baseline on every
-# backend restart because startup loads settings.MODEL_PATH rather than
-# whatever the database has flagged active.
+# button is pressed. Note that a restart does NOT put the baseline back by
+# itself -- startup honours whatever model_versions has flagged active, which
+# is the point of the rollback mechanism. Deleting the retrained rows here is
+# what returns the demo to the baseline.
 #
 #     ./reset_demo.sh          asks before deleting
 #     ./reset_demo.sh --yes    no prompt
@@ -36,30 +37,46 @@ python3 seed_retrain_data.py
 
 echo
 echo "==> Starting state"
-curl -s http://localhost:8000/stats/dashboard \
-  | python3 -c 'import json,sys; d=json.load(sys.stdin); print(
-    f"    documents_uploaded    {d[\"documents_uploaded\"]}\n"
-    f"    annotations_validated {d[\"annotations_validated\"]}")'
+# No f-strings here on purpose: this program is inside shell single quotes, so
+# escaping the quotes around a dict key (f"{d[\"k\"]}") hands Python a literal
+# backslash and it dies with a SyntaxError instead of printing the readout.
+# /stats/dashboard is role-gated, so without the header this reads back
+# {"detail": "Role 'None' is not permitted here"} and KeyErrors.
+curl -s -H "X-Role: admin" -H "X-User-Id: reset" http://localhost:8000/stats/dashboard \
+  | python3 -c '
+import json, sys
+d = json.load(sys.stdin)
+print("    documents_uploaded    {}".format(d["documents_uploaded"]))
+print("    annotations_validated {}".format(d["annotations_validated"]))'
 curl -s http://localhost:8000/health \
-  | python3 -c 'import json,sys; d=json.load(sys.stdin); print(
-    f"    model serving         {d[\"model_version\"]}\n"
-    f"    supabase              {d[\"data_layer\"][\"supabase\"]}\n"
-    f"    neo4j                 {d[\"data_layer\"][\"neo4j\"]}")'
+  | python3 -c '
+import json, sys
+d = json.load(sys.stdin)
+print("    model serving         {}".format(d["model_version"]))
+print("    supabase              {}".format(d["data_layer"]["supabase"]))
+print("    neo4j                 {}".format(d["data_layer"]["neo4j"]))'
 
 # The Admin version dropdown is model_versions straight from the database, so
 # a rehearsal leaves its retrained version sitting in it. One stale entry is
 # a wrong thing to click under pressure and several look careless, so the
 # count is part of the readout rather than something to remember to check.
+# "serving" is the version whose weights are resident; "active" is what the
+# database says should be. On a clean reset one row is both.
 curl -s -H "X-Role: admin" -H "X-User-Id: reset" http://localhost:8000/admin/metrics \
-  | python3 -c 'import json,sys
+  | python3 -c '
+import json, sys
 d = json.load(sys.stdin)
 v = d.get("model_versions", [])
-print(f"    versions listed       {len(v)}")
+print("    versions listed       {}".format(len(v)))
 for row in v:
-    print(f"      - {row.get(\"version_number\")}  active={row.get(\"is_active\")}")
+    flags = [n for n, on in (("serving", row.get("is_serving")),
+                             ("active", row.get("is_active"))) if on]
+    print("      - {}  {}".format(row.get("version_number"),
+                                  ", ".join(flags) or "inactive"))
 if len(v) != 1:
     print("    ^ expected exactly 1 (the baseline). Anything else is left over.")'
 
 echo
-echo "Ready. annotations_validated should read 55 and the model should read"
-echo "baseline. If it does, the demo will run identically to last time."
+echo "Ready. annotations_validated should read 55, and one version should be"
+echo "listed -- Baseline, serving and active. If so, the demo will run"
+echo "identically to last time."
