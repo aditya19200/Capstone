@@ -59,6 +59,10 @@ function AdminPage() {
 
     try {
       await activateModelVersion(version.version_id)
+      // Activation flips a flag and loads weights, and either half can fail
+      // on its own. Re-reading says which actually happened rather than
+      // leaving the optimistic guess on screen.
+      await fetchMetrics()
       setActivatingId(null)
     } catch (error) {
       console.error('[Admin] activateModelVersion failed', error)

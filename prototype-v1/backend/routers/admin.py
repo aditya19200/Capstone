@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from fastapi import APIRouter, Header, HTTPException, status
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 
 from models.response_models import (
     AdminMetricsResponse,
@@ -148,8 +148,17 @@ async def get_admin_metrics(
     recent_batches = batches_repo.list_all(limit=20)
     all_versions = model_versions_repo.list_all()
 
+    # What is loaded, as opposed to what the database says should be. The two
+    # are the same almost always, and the moment they are not is exactly the
+    # moment somebody needs to be told: between pressing Activate and the
+    # restart that honours it, or when a flagged version's files would not
+    # load and startup fell back. A table that shows only is_active cannot
+    # express either, so it reports a model that is not answering anything.
+    served_path = model_service.loaded_path
+
     return AdminMetricsResponse(
         active_model_version=active_model["version_number"] if active_model else None,
+        serving_model_version=model_service.loaded_version,
         f1_per_class=active_model["f1_per_class"] if active_model else {},
         annotation_counts=annotation_counts,
         model_versions=[
@@ -159,6 +168,7 @@ async def get_admin_metrics(
                 accuracy=v["accuracy"],
                 is_active=v.get("is_active", False),
                 trained_at=v["trained_at"],
+                is_serving=bool(served_path) and v.get("file_path") == served_path,
             )
             for v in all_versions
         ],
@@ -209,6 +219,49 @@ async def export_dataset(
             "Content-Disposition":
                 f'attachment; filename="dataset-{stamp}.jsonl"',
             # Lets the UI show the count without reading the stream.
+            "X-Example-Count": str(len(records)),
+        },
+    )
+
+
+@router.get(
+    "/dataset.pdf",
+    status_code=status.HTTP_200_OK,
+    summary="Download the annotated corpus as a PDF",
+    description=(
+        "The same validated annotations as GET /admin/dataset, laid out as a "
+        "document: each text with its ontology concept markers highlighted in "
+        "place, what the model predicted and how sure it was, and what the "
+        "human decided. JSONL is what another system consumes; this is what a "
+        "person reads."
+    ),
+)
+async def export_dataset_pdf(
+    x_role: Optional[str] = Header(default=None, alias="X-Role"),
+) -> Response:
+    _require_admin(x_role)
+    records, skipped = dataset_export.rows()
+    if skipped:
+        logger.warning("Dataset PDF export skipped %d unusable annotation(s)", skipped)
+    try:
+        pdf = dataset_export.to_pdf(records)
+    except ImportError as exc:
+        # reportlab is in requirements.txt, but an older checkout's venv will
+        # not have it. Saying so beats a 500 with a traceback in it.
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=(
+                "PDF export needs reportlab, which is not installed in this "
+                f"environment ({exc}). Run: pip install -r requirements.txt"
+            ),
+        )
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition":
+                f'attachment; filename="annotated-corpus-{stamp}.pdf"',
             "X-Example-Count": str(len(records)),
         },
     )

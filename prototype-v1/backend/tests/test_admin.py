@@ -210,7 +210,9 @@ class TestAdminMetrics:
 
         # From the registered baseline.
         assert data["active_model_version"] is not None
-        assert "baseline" in data["active_model_version"]
+        assert "baseline" in data["active_model_version"].lower()
+        # And it is the one actually loaded, not just a row saying so.
+        assert data["serving_model_version"] == data["active_model_version"]
         assert set(data["f1_per_class"]) == set(LEGAL_LABELS)
 
         # Nothing has been annotated or uploaded yet.
@@ -236,3 +238,186 @@ class TestAdminMetrics:
         assert data["annotation_counts"] == {"validated": 1}
         assert len(data["batch_throughput"]) == 1
         assert data["batch_throughput"][0]["total_items"] == 2
+
+
+class TestServingVersusActive:
+    """
+    is_active is what the database says should load; is_serving is what did.
+
+    They are separate because they really can disagree, and the screen that
+    hides the difference is the one that tells an operator a model is in use
+    when nothing has loaded it. This is not hypothetical: the deployed
+    baseline sat in the table marked Inactive while answering every request,
+    because the insert succeeded and the activation that follows it failed.
+    """
+
+    def test_metrics_marks_the_loaded_version_as_serving(self, client):
+        from services.model_service import model_service
+
+        served = model_versions_repo.insert(
+            version_number="v-served", accuracy=0.9, f1_per_class={},
+            file_path=model_service.loaded_path or "./models/LegalModelShared",
+        )
+        other = model_versions_repo.insert(
+            version_number="v-elsewhere", accuracy=0.9, f1_per_class={},
+            file_path="/models/somewhere-else",
+        )
+
+        rows = {v["version_number"]: v
+                for v in client.get("/admin/metrics",
+                                    headers=ADMIN_HEADERS).json()["model_versions"]}
+        assert rows["v-served"]["is_serving"] is True
+        assert rows["v-elsewhere"]["is_serving"] is False
+        assert served["id"] != other["id"]
+
+    def test_a_version_flagged_active_but_not_loaded_is_not_serving(self, client):
+        version = model_versions_repo.insert(
+            version_number="v-never-loaded", accuracy=0.9, f1_per_class={},
+            file_path="/models/not-on-this-disk",
+        )
+        model_versions_repo.set_active(version["id"])
+
+        data = client.get("/admin/metrics", headers=ADMIN_HEADERS).json()
+        row = next(v for v in data["model_versions"]
+                   if v["version_number"] == "v-never-loaded")
+        assert row["is_active"] is True
+        assert row["is_serving"] is False
+        assert data["active_model_version"] == "v-never-loaded"
+        assert data["serving_model_version"] != "v-never-loaded"
+
+
+class TestReconcileServedVersion:
+    """
+    Startup makes the table describe the model that is actually loaded.
+
+    register_baseline_if_absent() returns early once any row exists, so a row
+    that landed with the wrong name, or without the activation that was meant
+    to follow it, stayed wrong for the life of the database.
+    """
+
+    def test_marks_the_served_row_active_when_nothing_is(self):
+        from baseline import reconcile_served_version
+
+        row = model_versions_repo.insert(
+            version_number="Baseline", accuracy=0.7, f1_per_class={},
+            file_path="./models/LegalModelShared",
+        )
+        assert row["is_active"] is False
+
+        reconcile_served_version("./models/LegalModelShared")
+
+        assert model_versions_repo.get_active()["id"] == row["id"]
+
+    def test_renames_a_row_named_after_a_directory(self, tmp_path, monkeypatch):
+        import json as _json
+        import baseline
+        from baseline import reconcile_served_version
+
+        metrics = tmp_path / "legal_baseline_metrics.json"
+        metrics.write_text(_json.dumps({"version_number": "Baseline"}))
+        monkeypatch.setattr(baseline, "_metrics_file", lambda: metrics)
+
+        row = model_versions_repo.insert(
+            version_number="baseline-LegalModelShared", accuracy=0.7,
+            f1_per_class={}, file_path="./models/LegalModelShared",
+        )
+        reconcile_served_version("./models/LegalModelShared")
+
+        assert model_versions_repo.list_all()[0]["version_number"] == "Baseline"
+        assert model_versions_repo.get_active()["id"] == row["id"]
+
+    def test_leaves_a_retrained_versions_name_alone(self, tmp_path, monkeypatch):
+        import json as _json
+        import baseline
+        from baseline import reconcile_served_version
+
+        metrics = tmp_path / "legal_baseline_metrics.json"
+        metrics.write_text(_json.dumps({"version_number": "Baseline"}))
+        monkeypatch.setattr(baseline, "_metrics_file", lambda: metrics)
+
+        model_versions_repo.insert(
+            version_number="v-20260929-090239", accuracy=0.81, f1_per_class={},
+            file_path="./models/v-20260929-090239",
+        )
+        reconcile_served_version("./models/v-20260929-090239")
+
+        assert model_versions_repo.list_all()[0]["version_number"] == "v-20260929-090239"
+
+    def test_does_not_steal_the_flag_from_a_deliberate_activation(self):
+        from baseline import reconcile_served_version
+
+        chosen = model_versions_repo.insert(
+            version_number="v-chosen", accuracy=0.9, f1_per_class={},
+            file_path="/models/v-chosen",
+        )
+        model_versions_repo.set_active(chosen["id"])
+        model_versions_repo.insert(
+            version_number="Baseline", accuracy=0.7, f1_per_class={},
+            file_path="./models/LegalModelShared",
+        )
+
+        # Startup tried to load v-chosen and could not, so MODEL_PATH is what
+        # is serving. The flag still records what was asked for.
+        reconcile_served_version("./models/LegalModelShared")
+
+        assert model_versions_repo.get_active()["id"] == chosen["id"]
+
+    def test_is_a_no_op_with_no_versions_at_all(self):
+        from baseline import reconcile_served_version
+        reconcile_served_version("./models/LegalModelShared")
+        assert model_versions_repo.list_all() == []
+
+
+class TestWorkersDoNotClobberTheResidentModel:
+    """
+    A worker must not reload MODEL_PATH over an already-resident model.
+
+    With no Supabase configured the batch, XAI and retrain workers run as
+    threads inside the API process (local_workers.py), sharing one
+    model_service. The XAI worker called load() unconditionally, so seconds
+    after a startup that had correctly loaded an activated version, that
+    thread put settings.MODEL_PATH back — the baseline — and dropped the
+    version label with it, leaving every prediction stamped "baseline"
+    whatever weights produced it.
+    """
+
+    def test_ensure_loaded_does_not_reload_what_is_already_resident(self, monkeypatch):
+        from services.model_service import model_service
+
+        calls = []
+        monkeypatch.setattr(model_service, "load",
+                            lambda *a, **k: calls.append((a, k)))
+        monkeypatch.setattr(model_service, "is_loaded", lambda: True)
+
+        model_service.ensure_loaded()
+        assert calls == []
+
+    def test_ensure_loaded_loads_when_nothing_is_resident(self, monkeypatch):
+        from services.model_service import model_service
+
+        calls = []
+        monkeypatch.setattr(model_service, "load",
+                            lambda *a, **k: calls.append((a, k)))
+        monkeypatch.setattr(model_service, "is_loaded", lambda: False)
+
+        model_service.ensure_loaded()
+        assert len(calls) == 1
+
+    def test_no_worker_calls_load_directly(self):
+        """
+        The guard only works if every worker goes through it.
+
+        Checked by reading the sources rather than by running the workers,
+        because each one's main() is an infinite poll loop. A new worker that
+        reaches for load() is the exact mistake this is here to catch.
+        """
+        import pathlib
+        workers = pathlib.Path(__file__).resolve().parent.parent / "workers"
+        offenders = [
+            path.name for path in sorted(workers.glob("*.py"))
+            if "model_service.load(" in path.read_text()
+        ]
+        assert offenders == [], (
+            f"{offenders} call model_service.load() directly. Use "
+            "model_service.ensure_loaded() — see its docstring."
+        )

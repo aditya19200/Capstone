@@ -1,3 +1,46 @@
+// Two different facts live in this table and they are not the same fact.
+//
+//   is_active   the database's record of which weights *should* be loaded.
+//               Set by the Activate button, read at startup.
+//   is_serving  which weights the running API actually has in memory, read
+//               from the model service itself.
+//
+// They agree almost always. The moments they do not are the ones worth
+// seeing: between pressing Activate and the restart that honours it, and
+// after a startup that could not read a flagged version's files and fell
+// back. A table showing only is_active reports a model that is answering
+// nothing — which is exactly how the baseline came to show "Inactive" while
+// serving every prediction on the screen behind it.
+function StatusBadges({ version }) {
+  const badge = 'rounded-full px-3 py-1 text-xs font-semibold'
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {version.is_serving ? (
+        <span className={`${badge} bg-green-100 text-green-700`}>Serving</span>
+      ) : null}
+      {version.is_active ? (
+        <span
+          className={
+            version.is_serving
+              ? `${badge} bg-slate-100 text-slate-600`
+              : `${badge} bg-amber-100 text-amber-800`
+          }
+          title={
+            version.is_serving
+              ? 'Flagged active in the database, and loaded.'
+              : 'Flagged active in the database, but not loaded — restart the API to serve it.'
+          }
+        >
+          {version.is_serving ? 'Active' : 'Active · restart pending'}
+        </span>
+      ) : null}
+      {!version.is_serving && !version.is_active ? (
+        <span className={`${badge} bg-slate-100 text-slate-600`}>Inactive</span>
+      ) : null}
+    </div>
+  )
+}
+
 function ModelVersionsTable({ versions, activatingId, onActivate }) {
   return (
     <div className="dashboard-card">
@@ -36,15 +79,7 @@ function ModelVersionsTable({ versions, activatingId, onActivate }) {
                   {new Date(version.trained_at).toLocaleDateString()}
                 </td>
                 <td className="px-4 py-4">
-                  {version.is_active ? (
-                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                      Active
-                    </span>
-                  ) : (
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                      Inactive
-                    </span>
-                  )}
+                  <StatusBadges version={version} />
                 </td>
                 <td className="px-4 py-4 text-right">
                   <button
@@ -61,6 +96,15 @@ function ModelVersionsTable({ versions, activatingId, onActivate }) {
           </tbody>
         </table>
       </div>
+
+      <p className="mt-4 text-xs leading-5 text-slate-500">
+        <span className="font-semibold text-slate-600">Serving</span> — these
+        weights are loaded in the running API and are answering predictions
+        right now.{' '}
+        <span className="font-semibold text-slate-600">Active</span> — the
+        database&apos;s record of which version should load. Activating sets the
+        flag and loads the weights in one step, so the two normally match.
+      </p>
     </div>
   )
 }

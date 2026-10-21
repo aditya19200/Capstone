@@ -372,6 +372,16 @@ class ModelVersionSummary(BaseModel):
     accuracy: float
     is_active: bool
     trained_at: str
+    is_serving: bool = Field(
+        default=False,
+        description=(
+            "True when this version's weights are the ones loaded in the "
+            "running API. Distinct from is_active, which is the database's "
+            "record of which weights *should* load. They disagree between an "
+            "activation and the restart that honours it, and whenever a "
+            "version is flagged active but its files could not be read."
+        ),
+    )
 
 
 class AdminMetricsResponse(BaseModel):
@@ -380,6 +390,14 @@ class AdminMetricsResponse(BaseModel):
     active_model_version: Optional[str] = Field(
         default=None,
         description="version_number of the currently active model, or None if none is active.",
+    )
+    serving_model_version: Optional[str] = Field(
+        default=None,
+        description=(
+            "version_number of the weights this process actually has loaded. "
+            "Read from the model service rather than the database, so it is "
+            "what predictions are really coming from."
+        ),
     )
     f1_per_class: Dict[str, float] = Field(default_factory=dict)
     annotation_counts: Dict[str, int] = Field(

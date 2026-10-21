@@ -60,7 +60,7 @@ PLAN = [
     ("predictions", "every prediction (cascades annotations and xai_jobs)",
      "created_at", None),
     ("model_versions", "retrained versions, keeping the baseline row",
-     "trained_at", ("version_number", "baseline%")),
+     "trained_at", ("version_number", "baseline%")),   # matched case-insensitively
     ("dataset_versions", "every dataset version", "created_at", None),
 ]
 
@@ -124,7 +124,10 @@ def main() -> int:
             if keep:
                 column, pattern = keep
                 # Keep the baseline row: delete only what does NOT match it.
-                query = query.not_.like(column, pattern)
+                # ilike, not like: the row is named "Baseline" and a
+                # case-sensitive "baseline%" would miss it, which does not
+                # fail -- it deletes the one row this is here to protect.
+                query = query.not_.ilike(column, pattern)
             else:
                 # PostgREST refuses an unfiltered delete, so match every row
                 # with a predicate true for all of them, on a column this

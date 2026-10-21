@@ -160,7 +160,10 @@ def main():
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     OUT_FILE.write_text(json.dumps({
-        "version_number": "baseline-LegalModelShared",
+        # Shown in the admin version table and on /health. "Baseline" is
+        # what it means; "baseline-LegalModelShared" was the name of a
+        # directory, which is nobody's business but this script's.
+        "version_number": "Baseline",
         "evaluated_at": datetime.now(timezone.utc).isoformat(),
         "model_path": settings.MODEL_PATH,
         "dataset": "datasets/v1.csv",

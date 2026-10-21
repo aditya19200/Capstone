@@ -41,7 +41,7 @@ async def lifespan(app: FastAPI):
     ontology_check.load()
     print(f"[startup] Ontology check: {'enabled' if ontology_check.is_loaded() else 'DISABLED (no markers file)'}")
 
-    from baseline import register_baseline_if_absent
+    from baseline import register_baseline_if_absent, reconcile_served_version
     register_baseline_if_absent()
 
     # Rollback has to survive a restart: model_versions.get_active() is the
@@ -62,6 +62,18 @@ async def lifespan(app: FastAPI):
             # already loaded and serving, which is the safe fallback.
             print(f"[startup] WARNING: could not load active version: {exc}")
             print(f"[startup] Continuing with {settings.MODEL_PATH}.")
+
+    # Whatever came out of that, the table should now describe it: the right
+    # name on the row, and is_active on the row whose weights are loaded.
+    _served_name = reconcile_served_version(
+        model_service.loaded_path or settings.MODEL_PATH)
+    if _served_name:
+        # Without this the weights loaded straight from MODEL_PATH have no
+        # name, so every prediction they make is stamped "baseline" while
+        # the version table calls them something else.
+        model_service.name_loaded_version(_served_name)
+    print(f"[startup] Serving {model_service.loaded_version or 'baseline'} "
+          f"from {model_service.loaded_path or settings.MODEL_PATH}")
 
     # No real Supabase configured (local dev) -> batch/xai workers as
     # separate processes would each get their own empty mock_db and never

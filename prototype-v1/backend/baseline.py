@@ -22,6 +22,7 @@ empty — the same behaviour as before. Run evaluate_baseline.py to create it.
 import json
 import logging
 from pathlib import Path
+from typing import Optional
 
 from repositories import model_versions as model_versions_repo
 
@@ -84,3 +85,89 @@ def register_baseline_if_absent() -> None:
         )
     except Exception:
         logger.exception("[baseline] failed to register the deployed model")
+
+
+def reconcile_served_version(served_path: str) -> Optional[str]:
+    """
+    Make the version table describe the model that is actually being served.
+
+    register_baseline_if_absent() runs once and then returns early forever,
+    which meant two wrong states could outlive the startup that created them:
+
+      * **The row named after a directory.** The deployed checkpoint went in
+        as 'baseline-LegalModelShared'. That is a path on somebody's laptop,
+        not a version anyone reading the table needs to know about.
+
+      * **Nothing marked active.** The insert and the activation are two
+        calls, and the activation used to fail against a real database
+        (migration 003's unfiltered UPDATE — see migration 009). The row
+        landed, the flip did not, and the exception handler above swallowed
+        it. Result: a version history whose only entry claims to be inactive
+        while its weights answer every request. Re-running registration does
+        not fix that, because the row exists.
+
+    So this runs on every startup and asserts the two things that must be
+    true of whatever is loaded: it is named the way the metrics file names
+    it, and it is the row flagged active. Both are no-ops once correct.
+
+    *served_path* is what model_service actually loaded, not what the config
+    asked for — those differ after an activation, and the flag has to follow
+    the weights rather than the intention.
+
+    Returns the version_number of the row describing those weights, so the
+    caller can name the loaded model after it, or None if no row matches.
+    """
+    try:
+        versions = model_versions_repo.list_all()
+    except Exception:
+        logger.exception("[baseline] could not read model versions to reconcile")
+        return None
+    if not versions:
+        return None
+
+    name = None
+    metrics_file = _metrics_file()
+    if metrics_file.exists():
+        try:
+            name = json.loads(metrics_file.read_text()).get("version_number")
+        except Exception:
+            logger.exception("[baseline] could not read %s", metrics_file.name)
+
+    served = next((v for v in versions if v.get("file_path") == served_path), None)
+
+    if served and name and served["version_number"] != name:
+        # Only the registered baseline is renamed. A retrained version's name
+        # is its own timestamp and means something; this one never did.
+        if served["version_number"].lower().startswith("baseline"):
+            try:
+                model_versions_repo.rename(served["id"], name)
+                logger.info("[baseline] renamed '%s' to '%s'",
+                            served["version_number"], name)
+                served["version_number"] = name
+            except Exception:
+                logger.exception("[baseline] could not rename %s", served["id"])
+
+    if served is None:
+        return None
+    if served.get("is_active"):
+        return served["version_number"]
+
+    if any(v.get("is_active") for v in versions):
+        # Something else is flagged active while different weights are loaded.
+        # Startup already tried to honour the flag and evidently could not, so
+        # say so rather than overwriting a deliberate choice.
+        flagged = next(v["version_number"] for v in versions if v.get("is_active"))
+        logger.warning(
+            "[baseline] '%s' is flagged active but '%s' is what loaded. The "
+            "admin table will show the difference.", flagged,
+            served["version_number"],
+        )
+        return served["version_number"]
+
+    try:
+        model_versions_repo.set_active(served["id"])
+        logger.info("[baseline] marked '%s' active — it is what is serving",
+                    served["version_number"])
+    except Exception:
+        logger.exception("[baseline] could not mark the served version active")
+    return served["version_number"]

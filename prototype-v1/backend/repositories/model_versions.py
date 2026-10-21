@@ -137,6 +137,29 @@ def set_active(version_id: str) -> Optional[Dict]:
     return result.data[0] if result.data else None
 
 
+def rename(version_id: str, version_number: str) -> Optional[Dict]:
+    """
+    Change a version's display name.
+
+    Only the admin table and the health endpoint read version_number; nothing
+    joins on it, so renaming is safe. It exists for one case: the deployed
+    checkpoint was registered as 'baseline-LegalModelShared', which names a
+    directory on a laptop rather than anything a reader of the table needs.
+    """
+    if not is_configured():
+        from services import mock_db
+        return mock_db.rename_model_version(version_id, version_number)
+
+    result = (
+        get_client()
+        .table("model_versions")
+        .update({"version_number": version_number})
+        .eq("id", version_id)
+        .execute()
+    )
+    return result.data[0] if result.data else None
+
+
 def list_all() -> List[Dict]:
     """Return all model versions ordered by trained_at descending."""
     if not is_configured():

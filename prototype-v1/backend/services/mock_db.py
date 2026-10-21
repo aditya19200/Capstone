@@ -370,6 +370,15 @@ def set_active_model_version(version_id: str) -> Optional[Dict]:
     return deepcopy(target)
 
 
+def rename_model_version(version_id: str, version_number: str) -> Optional[Dict]:
+    """Change one version's display name. See repositories.model_versions.rename."""
+    target = _model_versions.get(version_id)
+    if target is None:
+        return None
+    target["version_number"] = version_number
+    return deepcopy(target)
+
+
 def list_model_versions() -> List[Dict]:
     """Return all model versions ordered by trained_at descending."""
     return sorted(
