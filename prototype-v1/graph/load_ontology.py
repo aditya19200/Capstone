@@ -42,7 +42,7 @@ attach to nothing) reports success otherwise.
 
 Every statement is a MERGE, so re-running is safe. Verify afterwards with:
 
-    python verify_ontology.py --domain legal
+    ./backend/venv/bin/python graph/verify_ontology.py --domain legal
 """
 
 import argparse
@@ -213,7 +213,8 @@ def main():
     print(f"\nLoaded {total} statements.")
     if not ok:
         sys.exit("The graph does not match the seed files — see FAIL lines above.")
-    print(f"Verify with:  python verify_ontology.py --domain {args.domain}")
+    print(f"Verify with:  ./backend/venv/bin/python graph/verify_ontology.py "
+          f"--domain {args.domain}   (from the repo root)")
 
 
 if __name__ == "__main__":
