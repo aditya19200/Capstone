@@ -15,6 +15,19 @@ Run this ONCE before presenting, against your already-running backend:
 
     python3 seed_retrain_data.py
 
+If the wait times out — which happens against a live Supabase, where every
+item is a network round trip — the texts are already classified and
+resubmitting them would just create another 55 predictions. Resume that
+batch instead:
+
+    python3 seed_retrain_data.py --batch <batch_id>
+
+On the in-memory store a restart wipes everything, so re-running is free.
+Against a live database nothing wipes it, so running it twice leaves 110
+annotations rather than 55. Check first:
+
+    curl -s localhost:8000/stats/dashboard | grep annotations_validated
+
 Then the Retrain button on the Admin page will show a real, non-zero
 validated-annotation count and actually complete when clicked.
 """
@@ -96,6 +109,17 @@ def http_json(method, path, body=None, headers=None):
 
 
 def main():
+    # --batch <id> annotates a batch that already exists instead of
+    # submitting a new one. The reason it exists: against a live Supabase,
+    # every item is a network round trip rather than a dict write, so a batch
+    # that classifies in seconds locally can take minutes. If the wait below
+    # gives up, the texts are already classified and submitting them again
+    # would only create 55 more predictions — so this resumes that batch
+    # rather than duplicating it.
+    resume = None
+    if "--batch" in sys.argv:
+        resume = sys.argv[sys.argv.index("--batch") + 1]
+
     print(f"Seeding against {BASE_URL} ...")
     try:
         health = http_json("GET", "/health")
@@ -106,18 +130,39 @@ def main():
         print("Backend is up but the model isn't loaded yet — wait a few seconds and retry.")
         sys.exit(1)
 
-    print(f"Submitting {len(TEXTS)} texts as a batch...")
-    batch = http_json("POST", "/batches/paste", {"texts": TEXTS})
-    batch_id = batch["batch_id"]
+    layer = health.get("data_layer", {})
+    live = layer.get("supabase") == "live"
+    if live:
+        print(f"Data layer: Supabase {layer['supabase']}, Neo4j {layer.get('neo4j')} "
+              f"— every write is a round trip, so this takes longer than in memory.")
 
-    print("Waiting for classification...")
-    for _ in range(30):
+    if resume:
+        batch_id = resume
+        print(f"Resuming batch {batch_id} — not submitting new texts.")
+    else:
+        print(f"Submitting {len(TEXTS)} texts as a batch...")
+        batch = http_json("POST", "/batches/paste", {"texts": TEXTS})
+        batch_id = batch["batch_id"]
+
+    # Generous against a live database, and it reports progress rather than
+    # sitting silent, so a slow run is distinguishable from a stuck one.
+    deadline = 600 if live else 120
+    print(f"Waiting for classification (up to {deadline}s)...")
+    waited, last = 0, -1
+    while waited < deadline:
         status = http_json("GET", f"/batches/{batch_id}")
+        done = status.get("completed_items", 0)
         if status["status"] == "done":
             break
+        if done != last:
+            print(f"  {done}/{status.get('total_items', '?')} classified ...", flush=True)
+            last = done
         time.sleep(2)
+        waited += 2
     else:
-        print("Batch didn't finish in time — check backend.log.")
+        print(f"\nStill not finished after {deadline}s. The texts are classified in the "
+              f"background regardless — check backend.log, then resume with:\n"
+              f"    python3 seed_retrain_data.py --batch {batch_id}")
         sys.exit(1)
 
     items = http_json("GET", f"/batches/{batch_id}/items?page_size=100")["items"]
