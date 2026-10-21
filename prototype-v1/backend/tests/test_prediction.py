@@ -355,3 +355,39 @@ class TestHealth:
         assert resp.status_code == 200
         assert resp.json()["status"] == "ok"
         assert resp.json()["model_loaded"] is True
+
+    def test_health_reports_the_data_layer_this_process_uses(self, client):
+        """
+        /health says which data layer is live.
+
+        check_data_layer.py reads .env, so it reports what the file says; this
+        reports what the running process does. Adding .env without restarting
+        makes those two disagree, and that is exactly the case worth catching
+        before a demo rather than during one.
+        """
+        resp = client.get("/health")
+
+        assert resp.status_code == 200
+        layer = resp.json()["data_layer"]
+        # The tests run with no credentials, so both must read in-memory.
+        assert layer["supabase"] == "in-memory"
+        assert layer["neo4j"] == "in-memory"
+
+    def test_health_reports_neo4j_degraded_when_live_queries_are_failing(
+        self, client, monkeypatch
+    ):
+        """
+        A configured graph that cannot be reached serves the mock silently.
+
+        That is the right behaviour — the app keeps working — but it must be
+        visible, or a demo reports a live graph while answering from the
+        in-memory one.
+        """
+        import time as _time
+
+        import services.neo4j_service as n4
+
+        monkeypatch.setattr(n4, "_is_configured", lambda: True)
+        monkeypatch.setattr(n4, "_skip_until", _time.monotonic() + 60)
+
+        assert client.get("/health").json()["data_layer"]["neo4j"] == "degraded"

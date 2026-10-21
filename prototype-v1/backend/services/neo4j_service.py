@@ -72,6 +72,30 @@ def _is_configured() -> bool:
     return "localhost" not in settings.NEO4J_URI
 
 
+def status() -> str:
+    """
+    Which ontology this service is answering from right now.
+
+      "in-memory"  NEO4J_URI is the localhost default — no graph configured.
+      "live"       configured, and no query has failed inside the cooldown.
+      "degraded"   configured, but a query failed recently, so answers are
+                   coming from the mock until the cooldown expires.
+
+    /health reports this. The third case is the one worth surfacing: a
+    configured-but-unreachable graph serves the mock *silently*, which is the
+    right thing to do at runtime and the wrong thing to find out during a
+    demo. Reading this issues no query and opens no connection, so it is safe
+    to poll.
+
+    Note "live" is optimistic before the first query of a process — it says
+    the URI is real and nothing has failed yet, not that a round trip has
+    succeeded. check_data_layer.py is what proves the connection.
+    """
+    if not _is_configured():
+        return "in-memory"
+    return "degraded" if time.monotonic() < _skip_until else "live"
+
+
 _driver = None
 _driver_lock = threading.Lock()
 _skip_until = 0.0          # monotonic time before which the live graph is skipped

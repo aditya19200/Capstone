@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config.settings import settings
 from repositories._client import is_configured
 from routers import admin, annotate, batches, domains, explain, ontology, predict, queue, retrain, stats
+from services import neo4j_service
 from services.model_service import model_service
 
 
@@ -123,9 +124,17 @@ app.include_router(stats.router,     prefix="/stats",     tags=["Stats"])
 @app.get("/health", tags=["Health"])
 async def health_check():
     """
-    Returns the API status and whether the model is loaded.
+    Returns the API status, whether the model is loaded, and which data layer
+    this process is actually using.
 
     Used by monitoring, Docker health checks, and the frontend status banner.
+
+    `data_layer` reports what the RUNNING process is doing, which is the point
+    of it being here rather than only in check_data_layer.py. That script
+    reads the same .env the app does, so it passes whether or not the server
+    was restarted after the file appeared — "the script says live, the server
+    is still in memory" is a real way to mislead yourself. This answers for
+    the process serving the request.
     """
     return {
         "status": "ok",
@@ -135,4 +144,12 @@ async def health_check():
         "model_path": model_service.loaded_path or settings.MODEL_PATH,
         "model_version": model_service.loaded_version or "baseline",
         "configured_model_path": settings.MODEL_PATH,
+        "data_layer": {
+            # Supabase has no fallback: configured means every write goes to
+            # Postgres, and a failure surfaces as an error rather than
+            # quietly becoming an in-memory write.
+            "supabase": "live" if is_configured() else "in-memory",
+            # Neo4j does fall back, silently and by design — see its status().
+            "neo4j": neo4j_service.status(),
+        },
     }
