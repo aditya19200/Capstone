@@ -17,8 +17,15 @@ begin
     raise exception 'model_versions row % does not exist', target_id;
   end if;
 
-  update model_versions set is_active = false;
-  update model_versions set is_active = true where id = target_id;
+  -- WHERE clause is required: Supabase rejects an unfiltered UPDATE
+  -- (SQLSTATE 21000) even inside plpgsql. It is also the correct
+  -- statement -- idx_model_versions_one_active means at most one row
+  -- is ever active, so the rest were never worth touching.
+  -- Deactivate first: activating while the old row still holds the
+  -- unique partial index would collide. See migration 009, which
+  -- re-applies this to databases that already ran the original.
+  update model_versions set is_active = false where is_active = true;
+  update model_versions set is_active = true  where id = target_id;
 
   return query select * from model_versions where id = target_id;
 end;
