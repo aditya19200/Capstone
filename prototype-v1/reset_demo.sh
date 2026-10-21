@@ -46,6 +46,20 @@ curl -s http://localhost:8000/health \
     f"    supabase              {d[\"data_layer\"][\"supabase\"]}\n"
     f"    neo4j                 {d[\"data_layer\"][\"neo4j\"]}")'
 
+# The Admin version dropdown is model_versions straight from the database, so
+# a rehearsal leaves its retrained version sitting in it. One stale entry is
+# a wrong thing to click under pressure and several look careless, so the
+# count is part of the readout rather than something to remember to check.
+curl -s -H "X-Role: admin" -H "X-User-Id: reset" http://localhost:8000/admin/metrics \
+  | python3 -c 'import json,sys
+d = json.load(sys.stdin)
+v = d.get("model_versions", [])
+print(f"    versions listed       {len(v)}")
+for row in v:
+    print(f"      - {row.get(\"version_number\")}  active={row.get(\"is_active\")}")
+if len(v) != 1:
+    print("    ^ expected exactly 1 (the baseline). Anything else is left over.")'
+
 echo
 echo "Ready. annotations_validated should read 55 and the model should read"
 echo "baseline. If it does, the demo will run identically to last time."
