@@ -614,18 +614,31 @@ data.
 
 **So the confirmations are not padding.** The 230 rows the model already got
 right are what hold the prior in place while the 65 corrections do their
-work. Feeding corrections back *alone* is actively harmful.
+work.
+
+State the strength of that carefully, because the bald version is wrong.
+Across the three seeds the corrections-only arm averaged **+0.00pp** against
+baseline and **two of the three were positive**, so "feeding corrections back
+alone is harmful" is *not* what was measured. What was measured is that
+corrections alone are **unstable** — and that when a seed goes wrong, it goes
+wrong in this one specific, explainable way. The mechanism is the finding; the
+average is not.
 
 `workers/retrain_worker.py` trains on every validated annotation, not only
 the changed ones. That was not a considered choice when it was written — it
 is simply what `build_training_data()` does — but it is the right one, and
 this is the measurement that says so.
 
-> "Corrections alone made the model worse: the weakest class gained 27 points
-> of F1 and four strong classes lost between 7 and 15, because corrections are
-> concentrated where the model is weak and that skews what it thinks is
-> common. Fed back alongside the confirmations, the same loop gains 3.4 points
-> across five seeds. The confirmations are what keep the corrections honest."
+> "Corrections alone are unstable: in one seed of three the weakest class
+> gained 27 points of F1 while four strong classes lost between 7 and 15,
+> because corrections are concentrated where the model is weak and that skews
+> what it thinks is common. Fed back alongside the confirmations, the same loop
+> gains 3.4 points across five seeds. The confirmations are what keep the
+> corrections honest."
+
+`backend/summarize_medical.py` prints this section, the five-seed table and
+the control arm straight from the recorded metrics, so a figure on a slide can
+always be traced back to one named file.
 
 ### Temperature scaling does not transfer to medical either
 

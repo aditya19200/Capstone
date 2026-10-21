@@ -936,19 +936,21 @@ The ontology check is blind here **by construction** — `check()` opens with
 `ev = self.evidence(text); if not ev: return None`. Zero markers matched means
 zero flag, and junk text has no domain vocabulary to contradict.
 
-**The obvious fix was built and measured and rejected.** A total-marker-evidence
-floor, routing anything below it to review:
+**The obvious fix was built and measured and rejected** — reproduce it with
+`backend/out_of_domain_probe.py`, which writes
+`backend/metrics/legal_out_of_domain.json`. A total-marker-evidence floor,
+routing anything below it to review:
 
 ```
  floor   legal wrongly flagged    OOD caught
-   1.0               233 (13.7%)        6/7
-   2.0               371 (21.8%)        7/7
-   5.0               681 (40.0%)        7/7
+   1.0               233 (13.7%)        7/8
+   2.0               371 (21.8%)        8/8
+   5.0               681 (40.0%)        8/8
 ```
 
 Real legal text in `v1.csv` has median evidence 7.1 but a **5th percentile of
-0.0** — 13.7% of genuine legal passages match no marker at all. Catching 6 of
-7 junk samples costs 233 real documents in the queue, worse than the ontology
+0.0** — 13.7% of genuine legal passages match no marker at all. Catching 7 of
+8 junk samples costs 233 real documents in the queue, worse than the ontology
 check's entire false-positive budget, for a problem no user has.
 
 **The answer if asked:** *"Measured it. Out-of-domain text gets no ontology

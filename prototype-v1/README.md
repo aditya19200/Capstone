@@ -14,7 +14,8 @@ domains that differ only by a config file**:
 
 Adding the second domain is what found most of the bugs worth finding. Every
 number here and its caveat lives in **`docs/RESULTS.md`** — read that before
-quoting anything.
+quoting anything. **`docs/PROJECT_GUIDE.md`** explains how the whole system
+works and why, including the demo runbook and the terminology.
 
 ---
 
@@ -91,13 +92,31 @@ python3 seed_retrain_data.py
    arrives with the suggested label pre-selected, so correcting one is a single
    click. Correct at least 15
 3. **Annotator** → upload `sample-data/demo/2-probe-set.csv` — 8 documents the
-   system has never been corrected on. This is the "before"
+   system has never been corrected on. This is the "before". **Look at the
+   results table on the Annotator page**, which shows all 8 as Family Law with
+   a green "Model certainty: HIGH" badge. It carries no ontology information
+   and no gold label, because the conflict is computed at queue-read time and
+   never stored on the prediction — so to show the evidence rather than assert
+   it, open Review as well, where 3 of the 8 appear with the full concept
+   comparison
 4. **Admin** → Retrain → Activate
 5. **Annotator** → upload `2-probe-set.csv` again
 6. **Admin** → Compare → pick the two probe batches
 
+> **Never press Submit on a probe row.** Looking at them is free. Submitting
+> one writes a validated annotation, the retrain worker trains on every
+> validated annotation, and the before/after stops meaning anything. Three
+> probes sit in the review queue after step 3, flagged by ontology conflict,
+> looking exactly like the items you were correcting at step 2.
+
 Seven or eight of the eight change from Family Law to Criminal Law, and none of
 them were ever corrected.
+
+The five probes the ontology check does *not* flag are the point rather than a
+gap: the loop only needs to catch enough instances of an error class to learn
+the fix. It caught 18 of the 18 teaching rows inside `1-intake.csv` — all by
+concept evidence, none by low confidence — and the five nothing ever flagged
+were fixed anyway.
 
 Measured offline on the five recorded retrain checkpoints
 (`backend/compare_checkpoints.py`), so the result does not depend on the live
