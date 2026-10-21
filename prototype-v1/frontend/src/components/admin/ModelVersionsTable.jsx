@@ -22,8 +22,8 @@ function StatusBadges({ version }) {
         <span
           className={
             version.is_serving
-              ? `${badge} bg-slate-100 text-slate-600`
-              : `${badge} bg-amber-100 text-amber-800`
+              ? `${badge} bg-green-100 text-green-700`
+              : `${badge} bg-amber-100 text-amber-700`
           }
           title={
             version.is_serving
