@@ -1,10 +1,17 @@
 import { useEffect, useState } from 'react'
-import { downloadDataset, getDatasetCard } from '../../api/client.js'
+import { downloadDataset, downloadDatasetPdf, getDatasetCard } from '../../api/client.js'
 
 // The output of this system is the annotated corpus, not the classifier.
 // This is where that stops being a claim: it downloads the validated
-// annotations as JSONL, in the shape the retrain worker consumes, so the
-// file someone takes away is literally the thing we retrain on.
+// annotations in the shape the retrain worker consumes, so the file someone
+// takes away is literally the thing we retrain on.
+//
+// Two formats, because they answer two different questions. JSONL is what
+// another system ingests — one object per line, straight into
+// datasets.load_dataset. The PDF is what a person reads: each document with
+// its ontology concept markers highlighted in place, the model's prediction
+// and confidence, and the human's decision beside it. Same records, same
+// rows() call, so they cannot describe different corpora.
 
 function DatasetExportCard() {
   const [stats, setStats] = useState(null)
@@ -27,10 +34,11 @@ function DatasetExportCard() {
     }
   }, [])
 
-  const handleDownload = async () => {
-    setBusy(true)
+  const handleDownload = async (format) => {
+    setBusy(format)
     try {
-      const { blob, filename } = await downloadDataset()
+      const { blob, filename } =
+        format === 'pdf' ? await downloadDatasetPdf() : await downloadDataset()
       // Object URL rather than a direct link: the endpoint is admin-only and
       // a browser navigation would not carry the role header.
       const url = URL.createObjectURL(blob)
@@ -44,7 +52,17 @@ function DatasetExportCard() {
       setError('')
     } catch (err) {
       console.error('[DatasetExport] download failed', err)
-      setError(err?.response?.data?.detail || 'Download failed.')
+      // responseType 'blob' turns an error body into a Blob as well, so the
+      // detail has to be read out of it rather than off response.data.
+      let detail = err?.response?.data?.detail
+      if (err?.response?.data instanceof Blob) {
+        try {
+          detail = JSON.parse(await err.response.data.text())?.detail
+        } catch {
+          detail = undefined
+        }
+      }
+      setError(detail || 'Download failed.')
     } finally {
       setBusy(false)
     }
@@ -61,19 +79,36 @@ function DatasetExportCard() {
             Validated corpus
           </h3>
           <p className="mt-2 max-w-xl text-sm leading-6 text-slate-600">
-            Every human-validated annotation, as JSON Lines. This is the same
-            data the retrain worker consumes — the export and the training set
-            are assembled from one place so they cannot drift apart.
+            Every human-validated annotation. This is the same data the retrain
+            worker consumes — the export and the training set are assembled from
+            one place so they cannot drift apart.
+          </p>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">
+            <span className="font-medium text-slate-700">.jsonl</span> for
+            another system to ingest.{' '}
+            <span className="font-medium text-slate-700">PDF</span> to read: each
+            document with its concept markers highlighted, what the model
+            predicted, and what the human decided.
           </p>
         </div>
-        <button
-          type="button"
-          className="btn-primary shrink-0 px-6 py-3"
-          onClick={handleDownload}
-          disabled={busy || empty}
-        >
-          {busy ? 'Preparing...' : 'Download .jsonl'}
-        </button>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <button
+            type="button"
+            className="btn-primary px-6 py-3"
+            onClick={() => handleDownload('pdf')}
+            disabled={Boolean(busy) || empty}
+          >
+            {busy === 'pdf' ? 'Rendering...' : 'Download PDF'}
+          </button>
+          <button
+            type="button"
+            className="btn-secondary px-6 py-3"
+            onClick={() => handleDownload('jsonl')}
+            disabled={Boolean(busy) || empty}
+          >
+            {busy === 'jsonl' ? 'Preparing...' : 'Download .jsonl'}
+          </button>
+        </div>
       </div>
 
       {stats ? (

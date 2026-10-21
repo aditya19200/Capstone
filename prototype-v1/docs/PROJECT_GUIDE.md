@@ -161,6 +161,29 @@ promoted. `GET /health` reports the version actually resident rather than the
 one configured. If the weights fail to load, the previously loaded model keeps
 serving and `is_active` is rolled back.
 
+**The admin table shows both facts, because they are two facts.** `is_active`
+is the database's record of which weights *should* load; `is_serving` is what
+the running process actually has in memory. They agree almost always, and the
+moments they do not are the ones worth seeing — between an activation and a
+restart, or after a startup that could not read a flagged version's files and
+fell back to `MODEL_PATH`. The deployed baseline spent its whole life in that
+table marked **Inactive** while answering every request on the screen behind
+it, because registering it is an insert followed by an activation and only the
+insert succeeded. A column that shows the flag alone cannot tell you that.
+
+**What comes out of the system: the annotated corpus.** Admin → *Validated
+corpus* exports every human-validated annotation, in two shapes assembled from
+one `rows()` call so they cannot describe different data:
+
+| | |
+|---|---|
+| `.jsonl` | one object per line, straight into `datasets.load_dataset("json", ...)`. Carries provenance per row: what the model predicted, how confident it was, whether the human corrected it, which checkpoint made the prediction. This is the file another system ingests, and it is literally what the retrain worker consumes. |
+| PDF | the same records laid out to read: each document with its ontology concept markers shaded in place — green for vocabulary belonging to the validated label, amber for vocabulary belonging to a different one — the model's prediction and confidence, and the human's decision beside it. Opens with a dataset card: size, label distribution, and the limits that apply to this particular export. |
+
+The amber highlighting under a corrected entry is the ontology check visible in
+one glance: the markers disagreed with the model, the document went to a
+reviewer, the reviewer changed the label.
+
 ### 3. Routing — two independent ways to reach a human
 
 This is the conceptual core of the project.

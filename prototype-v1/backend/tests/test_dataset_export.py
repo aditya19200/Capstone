@@ -135,3 +135,75 @@ class TestEndpoints:
         body = client.get("/admin/dataset/card", headers=ADMIN).json()
         assert body["stats"]["total"] == 1
         assert body["card_markdown"].startswith("# ")
+
+
+class TestPdf:
+    """
+    The PDF is the same corpus as the JSONL, laid out for a reader.
+
+    These assertions deliberately stop at "it is a PDF, it was built from
+    these records, and the markup it generates is well formed". Checking
+    glyph positions would test reportlab.
+    """
+
+    def test_highlight_shades_markers_for_the_validated_label_differently(self):
+        from services.ontology_check import ontology_check
+        if not ontology_check.is_loaded():
+            ontology_check.load()
+        if not ontology_check.is_loaded():
+            pytest.skip("no markers file in this checkout")
+
+        text = "The accused was produced before the magistrate on the bail application."
+        markup, found = dataset_export._highlight(text, "Criminal Law")
+        assert "Criminal Law" in found
+        # Vocabulary belonging to the validated label gets the supporting
+        # colour; this is the thing the page is for.
+        assert dataset_export._HL_SUPPORTS in markup
+
+    def test_highlight_escapes_xml_so_markup_cannot_be_injected(self):
+        markup, _ = dataset_export._highlight("A <b>tag</b> & an ampersand.", "Contract Law")
+        assert "&lt;b&gt;" in markup and "&amp;" in markup
+        assert "<b>tag</b>" not in markup
+
+    def test_highlight_does_not_nest_overlapping_markers(self):
+        from services.ontology_check import ontology_check
+        if not ontology_check.is_loaded():
+            ontology_check.load()
+        if not ontology_check.is_loaded():
+            pytest.skip("no markers file in this checkout")
+        # "the accused" contains "accused"; both are markers. Nested <font>
+        # tags would still render, but the overlapping slices would repeat
+        # the text, so the document would read wrong.
+        markup, _ = dataset_export._highlight(
+            "The accused denied the charge.", "Criminal Law")
+        import re as _re
+        assert _re.sub(r"<[^>]+>", "", markup) == "The accused denied the charge."
+
+    def test_md_inline_renders_the_cards_emphasis(self):
+        assert dataset_export._md_inline("**bold**") == "<b>bold</b>"
+        assert "Courier" in dataset_export._md_inline("`code`")
+        assert dataset_export._md_inline("a < b") == "a &lt; b"
+
+    def test_to_pdf_builds_a_pdf(self):
+        _validated("A contract matter between the parties.", "Contract Law", "Contract Law")
+        _validated("A criminal matter involving the accused.", "Family Law", "Criminal Law")
+        pdf = dataset_export.to_pdf(dataset_export.rows()[0])
+        assert pdf.startswith(b"%PDF")
+        assert len(pdf) > 1000
+
+    def test_to_pdf_survives_an_empty_corpus(self):
+        pdf = dataset_export.to_pdf([])
+        assert pdf.startswith(b"%PDF")
+
+    def test_pdf_endpoint_requires_admin(self, client):
+        assert client.get("/admin/dataset.pdf",
+                          headers={"X-Role": "reviewer"}).status_code == 403
+
+    def test_pdf_endpoint_returns_a_pdf_attachment(self, client):
+        _validated("A contract matter between the parties.", "Contract Law", "Contract Law")
+        resp = client.get("/admin/dataset.pdf", headers=ADMIN)
+        assert resp.status_code == 200
+        assert resp.headers["content-type"] == "application/pdf"
+        assert resp.headers["X-Example-Count"] == "1"
+        assert ".pdf" in resp.headers["content-disposition"]
+        assert resp.content.startswith(b"%PDF")

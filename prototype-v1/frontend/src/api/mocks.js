@@ -413,6 +413,18 @@ export async function downloadDataset() {
   }
 }
 
+export async function downloadDatasetPdf() {
+  await delay(400)
+  // Not a real PDF — offline mode has no renderer. Enough of one that the
+  // download path (blob -> object URL -> anchor) is exercised end to end.
+  const text = '%PDF-1.4\n% mock annotated corpus\n'
+  return {
+    blob: new Blob([text], { type: 'application/pdf' }),
+    count: 2,
+    filename: 'annotated-corpus-mock.pdf',
+  }
+}
+
 export async function getDatasetCard() {
   await delay()
   return {
@@ -477,9 +489,10 @@ export async function getAdminMetrics() {
   return {
     f1_per_class: Object.fromEntries(LEGAL_LABELS.map((label) => [label, Number((0.6 + Math.random() * 0.35).toFixed(3))])),
     annotation_counts_by_status: { pending: 42, validated: 318, rejected: 12 },
+    serving_model_version: 'v1',
     model_versions: [
-      { version_id: 'v1', accuracy: 0.748, trained_at: '2026-06-01T00:00:00Z', is_active: true },
-      { version_id: 'v2-candidate', accuracy: 0.762, trained_at: '2026-08-20T00:00:00Z', is_active: false },
+      { version_id: 'v1', version_number: 'Baseline', accuracy: 0.748, trained_at: '2026-06-01T00:00:00Z', is_active: true, is_serving: true },
+      { version_id: 'v2-candidate', version_number: 'v-20260820-101500', accuracy: 0.762, trained_at: '2026-08-20T00:00:00Z', is_active: false, is_serving: false },
     ],
   }
 }

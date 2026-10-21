@@ -260,6 +260,18 @@ export async function downloadDataset() {
   }
 }
 
+export async function downloadDatasetPdf() {
+  if (USE_MOCKS) return mocks.downloadDatasetPdf()
+  const resp = await axiosClient.get('/admin/dataset.pdf', { responseType: 'blob' })
+  return {
+    blob: resp.data,
+    count: Number(resp.headers['x-example-count'] ?? 0),
+    filename:
+      /filename="([^"]+)"/.exec(resp.headers['content-disposition'] || '')?.[1] ||
+      'annotated-corpus.pdf',
+  }
+}
+
 export async function getDatasetCard() {
   if (USE_MOCKS) return mocks.getDatasetCard()
   const { data } = await axiosClient.get('/admin/dataset/card')
@@ -312,6 +324,11 @@ export async function getAdminMetrics() {
       version_number: v.version_number,
       accuracy: v.accuracy,
       is_active: v.is_active,
+      // Whether this version's weights are the ones loaded in the running
+      // API. is_active is the database's intent and is_serving is the fact;
+      // showing only the flag makes the table claim a model is in use when
+      // the restart that would load it has not happened.
+      is_serving: v.is_serving ?? false,
       trained_at: v.trained_at,
     })),
   }

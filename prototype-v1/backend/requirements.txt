@@ -27,6 +27,10 @@ pdfplumber==0.11.10          # PDF text layer (POST /batches/pdf). Chosen over p
                              # it keeps layout, so a running header is not welded onto the
                              # first line of body text. Reads the text layer only — a scanned
                              # PDF yields nothing and is refused rather than silently ingested.
+reportlab==5.0.1             # writes the annotated corpus as a PDF (GET /admin/dataset.pdf).
+                             # Pure Python, no system libraries — a PDF renderer that needs
+                             # Cairo or a headless browser is one more thing to install on
+                             # a demo machine an hour before it is needed.
 
 # ── Testing ────────────────────────────────────────────────────────────────
 pytest==8.2.0
