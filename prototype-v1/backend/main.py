@@ -26,7 +26,10 @@ async def lifespan(app: FastAPI):
     On shutdown: release model resources.
     """
     # --- Startup ---
-    print(f"[startup] Loading InLegalBERT from: {settings.MODEL_PATH}")
+    # Named from the active domain pack, not hardcoded: with ACTIVE_DOMAIN=medical
+    # this line used to read "Loading InLegalBERT from ./models/MedicalModelShared".
+    from config.domains import active_domain as _active_domain
+    print(f"[startup] Loading the {_active_domain().key} model from: {settings.MODEL_PATH}")
     model_service.load()
     print("[startup] Model loaded successfully.")
 
