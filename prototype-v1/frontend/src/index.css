@@ -28,7 +28,7 @@
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-md bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200;
+    @apply inline-flex items-center justify-center rounded-md bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400 disabled:hover:bg-slate-50;
   }
 
   .btn-danger {
@@ -149,6 +149,15 @@
 }
 .dark-theme .btn-secondary:hover { background-color: var(--dk-surface-3); }
 .dark-theme .btn-primary:disabled { background-color: var(--dk-border-strong); color: var(--dk-text-4); }
+/* Without this a disabled secondary button keeps its full-contrast surface and
+   reads as clickable -- which is what the Activate button on an already-active
+   version looked like. It is correctly disabled; it just did not say so. */
+.dark-theme .btn-secondary:disabled,
+.dark-theme .btn-secondary:disabled:hover {
+  background-color: var(--dk-surface);
+  color: var(--dk-text-4);
+  cursor: not-allowed;
+}
 
 .dark-theme input:not([type='checkbox']):not([type='radio']):not([type='file']),
 .dark-theme select,
