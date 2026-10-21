@@ -1102,10 +1102,16 @@ cd backend && PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ./venv/bin/python -m pytest tests
 # seed the retrain gate, once per backend start on the in-memory path
 python3 seed_retrain_data.py
 
-# graph
-cd graph && python load_ontology.py --domain legal     # then --domain medical
-         python verify_ontology.py --domain legal
-         python mine_graph_depth.py --domain legal
+# graph. Two things this needs that are easy to miss: the neo4j driver, which
+# is in the backend venv and not in system python3 (and "python" is not a
+# command on Ubuntu at all), and the Neo4j credentials, which the graph
+# scripts read from the environment rather than from backend/.env the way the
+# API does. "set -a" exports the file without printing it.
+set -a; . backend/.env; set +a
+./backend/venv/bin/python graph/load_ontology.py --domain legal
+./backend/venv/bin/python graph/load_ontology.py --domain medical
+./backend/venv/bin/python graph/verify_ontology.py --domain legal
+./backend/venv/bin/python graph/mine_graph_depth.py --domain legal
 
 # verify the live databases
 cd backend && ./venv/bin/python check_data_layer.py

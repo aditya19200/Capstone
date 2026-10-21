@@ -147,7 +147,7 @@ export NEO4J_URI="neo4j+s://xxxx.databases.neo4j.io"
 export NEO4J_USER="neo4j"
 export NEO4J_PASSWORD="..."
 export NEO4J_DATABASE="neo4j"
-python load_ontology.py
+../backend/venv/bin/python load_ontology.py
 ```
 
 **`load_ontology.py` only loads `ontology_seed.cypher`** — the 10 domain
@@ -288,8 +288,10 @@ export NEO4J_USER="neo4j"
 export NEO4J_PASSWORD="..."
 export NEO4J_DATABASE="neo4j"
 
-python load_ontology.py --domain legal       # 32 + 1505 statements
-python load_ontology.py --domain medical     # 32 + 2359 statements
+# ../backend/venv/bin/python: the neo4j driver is in the backend venv, and
+# "python" is not a command on Ubuntu -- use python3 or the venv explicitly.
+../backend/venv/bin/python load_ontology.py --domain legal     # 32 + 1505 statements
+../backend/venv/bin/python load_ontology.py --domain medical   # 32 + 2359 statements
 ```
 
 `--dry-run` counts the statements without connecting, which is a quick way
