@@ -17,7 +17,11 @@ from services import mock_db
 
 @pytest.fixture(autouse=True)
 def clear_mock_db():
+    # Annotations too: the queue now filters out predictions a human has
+    # already acted on, so a leftover annotation from another test would
+    # silently empty the queue here.
     mock_db._predictions.clear()
+    mock_db._annotations.clear()
     yield
 
 
@@ -100,6 +104,48 @@ class TestLowConfidenceQueueRoute:
         resp = client.get("/queue/low-confidence", headers=REVIEWER_HEADERS)
         assert resp.status_code == 200
         assert resp.json() == {"total": 0, "page": 1, "page_size": 50, "items": []}
+
+    def test_annotated_predictions_do_not_come_back(self, client):
+        """
+        A prediction a human has dealt with must not reappear in the queue.
+
+        The queue is built from predictions, which carry no record of having
+        been reviewed. The Review screen removes a row as soon as its POST
+        succeeds, so without this filter a single sitting looks correct and a
+        page refresh brings every corrected item back.
+        """
+        reviewed = _make_prediction(0.2, label="Family Law")
+        untouched = _make_prediction(0.2, label="Contract Law")
+
+        assert client.get("/queue/low-confidence",
+                          headers=REVIEWER_HEADERS).json()["total"] == 2
+
+        mock_db.create_annotation(
+            prediction_id=reviewed["id"],
+            validated_label="Criminal Law",
+            annotator_id="reviewer-1",
+            status="validated",
+        )
+
+        data = client.get("/queue/low-confidence", headers=REVIEWER_HEADERS).json()
+        assert data["total"] == 1
+        assert data["items"][0]["prediction_id"] == untouched["id"]
+
+    def test_rejected_predictions_do_not_come_back_either(self, client):
+        """
+        'rejected' means the reviewer threw the document out. That is a
+        decision, not a deferral, so it must not be queued again.
+        """
+        thrown_out = _make_prediction(0.2)
+        mock_db.create_annotation(
+            prediction_id=thrown_out["id"],
+            validated_label="Contract Law",
+            annotator_id="reviewer-1",
+            status="rejected",
+        )
+
+        assert client.get("/queue/low-confidence",
+                          headers=REVIEWER_HEADERS).json()["total"] == 0
 
 
 class TestLowConfidenceQueueRoleCheck:

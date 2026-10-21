@@ -118,6 +118,34 @@ def count_validated() -> int:
     return result.count or 0
 
 
+def annotated_prediction_ids() -> set:
+    """
+    Return the ids of every prediction a human has already acted on.
+
+    The review queue uses this to drop rows that have been dealt with. It
+    is deliberately not filtered by status: 'validated' means the reviewer
+    confirmed or corrected it and 'rejected' means they threw it out, and
+    neither should come back to be reviewed a second time.
+
+    Without it a corrected item reappears the moment the queue is re-read.
+    The Review screen hides a row as soon as its POST succeeds, so a single
+    sitting looks right and a page refresh undoes all of it.
+    """
+    if not is_configured():
+        from services import mock_db
+        return {r["prediction_id"] for r in mock_db.list_annotations()
+                if r.get("prediction_id")}
+
+    result = (
+        get_client()
+        .table("annotations")
+        .select("prediction_id")
+        .eq("domain", current_domain())
+        .execute()
+    )
+    return {r["prediction_id"] for r in result.data if r.get("prediction_id")}
+
+
 def count_by_status() -> Dict[str, int]:
     """
     Return a dict of status -> count across all annotations.

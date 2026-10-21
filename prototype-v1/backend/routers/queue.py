@@ -27,6 +27,7 @@ from fastapi import APIRouter, Header, HTTPException, Query, status
 
 from config.settings import settings
 from models.response_models import LowConfidenceItem, LowConfidenceQueueResponse
+from repositories import annotations as annotations_repo
 from repositories import predictions as predictions_repo
 from services.ontology_check import ontology_check
 
@@ -64,14 +65,24 @@ async def get_low_confidence_queue(
     # Low confidence remains the primary route. When the ontology check is
     # unavailable (markers file absent) this degrades to exactly the old
     # behaviour rather than failing.
+    # Predictions a human has already confirmed, corrected or rejected. The
+    # queue is built from predictions, which carry no record of having been
+    # reviewed, so without this a corrected item returns the next time the
+    # queue is read -- the Review screen hides the row on a successful POST,
+    # which makes one sitting look right and a refresh bring it all back.
+    done = annotations_repo.annotated_prediction_ids()
+
     if not ontology_check.is_loaded():
         all_rows = [
             (r, "low_confidence", None)
             for r in predictions_repo.list_low_confidence(threshold)
+            if r["id"] not in done
         ]
     else:
         all_rows = []
         for r in predictions_repo.list_all():
+            if r["id"] in done:
+                continue
             if r["confidence"] < threshold:
                 all_rows.append((r, "low_confidence", None))
                 continue

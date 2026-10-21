@@ -39,12 +39,26 @@ from config.settings import settings  # noqa: E402
 # Preferred columns per table, in display order. Any that the table does not
 # have is skipped rather than requested, because asking Postgres for a column
 # that is not there is an error, not an empty value.
+# Each table's own timestamp column. Not uniformly created_at: annotations
+# stamps annotated_at, model_versions trained_at, retrain_jobs triggered_at.
+# Ordering by the wrong one is an error, not an empty result.
+STAMP = {
+    "batches": "created_at",
+    "predictions": "created_at",
+    "annotations": "annotated_at",
+    "model_versions": "trained_at",
+    "retrain_jobs": "triggered_at",
+    "batch_items": "created_at",
+    "xai_jobs": "created_at",
+    "dataset_versions": "created_at",
+}
+
 PREFERRED = {
     "batches": ["created_at", "source", "status", "total_items", "completed_items"],
     "predictions": ["created_at", "predicted_label", "confidence", "domain", "text_content"],
-    "annotations": ["created_at", "validated_label", "status", "annotator_id", "domain"],
-    "model_versions": ["created_at", "version_number", "is_active", "accuracy", "training_rows"],
-    "retrain_jobs": ["created_at", "status", "min_annotations", "notes"],
+    "annotations": ["annotated_at", "validated_label", "status", "annotator_id", "domain"],
+    "model_versions": ["trained_at", "version_number", "is_active", "accuracy"],
+    "retrain_jobs": ["triggered_at", "status", "min_annotations", "notes"],
     "batch_items": ["created_at", "seq", "status"],
     "xai_jobs": ["created_at", "status"],
     "dataset_versions": ["created_at", "version_number"],
@@ -89,12 +103,13 @@ def show_supabase(rows: int, counts_only: bool) -> int:
         if counts_only or not n:
             continue
 
-        # Newest first. created_at is on every app table (migration 006), but
-        # fall back to an unordered read rather than failing if it is not.
+        # Newest first, by this table's own timestamp column. Falls back to an
+        # unordered read rather than failing if the schema ever moves.
         want = [c for c in PREFERRED.get(table, []) if c in (res.data[0] if res.data else {})]
         try:
             page = (client.table(table).select(",".join(want) or "*")
-                    .order("created_at", desc=True).limit(rows).execute())
+                    .order(STAMP.get(table, "created_at"), desc=True)
+                    .limit(rows).execute())
         except Exception:
             page = client.table(table).select(",".join(want) or "*").limit(rows).execute()
 
