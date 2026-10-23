@@ -390,6 +390,19 @@ class ModelVersionSummary(BaseModel):
             "version is flagged active but its files could not be read."
         ),
     )
+    parent_version: Optional[str] = Field(
+        default=None,
+        description=(
+            "For a retrained version: the version it was retrained from. "
+            "With parent_accuracy and exam_rows, the like-for-like comparison "
+            "— both scored on the same rows, which the two accuracy figures "
+            "in the table are not quite, since the exam drops whatever rows "
+            "the new version trained on. None for a baseline, and for "
+            "versions trained before the worker recorded it."
+        ),
+    )
+    parent_accuracy: Optional[float] = None
+    exam_rows: Optional[int] = None
 
 
 class AdminMetricsResponse(BaseModel):

@@ -46,8 +46,8 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 nvm use default >/dev/null
 
-if [ ! -d backend/models/MedicalModelShared ]; then
-    echo "backend/models/MedicalModelShared is missing — the medical model is not on this machine." >&2
+if [ ! -d backend/models/medical-progression/v1_round1 ]; then
+    echo "backend/models/medical-progression/v1_round1 is missing — the medical model is not on this machine." >&2
     exit 1
 fi
 
@@ -70,7 +70,7 @@ from repositories._client import domain_queues_available as ok; sys.exit(0 if ok
     >/dev/null 2>&1; then
     MEDICAL_DB=()
 fi
-(cd backend && env "${MEDICAL_DB[@]}" ACTIVE_DOMAIN=medical MODEL_PATH=./models/MedicalModelShared \
+(cd backend && env "${MEDICAL_DB[@]}" ACTIVE_DOMAIN=medical MODEL_PATH=./models/medical-progression/v1_round1 \
     RUN_WORKERS_IN_PROCESS=true venv/bin/python -m uvicorn main:app --port 8001) \
     > backend-medical.log 2>&1 &
 PIDS+=($!)

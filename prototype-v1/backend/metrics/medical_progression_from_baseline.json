@@ -1,0 +1,55 @@
+{
+ "design": {
+  "seed": 42,
+  "epochs": 3,
+  "batch_size": 8,
+  "lr": 2e-05,
+  "split": {
+   "base": 881,
+   "round1": 296,
+   "round2": 295
+  },
+  "exam": {
+   "file": "sample-data/evaluation/medical_heldout.csv",
+   "rows": 273
+  },
+  "base_model": "emilyalsentzer/Bio_ClinicalBERT",
+  "retrain_from": "the baseline"
+ },
+ "versions": [
+  {
+   "key": "v2_from_baseline",
+   "name": "round 2, from the baseline",
+   "trained_on_rows": 591,
+   "description": "v0 retrained on rounds 1 and 2 together, each learned once",
+   "model_path": "./models/medical-progression/v2_from_baseline",
+   "accuracy": 0.9084,
+   "f1_per_class": {
+    "Cardiovascular / Pulmonary": 0.8462,
+    "ENT - Otolaryngology": 0.973,
+    "Gastroenterology": 0.96,
+    "Hematology - Oncology": 0.7619,
+    "Nephrology": 0.9,
+    "Neurology": 0.8571,
+    "Neurosurgery": 1.0,
+    "Obstetrics / Gynecology": 0.96,
+    "Ophthalmology": 1.0,
+    "Orthopedic": 0.9783,
+    "Radiology": 0.4444,
+    "Urology": 0.9259
+   },
+   "calibration": {
+    "n": 273,
+    "accuracy": 0.9084,
+    "mean_confidence": 0.9005,
+    "mean_confidence_when_right": 0.9118,
+    "mean_confidence_when_wrong": 0.7885,
+    "above_auto_accept": 222,
+    "above_auto_accept_wrong": 13,
+    "confidently_wrong_rate": 0.0586,
+    "ece": 0.0317
+   }
+  }
+ ],
+ "measured_at": "2026-10-23T17:03:02.605456+00:00"
+}

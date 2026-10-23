@@ -747,7 +747,7 @@ Two things to know:
   clean slate, which for a repeatable demo is a feature. On a persisted
   Supabase it would double-seed.
 
-### Step 1 — upload `sample-data/demo/1-intake.csv`
+### Step 1 — upload `sample-data/demo/legal-csv/1-intake.csv`
 
 53 rows. Measured: **27 reach the review queue, 25 are predicted wrong.**
 
@@ -774,7 +774,7 @@ The name "teaching set" is not an ML term. It is just this team's name for
 set. `teaching-set-only.csv` exists so you can upload those 25 without the
 surrounding 53-row batch if you want a shorter run.
 
-### Step 3 — upload `sample-data/demo/2-probe-set.csv`
+### Step 3 — upload `sample-data/demo/legal-csv/2-probe-set.csv`
 
 8 documents, all gold Criminal Law, **never corrected, in no training file.**
 This is the "before".
@@ -1076,9 +1076,9 @@ mistakes." The two trade off against each other.
 
 | file | rows | use for |
 |---|---|---|
-| `demo/1-intake.csv` | 53 | **the demo.** 27 reach the queue, 25 predicted wrong |
-| `demo/2-probe-set.csv` | 8 | before/after. **Never correct these** |
-| `demo/teaching-set-only.csv` | 25 | the correction set alone; all gold Criminal Law, v1 gets 0/25 |
+| `demo/legal-csv/1-intake.csv` | 53 | **the demo.** 27 reach the queue, 25 predicted wrong |
+| `demo/legal-csv/2-probe-set.csv` | 8 | before/after. **Never correct these** |
+| `archive/teaching-set-only.csv` | 25 | the correction set alone; all gold Criminal Law, v1 gets 0/25 |
 | `evaluation/heldout/` + `heldout_manifest.csv` | 21 docs | **the real legal test set.** In no CSV anywhere. 3 are scans the PDF guard refuses, so 18 reach the model |
 | `evaluation/medical_heldout.csv` | 273 | medical held-out, rebuilt 19 Oct 2026 so no document straddles the split |
 | `evaluation/stress_test.csv` | 225 | **not a test set** — a slice of `v1.csv`. UI load-testing only |

@@ -169,13 +169,19 @@ the numbers, it was worse.*
 ## 5. PRADEEP v. STATE OF HARYANA — the worked example
 
 A Supreme Court murder appeal (IPC 302/324/449) turning on child-witness
-testimony. Five passages classify as **Family Law at 0.84–0.98**; four are
-above the auto-accept threshold.
+testimony. Five passages classify as **Family Law at 0.84–0.98**: three at
+0.96–0.98, above the auto-accept threshold, and two at 0.844, just under it.
 
-The ontology check flags three of them back to Criminal Law on `testimony`,
-`oath`, `the evidence`. Two are still missed — passages where `child`
-genuinely dominates the vocabulary. **Say that**; it is the honest limit of a
-vocabulary-based check.
+The ontology check flags all three confident ones back to Criminal Law on
+`testimony`, `oath`, `the evidence`. The two at 0.844 reach review on low
+confidence; the check would not have flagged them — `child` genuinely
+dominates their vocabulary. **Say that**; it is the honest limit of a
+vocabulary-based check. Between the two routes all five reach a human, and
+without the check three would be accepted unseen.
+
+Re-measured 24 Oct through the path an upload takes (passages packed by token
+count, batched prediction). An earlier revision said four cleared the
+threshold and two were missed.
 
 ### What the XAI–ontology comparison adds
 
@@ -205,7 +211,7 @@ Family Law F1 0.690 to 0.807, "15 corrections is the measured minimum".
 
 ### What is measured, and now has a source
 
-The probe set — `sample-data/demo/2-probe-set.csv`, eight documents whose gold
+The probe set — `sample-data/demo/legal-csv/2-probe-set.csv`, eight documents whose gold
 label is Criminal Law and whose vocabulary reads as Family Law: Section 498A
 cruelty, 467/471 will forgery, 494 bigamy, 361 kidnapping from guardianship,
 criminal trespass, 379 theft, unlawful assembly, abetment of suicide. Marked
@@ -239,8 +245,8 @@ text  The accused was charged with abetting the suicide of his daughter-in-law
 ```
 
 **Contamination checked before quoting any of this.** The eight probe texts
-appear in none of `datasets/v1.csv` (1,701 rows), `sample-data/demo/1-intake.csv`,
-`sample-data/demo/teaching-set-only.csv` or the inline corpus in
+appear in none of `datasets/v1.csv` (1,701 rows), `sample-data/demo/legal-csv/1-intake.csv`,
+`sample-data/archive/teaching-set-only.csv` or the inline corpus in
 `seed_retrain_data.py` — zero overlap after normalisation. They are genuinely
 held out from every path into the retrain corpus.
 
@@ -727,6 +733,52 @@ domains whose classes contradict each other; and refitting the model so
 fewer wrong predictions reach the threshold — which on this evidence is the
 one that still needs work.
 
+### A second round of feedback, 23 Oct
+
+`backend/medical_progression.py`, design written before it ran. The same
+seed-42 split as above, but the 40% held back is fed in as two rounds of
+about 295 notes, the way the retrain worker would receive them. Every
+version is scored on the same 273 held-out notes.
+
+| version | trained on | held-out | wrong above 0.85 |
+|---|---|---|---|
+| v0 baseline | 881 notes | 0.8938 | 3 |
+| v1 | v0 + round 1 (296) | **0.9084** | 5 |
+| v2 | v1 + rounds 1 and 2 (591), as the worker retrains | 0.8864 | 16 |
+| v2b | v0 + rounds 1 and 2 (591), each note learned once | 0.9084 | 13 |
+
+Round 1 gained 4 notes of 273. Retraining from v1, which is what the worker
+does, made round 2 cost 6 notes and triple the confident errors: v1 had
+already learned round 1, so those notes got six epochs in all, and mean
+confidence rose 0.84 → 0.88 → 0.92. One fix was tested, committed before it
+ran: start every retrain from the baseline. It recovered the
+loss, tied round 1 exactly, and still made 13 confident errors.
+
+The worker still retrains from the active version. Switching it to the
+baseline has one run behind it and has not been made.
+
+### What the medical tab serves, from 24 Oct
+
+**Medical Round 1** (v1 above), with the round-0 model registered as Medical
+Baseline, so the version table shows both. MedicalModelShared is retired: the
+numbers in section 9 and earlier in this section describe it, not the model
+now serving. Measured on round 1, the path the app takes (batched prediction;
+`backend/metrics/medical_confident_errors_round1.json`):
+
+| | MedicalModelShared (retired) | Medical Round 1 (serving) |
+|---|---|---|
+| held-out accuracy | 247/273, 90.5% | 248/273, 90.8% |
+| top-2 accuracy | 97.8% | 97.1% |
+| auto-accepted, and wrong among them | 214, 8 (3.7%) | 209, 5 (2.4%) |
+| ontology check on those confident errors | caught 2 of 8, 1 false positive | caught 0 of 5, 0 false positives |
+
+Round 1 makes fewer confident errors, and the check catches none of them:
+they are five different confusions, where the old model's were mostly one
+(cardiac catheterization filed as Radiology) that the markers know. The
+demo PDFs were re-measured the same way (`backend/measure_demo_pdfs.py`);
+their first figures had been measured with character-split passages, which
+no upload produces.
+
 ---
 
 ## 11. Sentences that are safe to say
@@ -740,10 +792,10 @@ one that still needs work.
 > them, because being confident is what put them there."
 
 > "Uncertainty sampling escalates what the model is unsure about. It is
-> structurally blind to the opposite failure. Our ontology check reads the
-> vocabulary independently and catches three of five confident errors in a
-> real murder judgment that confidence-based review would never have shown
-> anyone."
+> structurally blind to the opposite failure. In a real murder judgment,
+> three passages were filed as Family Law at 96 to 98% confidence, high
+> enough to be accepted with nobody looking. Our ontology check reads the
+> vocabulary independently and flags all three."
 
 > "We tested weighted multi-domain concept edges and they measured worse on
 > both recall and false positives, so we kept the simpler representation."
@@ -763,15 +815,19 @@ one that still needs work.
 > five seeds, positive in all five against a training variance of 0.7, and
 > improved calibration error in all five."
 
+> "In one run, feeding back a round of validated annotations took the score
+> on 273 unseen test notes from 89.4% to 90.8%. Across five runs, the average
+> gain was 3.4 points, and every run improved."
+
 > "Active learning improves the tail, not the average. Our large classes
 > were already above 0.94 and dominate the aggregate, so the right way to
 > measure the loop is per class."
 
-> "3.7% of confident medical predictions are wrong, against about one in ten
+> "2.4% of confident medical predictions are wrong, against about one in ten
 > for legal. The two domains fail differently, so they need different
 > safeguards, and we measured which one each needs."
 
-> "Top-1 is 90.5% and top-2 is 97.8%, so a reviewer shown two candidates has
+> "Top-1 is 90.8% and top-2 is 97.1%, so a reviewer shown two candidates has
 > the right label in front of them almost every time."
 
 > "Two of our twelve specialties are not separable in this corpus, and we
@@ -813,6 +869,11 @@ one that still needs work.
   is what was measured
 - ~~"we retrain on the corrections"~~ — retraining on corrections *alone*
   made it worse, by skewing the class prior toward the weak classes
+- ~~"the ontology check catches medical's confident errors"~~ — it caught 2
+  of 8 for MedicalModelShared; for Medical Round 1, serving since 24 Oct, 0 of
+  5 on the held-out set and 1 on the cardiology demo PDF
+- ~~"every round of feedback improves it"~~ — on medical, round 2 lost 2.2pp
+  retrained from round 1 and tied retrained from the baseline (section 10)
 - ~~"retraining doubles our confident errors"~~ — 8→15 was seed 42 alone; the
   other two seeds gave 6→7 and 10→9
 - ~~"we calibrate both domains"~~ — temperature scaling helps legal

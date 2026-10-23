@@ -1,0 +1,120 @@
+{
+ "design": {
+  "seed": 42,
+  "epochs": 3,
+  "batch_size": 8,
+  "lr": 2e-05,
+  "split": {
+   "base": 881,
+   "round1": 296,
+   "round2": 295
+  },
+  "exam": {
+   "file": "sample-data/evaluation/medical_heldout.csv",
+   "rows": 273
+  },
+  "base_model": "emilyalsentzer/Bio_ClinicalBERT"
+ },
+ "versions": [
+  {
+   "key": "v0_baseline",
+   "name": "Medical Baseline",
+   "trained_on_rows": 881,
+   "description": "Bio_ClinicalBERT fine-tuned on 60% of the training notes",
+   "model_path": "./models/medical-progression/v0_baseline",
+   "accuracy": 0.8938,
+   "f1_per_class": {
+    "Cardiovascular / Pulmonary": 0.8785,
+    "ENT - Otolaryngology": 0.9444,
+    "Gastroenterology": 0.9459,
+    "Hematology - Oncology": 0.64,
+    "Nephrology": 0.7619,
+    "Neurology": 0.7143,
+    "Neurosurgery": 0.7273,
+    "Obstetrics / Gynecology": 0.9583,
+    "Ophthalmology": 0.9677,
+    "Orthopedic": 0.9792,
+    "Radiology": 0.5,
+    "Urology": 0.9474
+   },
+   "calibration": {
+    "n": 273,
+    "accuracy": 0.8938,
+    "mean_confidence": 0.8357,
+    "mean_confidence_when_right": 0.8592,
+    "mean_confidence_when_wrong": 0.6374,
+    "above_auto_accept": 175,
+    "above_auto_accept_wrong": 3,
+    "confidently_wrong_rate": 0.0171,
+    "ece": 0.0562
+   }
+  },
+  {
+   "key": "v1_round1",
+   "name": "round 1",
+   "trained_on_rows": 296,
+   "description": "v0 retrained on round 1 of validated annotations",
+   "model_path": "./models/medical-progression/v1_round1",
+   "accuracy": 0.9084,
+   "f1_per_class": {
+    "Cardiovascular / Pulmonary": 0.8654,
+    "ENT - Otolaryngology": 1.0,
+    "Gastroenterology": 0.9333,
+    "Hematology - Oncology": 0.75,
+    "Nephrology": 0.8571,
+    "Neurology": 0.9091,
+    "Neurosurgery": 0.6154,
+    "Obstetrics / Gynecology": 0.9787,
+    "Ophthalmology": 1.0,
+    "Orthopedic": 0.9787,
+    "Radiology": 0.4286,
+    "Urology": 0.9434
+   },
+   "calibration": {
+    "n": 273,
+    "accuracy": 0.9084,
+    "mean_confidence": 0.8769,
+    "mean_confidence_when_right": 0.897,
+    "mean_confidence_when_wrong": 0.6774,
+    "above_auto_accept": 209,
+    "above_auto_accept_wrong": 5,
+    "confidently_wrong_rate": 0.0239,
+    "ece": 0.0474
+   }
+  },
+  {
+   "key": "v2_round2",
+   "name": "round 2",
+   "trained_on_rows": 591,
+   "description": "v1 retrained on rounds 1 and 2 of validated annotations",
+   "model_path": "./models/medical-progression/v2_round2",
+   "accuracy": 0.8864,
+   "f1_per_class": {
+    "Cardiovascular / Pulmonary": 0.8235,
+    "ENT - Otolaryngology": 0.973,
+    "Gastroenterology": 0.9211,
+    "Hematology - Oncology": 0.7273,
+    "Nephrology": 0.9,
+    "Neurology": 0.8333,
+    "Neurosurgery": 0.8889,
+    "Obstetrics / Gynecology": 0.96,
+    "Ophthalmology": 1.0,
+    "Orthopedic": 0.9556,
+    "Radiology": 0.4,
+    "Urology": 0.9231
+   },
+   "calibration": {
+    "n": 273,
+    "accuracy": 0.8864,
+    "mean_confidence": 0.9248,
+    "mean_confidence_when_right": 0.9407,
+    "mean_confidence_when_wrong": 0.8006,
+    "above_auto_accept": 237,
+    "above_auto_accept_wrong": 16,
+    "confidently_wrong_rate": 0.0675,
+    "ece": 0.0273
+   }
+  }
+ ],
+ "measured_at": "2026-10-23T16:37:02.968724+00:00"
+}

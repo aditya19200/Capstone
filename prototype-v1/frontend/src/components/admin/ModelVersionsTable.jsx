@@ -95,6 +95,18 @@ function ModelVersionsTable({ versions, activatingId, onActivate, servingDomain 
                 </td>
                 <td className="px-4 py-4 text-sm text-slate-700">
                   {typeof version.accuracy === 'number' ? `${(version.accuracy * 100).toFixed(1)}%` : '—'}
+                  {/* The like-for-like figure: the version it was retrained
+                      from, re-scored on exactly the rows this one was. */}
+                  {typeof version.parent_accuracy === 'number' ? (
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                      {version.parent_version}:{' '}
+                      {(version.parent_accuracy * 100).toFixed(1)}% on the same
+                      {typeof version.exam_rows === 'number'
+                        ? ` ${version.exam_rows.toLocaleString()}`
+                        : ''}{' '}
+                      rows
+                    </p>
+                  ) : null}
                 </td>
                 <td className="px-4 py-4 text-sm text-slate-600">
                   {new Date(version.trained_at).toLocaleDateString()}
@@ -134,6 +146,12 @@ function ModelVersionsTable({ versions, activatingId, onActivate, servingDomain 
       </div>
 
       <p className="mt-4 text-xs leading-5 text-slate-500">
+        <span className="font-semibold text-slate-600">Accuracy</span> — every
+        version is scored on the exam its domain&apos;s baseline was scored on.
+        A retrained version leaves out any exam rows it trained on, and the line
+        beneath it is the version it came from, scored on exactly those rows.
+      </p>
+      <p className="mt-2 text-xs leading-5 text-slate-500">
         <span className="font-semibold text-slate-600">Serving</span> — these
         weights are loaded in the running API and are answering predictions
         right now.{' '}

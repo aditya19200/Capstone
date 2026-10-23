@@ -3,7 +3,10 @@
   "display_name": "Clinical Specialty",
   "description": "Clinical transcriptions classified by the medical specialty they belong to.",
   "base_model": "emilyalsentzer/Bio_ClinicalBERT",
-  "model_path": "./models/MedicalModelShared",
+  "model_path": "./models/medical-progression/v0_baseline",
+  "retired_model_paths": [
+    "./models/MedicalModelShared"
+  ],
   "max_length": 256,
   "markers_file": "graph/medical_concept_markers.json",
   "dataset": "datasets/medical_v1.csv",

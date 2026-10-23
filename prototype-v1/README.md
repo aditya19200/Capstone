@@ -86,12 +86,12 @@ python3 seed_retrain_data.py
 
 **Try it:**
 
-1. **Annotator** → Annotate → upload `sample-data/demo/1-intake.csv`
+1. **Annotator** → Annotate → upload `sample-data/demo/legal-csv/1-intake.csv`
 2. **Reviewer** → Review — 27 items, most flagged by ontology conflict rather
    than low confidence. Each shows the concept evidence on both sides and
    arrives with the suggested label pre-selected, so correcting one is a single
    click. Correct at least 15
-3. **Annotator** → upload `sample-data/demo/2-probe-set.csv` — 8 documents the
+3. **Annotator** → upload `sample-data/demo/legal-csv/2-probe-set.csv` — 8 documents the
    system has never been corrected on. This is the "before". **Look at the
    results table on the Annotator page**, which shows all 8 as Family Law with
    a green "Model certainty: HIGH" badge. It carries no ontology information
@@ -179,9 +179,9 @@ which this does not do — so it says so instead of pretending.
 
 | File | Rows | Confidence mix | Use for |
 |------|-----:|----------------|---------|
-| `demo/1-intake.csv` | 53 | mixed, all 10 domains | **The demo.** 26 classify correctly, 5 are genuinely low confidence, 22 are confident and wrong. Four of those are real court documents failing on unrelated confusions |
+| `demo/legal-csv/1-intake.csv` | 53 | mixed, all 10 domains | **The demo.** 26 classify correctly, 5 are genuinely low confidence, 22 are confident and wrong. Four of those are real court documents failing on unrelated confusions |
 | `2-probe-set.csv` | 8 | confident and wrong | Held out for before/after. Upload once before retraining and again after, then compare. Never correct these |
-| `demo/teaching-set-only.csv` | 25 | confident and wrong | The teaching set on its own, if you want it without the surrounding batch |
+| `archive/teaching-set-only.csv` | 25 | confident and wrong | The teaching set on its own, if you want it without the surrounding batch |
 | `archive/demo_batch_tough.csv` | 45 | 60% high / 29% med / 11% low | Older demo batch. Colour on every page, 5 items reach the review queue |
 | `archive/demo_batch_easy.csv` | 50 | 94% high / 4% / 2% | Safe fallback — but pages 2-4 are entirely green |
 | `evaluation/stress_test.csv` | 225 | — | **Not a test set.** All 225 rows also appear in `v1.csv`, verified by exact match after normalisation — it is a slice of the training corpus. Kept for load-testing the UI, never for accuracy |

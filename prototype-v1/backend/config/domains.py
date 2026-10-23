@@ -79,6 +79,11 @@ class Domain:
     # classes share vocabulary rather than contradicting it needs its own —
     # see _thresholds() there for the measurement that forced this.
     ontology_thresholds: Optional[Dict] = None
+    # Checkpoints this domain served before model_path. A model_versions row
+    # pointing at one still belongs to this domain (domain_for_model_path), so
+    # it never lands on another domain's tab, but it is no longer part of this
+    # domain's version history and the admin table leaves it out.
+    retired_model_paths: Tuple[str, ...] = ()
 
     # -- derived views, so callers never rebuild these ---------------------
 
@@ -182,6 +187,7 @@ def _parse(data: Dict, source: Path) -> Domain:
         markers_file=str(data.get("markers_file", "")),
         dataset=str(data.get("dataset", "")),
         ontology_thresholds=data.get("ontology_thresholds") or None,
+        retired_model_paths=tuple(str(p) for p in data.get("retired_model_paths", ())),
     )
 
 
@@ -272,6 +278,6 @@ def domain_for_model_path(file_path: Optional[str]) -> Optional[str]:
     if not file_path:
         return None
     for key, domain in registry().items():
-        if domain.model_path and domain.model_path == file_path:
+        if file_path in (domain.model_path, *domain.retired_model_paths):
             return key
     return None

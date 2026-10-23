@@ -1,7 +1,7 @@
 # Medical demo PDFs
 
-Three files, for the second domain. Upload through **Annotate → Upload File**
-on the medical tab (`http://localhost:5181`, started by `./run_medical_demo.sh`).
+Two files, for the second domain. Upload through **Annotate → Upload File**
+on the medical tab (`http://localhost:5181`, started by `./run_local_demo.sh`).
 
 Every record in these files comes from `sample-data/evaluation/medical_heldout.csv`
 — real clinical transcriptions the medical model was **never trained on**, each
@@ -11,92 +11,105 @@ internet.
 
 ## The domain, before any PDF
 
-`MedicalModelShared` on all 273 held-out transcriptions:
+The medical tab serves **Medical Round 1** (since 24 Oct): Bio_ClinicalBERT
+fine-tuned on 881 training notes, then on a first round of 296 more
+(`backend/medical_progression.py`). On all 273 held-out transcriptions:
 
 ```
-accuracy                       247/273 = 90.5%
-auto-accepted (conf >= 0.85)   214 docs, 96.3% accurate
-routed to review (conf < 0.85)  59 docs, 69.5% accurate
+accuracy                       248/273 = 90.8%   (round-0 baseline: 244 = 89.4%)
+auto-accepted (conf >= 0.85)   209 docs, 97.6% accurate
+routed to review (conf < 0.85)  64 docs, 68.8% accurate
 ```
 
-The routing is doing its job: of 26 errors, **18 (69%) fall below the
-auto-accept bar on their own**. The remaining 8 are confidently wrong — 2.9%
-of the corpus — and are invisible to confidence-based active learning. Four
-of those eight are the same confusion: a cardiac catheterization report filed
-as **Radiology** at 0.93–0.96.
+Of 25 errors, **20 (80%) fall below the auto-accept bar on their own**. The
+remaining 5 are confidently wrong, 1.8% of the corpus, each a different
+confusion, and the ontology check flags none of them (and no correct ones
+either). The model this replaced, MedicalModelShared, made 8 confident errors,
+four of them one confusion — a cardiac catheterization report filed as
+Radiology — and the check caught 2.
 
-That is the legal Pradeep failure, in a different domain, found the same way.
+Round 1's 90.8% is one run; the five-run result in RESULTS.md section 10 is
+the evidence that feeding annotations back helps.
 
 ## The files
 
 | Upload | File | Pages → docs | Accuracy | Avg conf | What it demonstrates |
 |---|---|---:|---:|---:|---|
-| 1 | `urology-operative-notes.pdf` | 6 → 14 | 91.7% | 0.814 | **The pipeline transfers.** Same code, same upload, different domain |
-| 2 | `neurology-consults.pdf` | 6 → 19 | 75.0% | 0.666 | **The routing transfers too.** 17 of 19 go to review |
-| 3 | `cardiology-catheterization.pdf` | 9 → 23 | 47.6% | 0.830 | **The ontology check transfers.** 4 flagged, 3 correct, 0 false positives |
+| 10 | `neurology-consults.pdf` | 6 → 19 | 14/19 = 73.7% | 0.632 | **The routing transfers too.** 18 of 19 go to review |
+| 11 | `cardiology-catheterization.pdf` | 9 → 23 | 16/23 = 69.6% | 0.818 | **The ontology check transfers.** 1 flagged, correctly, 0 false positives |
 
-### 1 — it just works
+### 10 — it knows what it does not know
 
-Urology is the model's strongest specialty (100% on held-out rows). Nothing
-clever happens here, which is the point: a second domain goes through the same
-uploader, the same worker, the same review screen.
+On these consult passages the model is unsure, average confidence 0.632, and
+**18 of 19 go to a human** instead of being auto-accepted. The one it accepts
+on its own is right. Low confidence arriving where the model is weak is the
+routing working, not failing.
 
-### 2 — it knows what it does not know
-
-Neurology is one of the model's weakest specialties (77.8% on held-out rows,
-average confidence 0.691). Watch what the system does with that: **17 of 19
-documents route to a human** instead of being auto-accepted. Low accuracy and
-low confidence arriving together is the routing working, not failing.
-
-### 3 — confidently wrong, caught
+### 11 — confidently wrong, caught
 
 **Read the accuracy number in context: this file is deliberately weighted
-toward the failure case.** It holds all four confidently-wrong cardiology
-records plus four the model gets right. It is not a random sample and should
-not be presented as one.
+toward the failure case.** It holds all four records the previous model got
+confidently wrong plus four it got right. It is not a random sample and
+should not be presented as one.
 
-Of the 16 documents that clear the auto-accept bar, the ontology check flags
-4. Three are genuinely wrong, none of the flags is a false positive:
+Twelve passages clear the auto-accept bar and three of them are wrong. The
+ontology check flags one, correctly, with no false positive:
 
 ```
-0.933  model said Radiology  ->  check says Cardiovascular / Pulmonary
-       evidence 38.9 vs 0.0   on  left main, main, hemodynamics, obtuse marginal
-0.892  model said Radiology  ->  check says Cardiovascular / Pulmonary
-       evidence 45.9 vs 0.0   on  left main, right coronary, anterior descending,
-                                  ventriculography
-0.858  model said Radiology  ->  check says Cardiovascular / Pulmonary
-       evidence 36.2 vs 2.5   on  pigtail catheter, femoral artery, left main
+0.896  model said Radiology  ->  check says Cardiovascular / Pulmonary
+       evidence 46.7 vs 0.0   on  pigtail, pigtail catheter, coronary angiography,
+                                  femoral artery
 ```
 
-`left main`, `right coronary`, `anterior descending` and `ventriculography` are
-coronary anatomy. The model read a catheterization report and called it
-Radiology at 0.93; the vocabulary says otherwise by a margin of 39 to 0.
+`pigtail catheter`, `coronary angiography` and `femoral artery` are the
+vocabulary of a cardiac catheterization. The model called it Radiology at
+0.90; the vocabulary says otherwise by 46.7 to 0.
 
-The same mechanism, the same thresholds file, a different corpus — and on
-medical it is far more conservative than on legal: **0.5% false positives
-against legal's 8.0%**, catching 2 of 8 rather than 3 of 5. Say that plainly
-if asked. The operating point was never tuned for medical, and tuning it on
-eight examples would be overfitting, not engineering.
+The other two confident errors get through. Say that plainly if asked: on
+medical the check is conservative. On the 273 held-out notes it flags nothing
+for this model, and caught 2 of 8 for the previous one at 0.5% false
+positives, against legal's 8.0%. The operating point was never tuned for
+medical, and tuning it on eight examples would be overfitting, not
+engineering.
 
-## Why chunk accuracy is below 90.5%
+## Why passage accuracy is below 90.8%
 
-A PDF is split into ~1000-character chunks that fit the model's window, and
-each chunk is classified on its own. A clinical transcription is short and
-front-loads its diagnosis, so a middle chunk can be a list of measurements
+A PDF is split into passages packed to the model's 256-token window, and each
+passage is classified on its own. A clinical transcription is short and
+front-loads its diagnosis, so a middle passage can be a list of measurements
 with the context stripped away. Legal judgments do not have this problem —
-they are long and every chunk is still about the same case, which is why
-`judgment-taxation.pdf` scores 32/33.
+they are long and every passage is still about the same case, which is why
+`judgment-labour.pdf` scores 12/12.
 
 This is a property of the documents, not a defect in the extractor. Say so.
 
 ## Re-measuring
 
-These numbers come from the real path — `pdf_extract.extract()` then
-`model_service.predict()` then `ontology_check.check()`. The ontology catches
-depend on where chunk boundaries fall, so **if you regenerate or edit these
-PDFs, re-measure before quoting anything.**
+These numbers come from `backend/measure_demo_pdfs.py`, which runs each file
+the way an upload does: `pdf_extract.extract()` packing by the tokeniser's
+count, `model_service.predict_batch()` in the worker's group size, then
+`ontology_check.check()` on everything above the bar. Run it whenever the
+served medical model changes:
+
+```
+cd backend
+ACTIVE_DOMAIN=medical MODEL_PATH=./models/medical-progression/v1_round1 ./venv/bin/python measure_demo_pdfs.py
+```
+
+The first version of this page was measured by hand with passages split by
+character count, which no upload does; its cardiology figure (four flagged)
+described passages the app never produces. Corrected 24 Oct. For reference,
+the previous model on the real path: neurology 13/19 with 18 routed,
+cardiology 10/23 with 7 confident errors and 1 caught. The urology file,
+now in `sample-data/archive/medical-pdfs/`, scores 10/14 on Round 1.
 
 ## How the medical tab is wired
+
+The Admin tab lists two versions: **Medical Baseline** (round 0, 89.4%) and
+**Medical Round 1** (90.8%, active and serving), registered at startup from
+`backend/metrics/medical_baseline_metrics.json` and
+`backend/metrics/medical_versions.json`. Both are scored on the same 273
+held-out notes, and the line under Round 1 says so.
 
 `./run_local_demo.sh` starts both domains; switch with the **Legal / Medical**
 toggle in the header. Each domain is its own backend process, because the label

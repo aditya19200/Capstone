@@ -1,0 +1,43 @@
+{
+ "domain": "medical",
+ "checkpoint": "models/medical-progression/v1_round1",
+ "heldout": "sample-data/evaluation/medical_heldout.csv",
+ "rows": 273,
+ "confidence_high": 0.85,
+ "accuracy": 0.9084,
+ "top2_accuracy": 0.9707,
+ "above_high": 209,
+ "above_high_wrong": 5,
+ "above_high_wrong_runner_up_was_gold": 2,
+ "below_high_wrong": 20,
+ "below_high_wrong_runner_up_was_gold": 15,
+ "margin_above_high_min": 0.7816,
+ "margin_guard_fired": 0,
+ "confident_error_pairs": [
+  [
+   "Cardiovascular / Pulmonary",
+   "Radiology",
+   1
+  ],
+  [
+   "Cardiovascular / Pulmonary",
+   "Gastroenterology",
+   1
+  ],
+  [
+   "Gastroenterology",
+   "Cardiovascular / Pulmonary",
+   1
+  ],
+  [
+   "Hematology - Oncology",
+   "Cardiovascular / Pulmonary",
+   1
+  ],
+  [
+   "Radiology",
+   "Orthopedic",
+   1
+  ]
+ ]
+}

@@ -103,7 +103,7 @@ the pip launcher's shebang points at a path that no longer exists.
 
 ```
 ./run_local_demo.sh
-# upload sample-data/demo/1-intake.csv through the Annotate page
+# upload sample-data/demo/legal-csv/1-intake.csv through the Annotate page
 # wait for classification, then Ctrl-C the backend
 ./run_local_demo.sh
 # the batch must still be there

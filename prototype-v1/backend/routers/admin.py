@@ -11,8 +11,11 @@ GET  /admin/metrics
   counts by status, and per-batch throughput. Read from the DB, not JSON files.
 """
 
+import json
 import logging
+import re
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from fastapi import APIRouter, Header, HTTPException, status
@@ -40,6 +43,43 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 _ROLE_ADMIN = "admin"
+
+_METRICS_DIR = Path(__file__).resolve().parent.parent / "metrics"
+
+
+def _parent_comparison(version_number: str) -> Dict:
+    """
+    How a retrained version compares with its parent on identical rows.
+
+    A retrained version is scored on its domain's exam minus any rows it
+    trained on, so its accuracy is not on quite the rows the baseline's is.
+    The worker re-scores the parent on the same rows and records both in
+    metrics/<version>_metrics.json; this reads them back for the table.
+
+    A version a training script produced has no sidecar; it records the same
+    fields in metrics/<domain>_versions.json (baseline.recorded_versions).
+
+    Empty for baselines and for versions trained before the worker recorded
+    it. A sidecar is only looked for under a plain file name.
+    """
+    data: Dict = {}
+    if re.fullmatch(r"[\w.-]+", version_number or ""):
+        try:
+            data = json.loads((_METRICS_DIR / f"{version_number}_metrics.json").read_text())
+        except (OSError, ValueError):
+            data = {}
+    if not isinstance(data.get("parent_accuracy"), (int, float)):
+        from baseline import recorded_versions
+        from config.domains import active_domain
+        data = next((v for v in recorded_versions(active_domain().key)
+                     if v.get("version_number") == version_number), {})
+    if not isinstance(data.get("parent_accuracy"), (int, float)):
+        return {}
+    return {
+        "parent_version": data.get("parent_version"),
+        "parent_accuracy": data["parent_accuracy"],
+        "exam_rows": data.get("exam_rows"),
+    }
 
 
 def _require_admin(x_role: Optional[str]) -> None:
@@ -187,6 +227,10 @@ async def get_admin_metrics(
     # config.domains.domain_for_model_path.
     from config.domains import active_domain, domain_for_model_path
     serving_domain = active_domain().key
+    # Checkpoints this domain no longer serves (medical's MedicalModelShared,
+    # replaced by the round-0 baseline on 24 Oct). Their rows can outlive the
+    # change in the shared table; they are not part of this history.
+    retired = set(active_domain().retired_model_paths)
 
     return AdminMetricsResponse(
         active_model_version=active_model["version_number"] if active_model else None,
@@ -207,6 +251,7 @@ async def get_admin_metrics(
                 domain=(v.get("domain") or domain_for_model_path(v.get("file_path"))
                         or serving_domain),
                 is_serving=bool(served_path) and v.get("file_path") == served_path,
+                **_parent_comparison(v["version_number"]),
             )
             for v in all_versions
             # Only this instance's domain. The other domain's models belong to
@@ -214,6 +259,7 @@ async def get_admin_metrics(
             # header's Legal / Medical switch is how you get to them.
             if (v.get("domain") or domain_for_model_path(v.get("file_path"))
                 or serving_domain) == serving_domain
+            and v.get("file_path") not in retired
         ],
         batch_throughput=[
             BatchThroughputItem(

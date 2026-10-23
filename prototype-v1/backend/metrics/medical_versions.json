@@ -1,0 +1,31 @@
+{
+  "domain": "medical",
+  "about": "Versions produced by a training script rather than the retrain worker, registered at startup by baseline.py. Each is scored on the baseline's own exam, the 273 held-out notes.",
+  "versions": [
+    {
+      "version_number": "Medical Round 1",
+      "model_path": "./models/medical-progression/v1_round1",
+      "accuracy": 0.9084,
+      "f1_per_class": {
+        "Cardiovascular / Pulmonary": 0.8654,
+        "ENT - Otolaryngology": 1.0,
+        "Gastroenterology": 0.9333,
+        "Hematology - Oncology": 0.75,
+        "Nephrology": 0.8571,
+        "Neurology": 0.9091,
+        "Neurosurgery": 0.6154,
+        "Obstetrics / Gynecology": 0.9787,
+        "Ophthalmology": 1.0,
+        "Orthopedic": 0.9787,
+        "Radiology": 0.4286,
+        "Urology": 0.9434
+      },
+      "trained_on_rows": 1177,
+      "parent_version": "Medical Baseline",
+      "parent_accuracy": 0.8938,
+      "exam_rows": 273,
+      "activate": true,
+      "trained_by": "medical_progression.py: the baseline fine-tuned on round 1 (296 notes)"
+    }
+  ]
+}

@@ -185,7 +185,7 @@ def main():
     out = pathlib.Path(args.out or HERE / "metrics" / f"{domain.key}_confident_errors.json")
     out.parent.mkdir(exist_ok=True)
     out.write_text(json.dumps(payload, indent=1))
-    print(f"\nwrote {out.relative_to(HERE)}")
+    print(f"\nwrote {out.resolve().relative_to(HERE)}")
 
 
 if __name__ == "__main__":

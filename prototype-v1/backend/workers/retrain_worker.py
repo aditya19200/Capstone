@@ -6,21 +6,24 @@ workers/xai_worker.py. Polls retrain_jobs for a pending job. When one shows
 up: pulls validated annotations, builds a new training set normalized
 identically to inference (utils.text.normalize — the exact function every
 prediction path already uses, so train/serve text never drifts), fine-tunes
-from the currently active model checkpoint, evaluates on a held-out split,
-and records the result as a new model_versions row.
+from the currently active model checkpoint, scores it on the exam its
+domain's baseline was scored on (see load_exam), and records the result as a
+new model_versions row.
 
 New model versions are NEVER activated automatically — is_active is always
 False (enforced inside supabase_service.create_model_version). A human
 reviews the metrics and flips it on via the admin activate endpoint. This
 worker's only guard is refusing to silently hide a large accuracy
 regression: if the new model scores more than ACCURACY_DROP_GUARD below the
-currently active model, it is still saved (nothing is lost) but flagged
-with a warning in its metrics.json sidecar file, for a human to see.
+model it was retrained from, on the same exam rows, it is still saved
+(nothing is lost) but flagged with a warning in its metrics.json sidecar
+file, for a human to see.
 
 Run with:
     python -m workers.retrain_worker
 """
 
+import csv
 import json
 import logging
 import random
@@ -35,7 +38,7 @@ from torch.optim import AdamW
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 from config.settings import settings
-from services.model_service import ID2LABEL, LABEL2ID, NUM_LABELS
+from services.model_service import ACTIVE_DOMAIN, ID2LABEL, LABEL2ID, NUM_LABELS
 from services.supabase_service import (
     create_dataset_version,
     create_model_version,
@@ -67,14 +70,16 @@ MIN_ANNOTATIONS_DEFAULT = 50    # fallback if the job row doesn't carry
                                  # min_annotations — the real Postgres schema
                                  # doesn't have that column yet, only mock_db does
 EPOCHS = 3
-TEST_SPLIT = 0.2
-ACCURACY_DROP_GUARD = 0.05      # new model >5 points below active -> flag, don't hide
+TEST_SPLIT = 0.2                # only when the domain has no exam; see load_exam
+ACCURACY_DROP_GUARD = 0.05      # new model >5 points below its parent -> flag, don't hide
 BATCH_SIZE = 8
+EVAL_BATCH_SIZE = 32            # what evaluate_baseline.py scored the baseline with
 LEARNING_RATE = 2e-5
 RANDOM_SEED = 42
 
 MODELS_DIR = Path(__file__).resolve().parent.parent / "models"
 METRICS_DIR = Path(__file__).resolve().parent.parent / "metrics"
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 
 def _now_iso() -> str:
@@ -159,11 +164,73 @@ def _train_test_split(
 
 
 # ---------------------------------------------------------------------------
+# The exam
+# ---------------------------------------------------------------------------
+
+def load_exam(exclude: set) -> Optional[Tuple[str, List[str], List[str], int]]:
+    """
+    The labelled set this domain's baseline was scored on, minus every text
+    in `exclude` (the rows this retrain trains on).
+
+    New versions used to be scored on 20% of the validated annotations, and
+    the admin table put that number beside a baseline scored on all 1,701
+    rows of datasets/v1.csv. On 23 Oct that read 93.3% against 70.7% — and
+    the 93.3% was 14 of 15 annotation rows. Two different exams, shown as if
+    they were one. Every version of a domain is now scored on the same one.
+
+    Which file is read from the baseline's own metrics, so the two cannot
+    drift apart: medical names a held-out file, legal the dataset it was
+    scored on. Rows the new version trained on are removed (the demo's intake
+    file shares 35 rows with v1.csv, and any a reviewer validates become
+    training rows), and the parent is re-scored on what is left — see
+    process_retrain_job — so the comparison stays on identical rows.
+
+    Returns (exam_path, texts, labels, excluded), or None when the domain has
+    no exam on disk, in which case the caller falls back to TEST_SPLIT.
+    """
+    metrics_file = METRICS_DIR / f"{ACTIVE_DOMAIN.key}_baseline_metrics.json"
+    if not metrics_file.exists():
+        return None
+    baseline = json.loads(metrics_file.read_text())
+    rel = baseline.get("heldout") or baseline.get("dataset")
+    if not rel or not (REPO_ROOT / rel).exists():
+        return None
+
+    texts: List[str] = []
+    labels: List[str] = []
+    excluded = 0
+    with open(REPO_ROOT / rel, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            label = (row.get("label_name") or "").strip()
+            text = normalize((row.get("text") or "").strip())
+            if not text or label not in LABEL2ID:
+                continue
+            if text in exclude:
+                excluded += 1
+                continue
+            texts.append(text)
+            labels.append(label)
+    return rel, texts, labels, excluded
+
+
+# ---------------------------------------------------------------------------
 # Fine-tuning
 # ---------------------------------------------------------------------------
 
+def _load(model_path: str):
+    """Load a checkpoint and its tokenizer onto the GPU if there is one."""
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    model = AutoModelForSequenceClassification.from_pretrained(
+        model_path, num_labels=NUM_LABELS
+    )
+    model.to(device)
+    return model, tokenizer
+
+
 def _fine_tune(
-    base_model_path: str,
+    model,
+    tokenizer,
     train_texts: List[str],
     train_labels: List[str],
     epochs: int = EPOCHS,
@@ -171,16 +238,10 @@ def _fine_tune(
     lr: float = LEARNING_RATE,
 ):
     """
-    Fine-tune from base_model_path on (train_texts, train_labels).
+    Fine-tune `model` in place on (train_texts, train_labels).
     Returns the fine-tuned (model, tokenizer), still resident in memory.
     """
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    tokenizer = AutoTokenizer.from_pretrained(base_model_path)
-    model = AutoModelForSequenceClassification.from_pretrained(
-        base_model_path, num_labels=NUM_LABELS
-    )
-    model.to(device)
+    device = next(model.parameters()).device
     model.train()
 
     optimizer = AdamW(model.parameters(), lr=lr)
@@ -234,7 +295,10 @@ def _evaluate(
     model, tokenizer, texts: List[str], labels: List[str]
 ) -> Tuple[float, Dict[str, float]]:
     """
-    Evaluate on a held-out split. Returns (accuracy, f1_per_class).
+    Score on the exam. Returns (accuracy, f1_per_class).
+
+    Batched like evaluate_baseline.py, because the exam is now 1,701 rows
+    rather than 15 and is scored twice per retrain (parent and new version).
 
     No sklearn dependency (not in backend/requirements.txt) — f1 is computed
     directly from per-class TP/FP/FN counts.
@@ -247,24 +311,25 @@ def _evaluate(
 
     model.eval()
     with torch.no_grad():
-        for text, true_label in zip(texts, labels):
+        for start in range(0, len(texts), EVAL_BATCH_SIZE):
             inputs = tokenizer(
-                text,
+                texts[start:start + EVAL_BATCH_SIZE],
                 return_tensors="pt",
                 truncation=True,
                 max_length=settings.MAX_LENGTH,
                 padding=True,
             )
             inputs = {k: v.to(device) for k, v in inputs.items()}
-            logits = model(**inputs).logits
-            pred_label = ID2LABEL[int(logits.argmax(dim=-1).item())]
+            pred_ids = model(**inputs).logits.argmax(dim=-1).tolist()
 
-            if pred_label == true_label:
-                correct += 1
-                tp[pred_label] += 1
-            else:
-                fp[pred_label] += 1
-                fn[true_label] += 1
+            for pred_id, true_label in zip(pred_ids, labels[start:start + EVAL_BATCH_SIZE]):
+                pred_label = ID2LABEL[int(pred_id)]
+                if pred_label == true_label:
+                    correct += 1
+                    tp[pred_label] += 1
+                else:
+                    fp[pred_label] += 1
+                    fn[true_label] += 1
 
     accuracy = correct / len(texts) if texts else 0.0
 
@@ -305,16 +370,37 @@ def process_retrain_job(job: Dict) -> None:
                 f"need at least {min_annotations}."
             )
 
-        train_texts, train_labels, test_texts, test_labels = _train_test_split(
-            texts, labels, TEST_SPLIT, RANDOM_SEED
-        )
+        exam = load_exam(set(texts))
+        if exam is not None:
+            # Every validated annotation trains: none is needed to score with.
+            exam_name, test_texts, test_labels, excluded = exam
+            train_texts, train_labels = texts, labels
+        else:
+            logger.warning(
+                "No exam for domain %r (its baseline metrics name none on "
+                "disk); scoring on %d%% of the annotations, which the "
+                "baseline was not scored on.", ACTIVE_DOMAIN.key, TEST_SPLIT * 100,
+            )
+            train_texts, train_labels, test_texts, test_labels = _train_test_split(
+                texts, labels, TEST_SPLIT, RANDOM_SEED
+            )
+            exam_name, excluded = f"{TEST_SPLIT:.0%} of the validated annotations", 0
 
         active = get_active_model_version()
         base_model_path = active["file_path"] if active else settings.MODEL_PATH
-        base_accuracy = active["accuracy"] if active else 0.0
-        logger.info("Fine-tuning from '%s' (active accuracy=%.4f)", base_model_path, base_accuracy)
+        parent_version = active["version_number"] if active else Path(base_model_path).name
+        model, tokenizer = _load(base_model_path)
 
-        model, tokenizer = _fine_tune(base_model_path, train_texts, train_labels)
+        # The parent is scored here, on these rows, rather than read from its
+        # model_versions row: its stored accuracy may be on rows this retrain
+        # has just removed from the exam for having trained on them.
+        parent_accuracy, _ = _evaluate(model, tokenizer, test_texts, test_labels)
+        logger.info(
+            "Exam: %s, %d rows (%d excluded as training rows). %s scores %.4f.",
+            exam_name, len(test_texts), excluded, parent_version, parent_accuracy,
+        )
+
+        _fine_tune(model, tokenizer, train_texts, train_labels)
         accuracy, f1_per_class = _evaluate(model, tokenizer, test_texts, test_labels)
 
         version_id = f"v-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
@@ -324,23 +410,28 @@ def process_retrain_job(job: Dict) -> None:
         tokenizer.save_pretrained(output_dir)
 
         warning = None
-        if accuracy < base_accuracy - ACCURACY_DROP_GUARD:
+        if accuracy < parent_accuracy - ACCURACY_DROP_GUARD:
             warning = (
                 f"New model accuracy {accuracy:.4f} is more than "
-                f"{ACCURACY_DROP_GUARD:.2f} below active model accuracy "
-                f"{base_accuracy:.4f}. Saved with is_active=False — do not "
-                f"activate without reviewing why."
+                f"{ACCURACY_DROP_GUARD:.2f} below {parent_version}'s "
+                f"{parent_accuracy:.4f} on the same exam. Saved with "
+                f"is_active=False — do not activate without reviewing why."
             )
             logger.warning(warning)
 
+        # routers/admin.py reads exam_rows / parent_version / parent_accuracy
+        # from this file to print the like-for-like comparison in the table.
         METRICS_DIR.mkdir(parents=True, exist_ok=True)
         (METRICS_DIR / f"{version_id}_metrics.json").write_text(json.dumps({
             "version_id": version_id,
             "trained_at": _now_iso(),
             "base_model_path": base_model_path,
-            "base_accuracy": base_accuracy,
             "train_count": len(train_texts),
-            "test_count": len(test_texts),
+            "exam": exam_name,
+            "exam_rows": len(test_texts),
+            "excluded_from_exam": excluded,
+            "parent_version": parent_version,
+            "parent_accuracy": parent_accuracy,
             "accuracy": accuracy,
             "f1_per_class": f1_per_class,
             "warning": warning,
@@ -367,8 +458,9 @@ def process_retrain_job(job: Dict) -> None:
             completed_at=_now_iso(),
         )
         logger.info(
-            "Retrain job %s complete -> model_version %s (accuracy=%.4f, is_active=False)",
-            job_id, mv["id"], accuracy,
+            "Retrain job %s complete -> model_version %s (accuracy=%.4f against "
+            "%s's %.4f on the same %d rows, is_active=False)",
+            job_id, mv["id"], accuracy, parent_version, parent_accuracy, len(test_texts),
         )
 
     except Exception:

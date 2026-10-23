@@ -22,7 +22,7 @@ empty — the same behaviour as before. Run evaluate_baseline.py to create it.
 import json
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Dict, List, Optional
 
 from repositories import model_versions as model_versions_repo
 
@@ -53,23 +53,76 @@ def _metrics_for(domain_key: str):
     return f if f.exists() else None
 
 
+def recorded_versions(domain_key: str) -> List[Dict]:
+    """
+    Versions of a domain that a training script produced and measured, from
+    metrics/<domain>_versions.json, so the table can show them beside the
+    baseline and whatever the retrain worker adds. Medical's round 1
+    (medical_progression.py) is the one there is. Empty when there is none.
+    """
+    f = _METRICS_DIR / f"{domain_key}_versions.json"
+    if not f.exists():
+        return []
+    try:
+        return list(json.loads(f.read_text()).get("versions", []))
+    except Exception:
+        logger.exception("[baseline] could not read %s", f.name)
+        return []
+
+
+def _insert(record: Dict, key: str) -> Optional[Dict]:
+    """One model_versions row from a metrics record, or None if it failed."""
+    try:
+        row = model_versions_repo.insert(
+            version_number=record["version_number"],
+            accuracy=record["accuracy"],
+            f1_per_class=record["f1_per_class"],
+            file_path=record["model_path"],
+            domain=key,
+        )
+    except Exception:
+        logger.exception("[baseline] failed to register '%s'",
+                         record.get("version_number"))
+        return None
+    logger.info("[baseline] registered '%s' for domain %r (accuracy %.4f)",
+                record["version_number"], key, record["accuracy"])
+    return row
+
+
+def _activate(row: Dict, name: str) -> bool:
+    try:
+        model_versions_repo.set_active(row["id"])
+        return True
+    except Exception:
+        logger.exception(
+            "[baseline] registered '%s' but could not mark it active; "
+            "reconcile_served_version() will retry at startup.", name)
+        return False
+
+
 def register_baseline_if_absent() -> None:
     """
-    Register the deployed checkpoint of every installed domain that has no row.
+    Register this domain's deployed checkpoint, and the versions recorded for
+    it, wherever no row points at them yet.
 
-    This used to return the moment ANY row existed, which was fine while there
-    was one domain and wrong as soon as there were two: legal registered first
-    and medical was skipped forever, so the admin table claimed the system had
-    a single model while a second one sat trained on disk. The check is now per
-    checkpoint — "does a row point at this file_path" — so each domain gets its
-    own row and neither blocks the other.
+    Only the domain this process serves. It once registered every installed
+    domain, while the admin table listed them all together; the table now
+    shows only its own domain, and a legal process writing medical rows into
+    the shared table before migration 010 left them no domain but their path.
 
-    Only the domain this process serves is ever marked active, and only when
-    nothing else is. model_versions has one global single-active index, so two
-    baselines cannot both hold the flag; the other domain's row is described
-    by is_serving in whichever process actually has those weights loaded.
+    The check is per checkpoint — "does a row point at this file_path" —
+    rather than "does any row exist", which once let the first domain to
+    register block the second forever.
+
+    The baseline is marked active only when this domain has nothing active.
+    A recorded version marked "activate" takes the flag when it is first
+    registered and never again, so a later choice in the admin table survives
+    a restart — and only where the flag is this domain's alone: the in-memory
+    store, or Supabase after migration 010. Before 010 one flag covers every
+    domain, and taking it would deactivate the other domain's version.
     """
-    from config.domains import active_domain, registry
+    from config.domains import active_domain
+    from repositories._client import domain_queues_available, is_configured
 
     try:
         existing = model_versions_repo.list_all()
@@ -77,74 +130,62 @@ def register_baseline_if_absent() -> None:
         logger.exception("[baseline] could not read existing model versions")
         return
 
-    from repositories._client import domain_queues_available
     per_domain = domain_queues_available()
-
     known_paths = {v.get("file_path") for v in existing}
     # Before migration 010 there is one active flag for the whole table, so
-    # only the domain this process serves may take it, and only if it is free.
-    # After 010 each domain has its own, so every domain's baseline can hold it.
+    # the baseline may take it only if it is free. After 010 each domain has
+    # its own.
     active_domains = {v.get("domain") for v in existing if v.get("is_active")}
     something_active = bool(active_domains)
-    active_key = active_domain().key
+    key = active_domain().key
 
-    for key in sorted(registry()):
-        metrics_file = _metrics_for(key)
-        if metrics_file is None:
-            # Fall back to the un-prefixed name for the active domain only, so
-            # an older checkout holding just metrics/baseline_metrics.json
-            # still registers the model it is actually serving.
-            legacy = _METRICS_DIR / "baseline_metrics.json"
-            if key == active_key and legacy.exists():
-                metrics_file = legacy
-            else:
-                logger.info(
-                    "[baseline] no metrics for domain %r — it will not appear "
-                    "in the version table. Run evaluate_baseline.py with "
-                    "ACTIVE_DOMAIN=%s to create them.", key, key,
-                )
-                continue
+    # The un-prefixed name is the fallback, so an older checkout holding just
+    # metrics/baseline_metrics.json still registers the model it serves.
+    metrics_file = _metrics_for(key)
+    if metrics_file is None:
+        legacy = _METRICS_DIR / "baseline_metrics.json"
+        metrics_file = legacy if legacy.exists() else None
 
+    baseline = None
+    if metrics_file is None:
+        logger.info(
+            "[baseline] no metrics for domain %r — it will not appear in the "
+            "version table. Run evaluate_baseline.py with ACTIVE_DOMAIN=%s to "
+            "create them.", key, key,
+        )
+    else:
         try:
-            metrics = json.loads(metrics_file.read_text())
+            baseline = json.loads(metrics_file.read_text())
         except Exception:
             logger.exception("[baseline] could not read %s", metrics_file.name)
-            continue
 
-        if metrics.get("model_path") in known_paths:
-            continue  # already registered
-
-        try:
-            row = model_versions_repo.insert(
-                version_number=metrics["version_number"],
-                accuracy=metrics["accuracy"],
-                f1_per_class=metrics["f1_per_class"],
-                file_path=metrics["model_path"],
-                domain=key,
-            )
-            known_paths.add(metrics["model_path"])
-            logger.info(
-                "[baseline] registered '%s' for domain %r (accuracy %.4f, "
-                "measured on %s)", metrics["version_number"], key,
-                metrics["accuracy"], metrics.get("dataset", "?"),
-            )
-        except Exception:
-            logger.exception("[baseline] failed to register domain %r", key)
-            continue
-
-        may_activate = (key not in active_domains) if per_domain else (
-            key == active_key and not something_active)
-        if may_activate:
-            try:
-                model_versions_repo.set_active(row["id"])
-                something_active = True
+    if baseline and baseline.get("model_path") not in known_paths:
+        row = _insert(baseline, key)
+        if row:
+            known_paths.add(baseline["model_path"])
+            may_activate = (key not in active_domains) if per_domain else not something_active
+            if may_activate and _activate(row, baseline["version_number"]):
                 active_domains.add(key)
-            except Exception:
-                logger.exception(
-                    "[baseline] registered '%s' but could not mark it active; "
-                    "reconcile_served_version() will retry at startup.",
-                    metrics["version_number"],
-                )
+                something_active = True
+
+    scoped = per_domain or not is_configured()
+    for record in recorded_versions(key):
+        if record.get("model_path") in known_paths:
+            continue
+        row = _insert(record, key)
+        if not row:
+            continue
+        known_paths.add(record["model_path"])
+        if not record.get("activate"):
+            continue
+        if scoped:
+            _activate(row, record["version_number"])
+        else:
+            logger.warning(
+                "[baseline] '%s' is marked to activate, but before migration "
+                "010 the active flag is shared by every domain. Left inactive.",
+                record["version_number"],
+            )
 
 
 def reconcile_served_version(served_path: str) -> Optional[str]:
