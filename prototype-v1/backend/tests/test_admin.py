@@ -521,3 +521,55 @@ class TestACrashingWorkerDoesNotTakeTheApiDown:
         local_workers._supervise("test", flaky)
         assert slept[:2] == [2, 5], f"backoff should grow: {slept}"
         assert slept[2] == 2, f"a healthy run should reset the backoff: {slept}"
+
+
+class TestCrossDomainActivationIsRefused:
+    """
+    The UI disables Activate on another domain's version. That is a
+    convenience, not a guard: an older frontend, a stale build or curl all
+    reach the endpoint directly, and the screenshot that prompted this had
+    exactly that -- a live Activate button on a medical row, because the
+    running API predated the field the UI needs to grey it out.
+    """
+
+    def test_activating_another_domains_version_is_a_409(self, client, monkeypatch):
+        import routers.admin as admin_router
+
+        row = model_versions_repo.insert(
+            version_number="Medical Baseline",
+            accuracy=0.9048,
+            f1_per_class={},
+            file_path="./models/MedicalModelShared",
+        )
+        # The registry resolves that path to the medical pack; this process
+        # serves legal.
+        monkeypatch.setattr(
+            "config.domains.domain_for_model_path",
+            lambda p: "medical" if p == "./models/MedicalModelShared" else "legal",
+        )
+
+        resp = client.post(
+            f"/admin/models/{row['id']}/activate", headers=ADMIN_HEADERS,
+        )
+        assert resp.status_code == 409, resp.text
+        detail = resp.json()["detail"]
+        assert "medical" in detail and "legal" in detail
+
+    def test_the_refusal_does_not_leave_it_flagged_active(self, client, monkeypatch):
+        row = model_versions_repo.insert(
+            version_number="Medical Baseline",
+            accuracy=0.9048,
+            f1_per_class={},
+            file_path="./models/MedicalModelShared",
+        )
+        monkeypatch.setattr(
+            "config.domains.domain_for_model_path",
+            lambda p: "medical" if p == "./models/MedicalModelShared" else "legal",
+        )
+
+        client.post(f"/admin/models/{row['id']}/activate", headers=ADMIN_HEADERS)
+
+        after = {v["id"]: v for v in model_versions_repo.list_all()}
+        assert after[row["id"]]["is_active"] is False, (
+            "a version this process cannot load must not be left flagged active"
+        )

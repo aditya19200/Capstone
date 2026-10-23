@@ -87,6 +87,31 @@ async def activate_model_version(
             detail=f"Model version '{version_id}' not found.",
         )
 
+    # A version from another domain cannot be served here whatever the UI
+    # offers: ID2LABEL and NUM_LABELS are bound when the process starts, so
+    # load() would hand a 12-label checkpoint to a 10-label head and raise.
+    # It fails safely, but a 500 with a state_dict traceback in it tells the
+    # person nothing. Refuse before the flip, so is_active is never moved to
+    # a version this process could not possibly load.
+    from config.domains import active_domain, domain_for_model_path
+    row_domain = domain_for_model_path(row.get("file_path"))
+    serving = active_domain().key
+    if row_domain and row_domain != serving:
+        if previous and previous["id"] != version_id:
+            try:
+                model_versions_repo.set_active(previous["id"])
+            except Exception:
+                logger.exception("Could not restore the previously active version")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                f"'{row['version_number']}' belongs to the {row_domain} domain "
+                f"and this process serves {serving}. The label set is fixed at "
+                f"startup, so these weights can only be served by the "
+                f"{row_domain} instance."
+            ),
+        )
+
     # Activation is only real once the weights are actually serving. load()
     # builds the new model before swapping it in, so on failure the previously
     # loaded model is still resident — we just have to undo the is_active flip.
