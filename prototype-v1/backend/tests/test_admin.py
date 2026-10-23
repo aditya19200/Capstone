@@ -421,3 +421,103 @@ class TestWorkersDoNotClobberTheResidentModel:
             f"{offenders} call model_service.load() directly. Use "
             "model_service.ensure_loaded() — see its docstring."
         )
+
+
+class TestACrashingWorkerDoesNotTakeTheApiDown:
+    """
+    The other half of the shared-model problem, found on 23 Oct.
+
+    ensure_loaded() stopped workers *loading* over the API's model. Their
+    shutdown still *unloaded* it: both xai_worker and prediction_worker end
+    in `finally: model_service.unload()`, which is right for a dedicated
+    worker process that owns its weights and wrong for a thread that does
+    not. A DNS blip ("Temporary failure in name resolution") killed the XAI
+    thread, its finally ran, and the API served /health with
+    model_loaded=false until somebody restarted it.
+    """
+
+    def test_release_keeps_a_shared_model_loaded(self, monkeypatch):
+        from services.model_service import model_service
+
+        unloaded = []
+        monkeypatch.setattr(model_service, "unload", lambda: unloaded.append(True))
+        monkeypatch.setattr(model_service, "_shared", True, raising=False)
+
+        model_service.release()
+        assert unloaded == [], "release() unloaded a model shared with the API"
+
+    def test_release_unloads_when_the_worker_owns_the_model(self, monkeypatch):
+        from services.model_service import model_service
+
+        unloaded = []
+        monkeypatch.setattr(model_service, "unload", lambda: unloaded.append(True))
+        monkeypatch.setattr(model_service, "_shared", False, raising=False)
+
+        model_service.release()
+        assert unloaded == [True], "a standalone worker process must still clean up"
+
+    def test_no_worker_calls_unload_directly(self):
+        """Same reasoning as test_no_worker_calls_load_directly."""
+        import pathlib
+        workers = pathlib.Path(__file__).resolve().parent.parent / "workers"
+        offenders = [
+            path.name for path in sorted(workers.glob("*.py"))
+            if "model_service.unload(" in path.read_text()
+        ]
+        assert offenders == [], (
+            f"{offenders} call model_service.unload() directly. Use "
+            "model_service.release(), which is a no-op while the weights are "
+            "shared with the API process."
+        )
+
+    def test_starting_local_workers_marks_the_model_shared(self, monkeypatch):
+        import local_workers
+        from services.model_service import model_service
+
+        monkeypatch.setattr(model_service, "_shared", False, raising=False)
+        monkeypatch.setattr(local_workers.threading, "Thread",
+                            lambda **kw: type("T", (), {"start": lambda self: None})())
+        local_workers.start_local_workers()
+        assert model_service._shared is True
+
+    def test_a_crashed_loop_is_restarted(self, monkeypatch):
+        """
+        A transient failure must not retire the worker permanently.
+
+        The loop raises twice and then returns; _supervise should have called
+        it three times rather than giving up after the first exception.
+        """
+        import local_workers
+
+        monkeypatch.setattr(local_workers.time, "sleep", lambda _s: None)
+        calls = []
+
+        def flaky():
+            calls.append(1)
+            if len(calls) < 3:
+                raise ConnectionError("Temporary failure in name resolution")
+
+        local_workers._supervise("test", flaky)
+        assert len(calls) == 3
+
+    def test_backoff_grows_and_resets_after_a_healthy_run(self, monkeypatch):
+        """A blip after a long healthy run restarts fast, not at the cap."""
+        import local_workers
+
+        slept = []
+        monkeypatch.setattr(local_workers.time, "sleep", lambda s: slept.append(s))
+        clock = {"t": 0.0}
+        monkeypatch.setattr(local_workers.time, "monotonic", lambda: clock["t"])
+
+        calls = []
+
+        def flaky():
+            calls.append(1)
+            # Third run is healthy for well over the threshold before failing.
+            clock["t"] += 600 if len(calls) == 3 else 0
+            if len(calls) < 5:
+                raise ConnectionError("boom")
+
+        local_workers._supervise("test", flaky)
+        assert slept[:2] == [2, 5], f"backoff should grow: {slept}"
+        assert slept[2] == 2, f"a healthy run should reset the backoff: {slept}"

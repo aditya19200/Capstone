@@ -19,40 +19,74 @@ deployments keep the intended separate-process architecture untouched.
 
 import logging
 import threading
+import time
 
 logger = logging.getLogger(__name__)
 
 
+# A worker loop that raises used to take its thread down for good: the
+# exception was logged and the thread exited. On 23 Oct a DNS blip
+# ("Temporary failure in name resolution") killed the batch and XAI threads
+# inside a minute of each other, and nothing processed another job for the
+# rest of that run -- uploads simply sat at 0% with the cause buried in the
+# log. The network coming back did not help, because there was no longer
+# anything polling.
+#
+# So a crash is now a restart, with a backoff so a persistent failure (bad
+# credentials, say) does not spin. A loop that has been healthy for a while
+# before falling over starts again from the shortest delay, because that is
+# a blip rather than a broken configuration.
+_RESTART_DELAYS = (2, 5, 15, 30, 60)
+_HEALTHY_SECONDS = 60
+
+
+def _supervise(name: str, run) -> None:
+    attempt = 0
+    while True:
+        started = time.monotonic()
+        try:
+            run()
+            logger.info("[local_workers] %s loop returned; not restarting.", name)
+            return
+        except Exception:
+            ran_for = time.monotonic() - started
+            if ran_for >= _HEALTHY_SECONDS:
+                attempt = 0
+            delay = _RESTART_DELAYS[min(attempt, len(_RESTART_DELAYS) - 1)]
+            logger.exception(
+                "[local_workers] %s worker crashed after %.0fs — restarting in %ds",
+                name, ran_for, delay,
+            )
+            attempt += 1
+            time.sleep(delay)
+
+
 def _run_batch_loop() -> None:
-    try:
-        from workers import batch_worker
-        batch_worker.main()
-    except Exception:
-        logger.exception("[local_workers] batch worker thread crashed")
+    from workers import batch_worker
+    _supervise("batch", batch_worker.main)
 
 
 def _run_xai_loop() -> None:
-    try:
-        from workers import xai_worker
-        xai_worker.run_worker()
-    except Exception:
-        logger.exception("[local_workers] xai worker thread crashed")
+    from workers import xai_worker
+    _supervise("xai", xai_worker.run_worker)
 
 
 def _run_retrain_loop() -> None:
-    try:
-        from workers import retrain_worker
-        retrain_worker.main()
-    except Exception:
-        logger.exception("[local_workers] retrain worker thread crashed")
+    from workers import retrain_worker
+    _supervise("retrain", retrain_worker.main)
 
 
 def start_local_workers() -> None:
     """Start the batch, XAI, and retrain worker polling loops as daemon threads."""
     logger.info(
-        "[local_workers] No real database configured — running batch/XAI/"
-        "retrain workers in-thread instead of as separate processes."
+        "[local_workers] Running batch/XAI/retrain workers in-thread rather "
+        "than as separate processes."
     )
+    # These loops share the API's model instance, so their shutdown must not
+    # unload it. See ModelService.release().
+    from services.model_service import model_service
+    model_service.mark_shared()
+
     threading.Thread(target=_run_batch_loop, daemon=True, name="local-batch-worker").start()
     threading.Thread(target=_run_xai_loop, daemon=True, name="local-xai-worker").start()
     threading.Thread(target=_run_retrain_loop, daemon=True, name="local-retrain-worker").start()

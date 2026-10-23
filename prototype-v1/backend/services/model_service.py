@@ -95,6 +95,8 @@ class ModelService:
         # Which weights are actually resident, so /health and the admin page can
         # show what is being served rather than what is merely marked active.
         self._loaded_path: Optional[str] = None
+        # True when worker loops share this instance — see mark_shared().
+        self._shared: bool = False
         self._loaded_version: Optional[str] = None
 
     # ------------------------------------------------------------------
@@ -199,6 +201,35 @@ class ModelService:
         if self._device.type == "cuda":
             torch.cuda.empty_cache()
         logger.info("Model unloaded.")
+
+    def mark_shared(self) -> None:
+        """
+        Declare that more than one caller depends on these weights.
+
+        Set by local_workers when the worker loops run as threads inside the
+        API instead of as their own processes. A worker's cleanup is written
+        for the process case, where unloading on exit is correct because it
+        owns the model. In-thread it owns nothing, and unloading takes the
+        model away from the API that is still serving requests.
+        """
+        self._shared = True
+
+    def release(self) -> None:
+        """
+        Worker shutdown path: unload only if these weights are ours alone.
+
+        A DNS blip once killed the XAI worker thread, whose finally: block
+        unloaded the shared model, and the API kept answering /health with
+        model_loaded false until somebody restarted it. The failure was a
+        transient network error; the outage lasted until it was noticed.
+        """
+        if getattr(self, "_shared", False):
+            logger.info(
+                "Worker exiting; model left loaded because it is shared with "
+                "the API process."
+            )
+            return
+        self.unload()
 
     def is_loaded(self) -> bool:
         """Return True if the model is currently in memory."""

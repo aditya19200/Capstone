@@ -193,7 +193,8 @@ def run_worker() -> None:
     except KeyboardInterrupt:
         logger.info("XAI worker shutting down (KeyboardInterrupt).")
     finally:
-        model_service.unload()
+        # release(), not unload(): in-thread these weights belong to the API.
+        model_service.release()
         logger.info("Model unloaded. XAI worker exited cleanly.")
 
 
