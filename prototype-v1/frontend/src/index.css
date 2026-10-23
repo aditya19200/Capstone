@@ -36,6 +36,15 @@
   }
 }
 
+/* Light-theme defaults for the tokens recharts reads through contentStyle.
+   Only the tooltip box needs them — the SVG parts are handled by the
+   .recharts-* rules further down, which do not take variables. */
+:root {
+  --chart-tooltip-bg: #ffffff;
+  --chart-tooltip-border: #e2e8f0;
+  --chart-tooltip-text: #0f172a;
+}
+
 /* ==========================================================================
    Dark theme
    --------------------------------------------------------------------------
@@ -71,6 +80,12 @@
      and a literal translation of it lands under 4.5:1 here. */
   --dk-text-4: #8b94a3;      /* muted labels      — 5.6:1 on cards */
   --dk-text-5: #7d8695;      /* faint / placeholder — 4.2:1 on inputs */
+
+  /* Recharts tooltips are HTML with an INLINE style, so unlike the SVG
+     attributes above they do resolve var(). Defaults live on :root. */
+  --chart-tooltip-bg: var(--dk-surface-2);
+  --chart-tooltip-border: var(--dk-border-strong);
+  --chart-tooltip-text: var(--dk-text-1);
 
   color-scheme: dark;        /* native scrollbars, form controls, caret */
 }
@@ -158,6 +173,26 @@
   color: var(--dk-text-4);
   cursor: not-allowed;
 }
+
+/* ==========================================================================
+   Recharts
+   --------------------------------------------------------------------------
+   Charts are SVG, and recharts sets colour as presentation ATTRIBUTES on the
+   elements it generates (fill="#64748b"), not as classes -- so none of the
+   .dark-theme utility overrides above reach them. A CSS property beats a
+   presentation attribute, which is why these are plain rules rather than
+   variables: fill="var(--x)" does not resolve in an attribute.
+
+   The hover cursor is the one that showed: recharts paints a slate-50 block
+   behind the hovered bar, which on a dark card reads as the bar turning white.
+   ========================================================================== */
+
+.dark-theme .recharts-cartesian-axis-tick-value { fill: var(--dk-text-4); }
+.dark-theme .recharts-cartesian-axis-line,
+.dark-theme .recharts-cartesian-axis-tick-line { stroke: var(--dk-border-strong); }
+.dark-theme .recharts-cartesian-grid line { stroke: var(--dk-surface-3); }
+.dark-theme .recharts-tooltip-cursor { fill: var(--dk-surface-3); }
+.dark-theme .recharts-legend-item-text { color: var(--dk-text-2) !important; }
 
 .dark-theme input:not([type='checkbox']):not([type='radio']):not([type='file']),
 .dark-theme select,

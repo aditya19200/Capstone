@@ -235,7 +235,13 @@ function DashboardPage() {
                   cursor={{ fill: '#f8fafc' }}
                   contentStyle={{
                     borderRadius: '12px',
-                    border: '1px solid #e2e8f0',
+                    // Tokens, not hex: recharts writes this object as an inline
+                    // style on an HTML div, so var() resolves here (unlike the
+                    // SVG attributes it sets elsewhere). Without an explicit
+                    // background the box stays recharts' default white.
+                    backgroundColor: 'var(--chart-tooltip-bg)',
+                    border: '1px solid var(--chart-tooltip-border)',
+                    color: 'var(--chart-tooltip-text)',
                     boxShadow: '0 1px 2px 0 rgb(15 23 42 / 0.08)',
                   }}
                 />
