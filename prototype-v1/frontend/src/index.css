@@ -146,6 +146,9 @@
 .dark-theme .bg-indigo-100    { background-color: #1f2347; }
 .dark-theme .border-indigo-100 { border-color: #262b52; }
 .dark-theme .border-indigo-200 { border-color: #2e3460; }
+/* The home page's role cards use this on hover. A hover: variant is its
+   own class, so remapping .border-indigo-200 alone does not reach it. */
+.dark-theme .hover\:border-indigo-200:hover { border-color: #2e3460; }
 .dark-theme .text-indigo-600  { color: #939fff; }
 .dark-theme .text-indigo-700  { color: #a7b0ff; }
 /* bg-indigo-600 (primary button) and border-indigo-400/500 (focus rings)

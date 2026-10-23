@@ -6,7 +6,9 @@ function ProtectedRoute({ allowedRoles, children }) {
   const { isAuthenticated, role } = useAuth()
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace state={{ from: location }} />
+    // Home, not /login: it carries the same three role entries plus the
+    // context for what they open into. /login still works if visited directly.
+    return <Navigate to="/" replace state={{ from: location }} />
   }
 
   if (allowedRoles?.length && !allowedRoles.includes(role)) {

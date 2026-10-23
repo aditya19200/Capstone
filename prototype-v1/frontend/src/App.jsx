@@ -5,6 +5,7 @@ import AdminPage from './pages/Admin.jsx'
 import AnnotatePage from './pages/Annotate.jsx'
 import ConflictsPage from './pages/Conflicts.jsx'
 import DashboardPage from './pages/Dashboard.jsx'
+import HomePage from './pages/Home.jsx'
 import LoginPage from './pages/Login.jsx'
 import MetricsPage from './pages/Metrics.jsx'
 import RegisterPage from './pages/Register.jsx'
@@ -16,7 +17,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
