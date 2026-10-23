@@ -169,33 +169,7 @@ function HomePage() {
           </p>
         </header>
 
-        <div className="dashboard-card mt-10">
-          <p className="section-kicker mb-4">Running now</p>
-          <StatusStrip />
-        </div>
-
-        <section className="mt-14">
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
-            How a document moves through it
-          </h2>
-          <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {STEPS.map((step) => (
-              <li key={step.n} className="dashboard-card">
-                <span className="text-sm font-semibold text-indigo-600">
-                  {step.n}
-                </span>
-                <h3 className="mt-2 text-base font-semibold text-slate-900">
-                  {step.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  {step.body}
-                </p>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <section className="mt-14">
+        <section className="mt-10">
           <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
             Open the workspace
           </h2>
@@ -234,6 +208,33 @@ function HomePage() {
             ))}
           </div>
         </section>
+
+        <div className="dashboard-card mt-10">
+          <p className="section-kicker mb-4">Running now</p>
+          <StatusStrip />
+        </div>
+
+        <section className="mt-14">
+          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+            How a document moves through it
+          </h2>
+          <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {STEPS.map((step) => (
+              <li key={step.n} className="dashboard-card">
+                <span className="text-sm font-semibold text-indigo-600">
+                  {step.n}
+                </span>
+                <h3 className="mt-2 text-base font-semibold text-slate-900">
+                  {step.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                  {step.body}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
       </div>
     </div>
   )
