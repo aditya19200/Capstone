@@ -157,7 +157,8 @@ def run_worker() -> None:
     logger.info("Batch size: %d", BATCH_SIZE)
     logger.info("Poll interval: %ds", POLL_INTERVAL_SECONDS)
 
-    logger.info("Loading InLegalBERT...")
+    from config.domains import active_domain
+    logger.info("Loading %s...", active_domain().base_model or "the model")
     model_service.ensure_loaded()
     logger.info("Model ready. Entering poll loop.")
 

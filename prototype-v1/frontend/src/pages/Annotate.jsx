@@ -13,6 +13,7 @@ import BatchProgress from '../components/annotation/BatchProgress.jsx'
 import ConceptsPanel from '../components/annotation/ConceptsPanel.jsx'
 import LegalTextInput from '../components/annotation/LegalTextInput.jsx'
 import ExplainPanel from '../components/explanation/ExplainPanel.jsx'
+import useDomain from '../hooks/useDomain.js'
 
 const BATCH_SOURCE_LABELS = {
   csv: 'CSV upload',
@@ -42,6 +43,7 @@ const fileKind = (file) => {
 }
 
 function AnnotatePage() {
+  const { labelPrefix, nounPrefix } = useDomain()
   const [mode, setMode] = useState('paste')
   const [pasteText, setPasteText] = useState('')
   const [selectedFile, setSelectedFile] = useState(null)
@@ -166,7 +168,7 @@ function AnnotatePage() {
           .filter(Boolean)
 
         if (texts.length === 0) {
-          setErrorMessage('Paste at least one line of legal text (one document per line).')
+          setErrorMessage(`Paste at least one line of ${nounPrefix}text (one document per line).`)
           return
         }
 
@@ -287,10 +289,10 @@ function AnnotatePage() {
           Annotator Workspace
         </p>
         <h2 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900">
-          Annotate Legal Text
+          Annotate {labelPrefix}Text
         </h2>
         <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">
-          Paste text, or upload a CSV or PDF, to classify a batch of legal documents.
+          Paste text, or upload a CSV or PDF, to classify a batch of {nounPrefix}documents.
         </p>
       </div>
 
@@ -318,7 +320,7 @@ function AnnotatePage() {
               <LegalTextInput
                 value={pasteText}
                 onChange={(event) => setPasteText(event.target.value)}
-                placeholder="Paste one legal document per line..."
+                placeholder={`Paste one ${nounPrefix}document per line...`}
               />
             ) : (
               <>

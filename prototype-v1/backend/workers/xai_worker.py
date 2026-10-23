@@ -162,7 +162,8 @@ def run_worker() -> None:
     logger.info("SHAP max_evals: %d", MAX_EVALS)
     logger.info("Poll interval : %ds", POLL_INTERVAL_SECONDS)
 
-    logger.info("Loading InLegalBERT for SHAP...")
+    from config.domains import active_domain
+    logger.info("Loading %s for SHAP...", active_domain().base_model or "the model")
     model_service.ensure_loaded()
     logger.info("Model ready. Entering XAI poll loop.")
 

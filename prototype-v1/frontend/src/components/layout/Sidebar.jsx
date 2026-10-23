@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthContext.jsx'
+import useDomain from '../../hooks/useDomain.js'
 
 const navigationByRole = {
   admin: [
@@ -22,6 +23,7 @@ const navigationByRole = {
 }
 
 function Sidebar() {
+  const { nounPrefix } = useDomain()
   const { role } = useAuth()
   const navItems = navigationByRole[role] || navigationByRole.annotator
 
@@ -33,7 +35,7 @@ function Sidebar() {
             Workspace
           </p>
           <p className="mt-2 text-sm text-slate-400">
-            Navigate role-based legal annotation workflows.
+            Navigate role-based {nounPrefix}annotation workflows.
           </p>
         </div>
 

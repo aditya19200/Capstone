@@ -129,7 +129,10 @@ def _process_single_item(item: Dict, inference: Dict) -> None:
 # ---------------------------------------------------------------------------
 
 def main() -> None:
-    logger.info("batch_worker starting up. Loading InLegalBERT...")
+    from config.domains import active_domain
+    # Named from the pack: the medical instance runs this same worker.
+    logger.info("batch_worker starting up. Loading %s...",
+                active_domain().base_model or "the model")
     model_service.ensure_loaded()
     logger.info("Model ready. Polling batch_items every %ds.", POLL_INTERVAL_SECONDS)
 

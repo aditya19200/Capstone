@@ -1,3 +1,5 @@
+import useDomain from '../../hooks/useDomain.js'
+
 // Puts the model's own explanation next to the legal ontology's reading of
 // the same text. SHAP says which words moved the model; the concept markers
 // say which domain those words belong to. Neither answers "did it reason
@@ -60,6 +62,7 @@ function TermRow({ row }) {
 }
 
 function AgreementCard({ agreement }) {
+  const { nounPrefix } = useDomain()
   if (!agreement) return null
   const v = VERDICTS[agreement.verdict] ?? VERDICTS.no_overlap
   const rows = [...(agreement.supporting || []), ...(agreement.contradicting || [])]
@@ -73,7 +76,7 @@ function AgreementCard({ agreement }) {
           {v.label}
         </span>
         <span className="text-xs uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-          model&apos;s reasoning vs legal ontology
+          model&apos;s reasoning vs {nounPrefix}ontology
         </span>
       </div>
 

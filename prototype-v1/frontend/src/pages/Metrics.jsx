@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { getAdminMetrics } from '../api/client.js'
+import useDomain from '../hooks/useDomain.js'
 
 function MetricsPage() {
+  const { nounPrefix } = useDomain()
   const [metrics, setMetrics] = useState(null) // null = loading
   const [fetchError, setFetchError] = useState('')
 
@@ -44,7 +46,7 @@ function MetricsPage() {
           Per-class performance
         </h2>
         <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">
-          F1 score for each legal category, from the active model version.
+          F1 score for each {nounPrefix}category, from the active model version.
         </p>
       </div>
 
@@ -66,7 +68,7 @@ function MetricsPage() {
         <div className="dashboard-card">
           <div className="border-b border-slate-200 pb-5">
             <p className="section-kicker">Per-Class F1</p>
-            <h3 className="mt-2 text-xl font-semibold text-slate-800">F1 score by legal category</h3>
+            <h3 className="mt-2 text-xl font-semibold text-slate-800">F1 score by {nounPrefix}category</h3>
           </div>
 
           <div className="mt-6 h-96">

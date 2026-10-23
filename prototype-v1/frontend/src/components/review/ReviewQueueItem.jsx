@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import useLabels from '../../hooks/useLabels.js'
 import ConfidenceBadge from '../prediction/ConfidenceBadge.jsx'
+import useDomain from '../../hooks/useDomain.js'
 
 function ReviewQueueItem({ item, isSubmitting, onSubmit, onExplain }) {
+  const { nounPrefix } = useDomain()
   const { labels } = useLabels()
   const isOntologyFlag = item.flag_reason === 'ontology_conflict'
 
@@ -25,7 +27,7 @@ function ReviewQueueItem({ item, isSubmitting, onSubmit, onExplain }) {
               Ontology conflict
             </span>
             <span className="text-sm text-slate-700 dark:text-slate-200">
-              The model was confident, but the legal concepts in this text point
+              The model was confident, but the {nounPrefix}concepts in this text point
               to{' '}
               <strong className="font-semibold">{item.suggested_label}</strong>.
             </span>

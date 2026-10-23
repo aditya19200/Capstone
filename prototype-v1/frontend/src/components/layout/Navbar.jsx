@@ -1,4 +1,5 @@
 import { useAuth } from '../../auth/AuthContext.jsx'
+import useDomain from '../../hooks/useDomain.js'
 
 const roleLabels = {
   admin: 'Admin',
@@ -7,6 +8,7 @@ const roleLabels = {
 }
 
 function Navbar() {
+  const { labelPrefix } = useDomain()
   const { logout, role } = useAuth()
   const displayRole = roleLabels[role] || 'Mock User'
 
@@ -14,9 +16,9 @@ function Navbar() {
     <header className="flex h-20 items-center justify-between border-b border-slate-200 bg-white px-6 shadow-sm">
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-indigo-600">
-          XAI Legal Workflow
+          XAI {labelPrefix}Workflow
         </p>
-        <h1 className="text-xl font-semibold text-slate-800">Legal Annotation System</h1>
+        <h1 className="text-xl font-semibold text-slate-800">{labelPrefix}Annotation System</h1>
       </div>
 
       <div className="flex items-center gap-4">
