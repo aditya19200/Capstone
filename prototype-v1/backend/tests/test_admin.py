@@ -573,3 +573,22 @@ class TestCrossDomainActivationIsRefused:
         assert after[row["id"]]["is_active"] is False, (
             "a version this process cannot load must not be left flagged active"
         )
+
+
+class TestEachTabListsOnlyItsOwnDomain:
+    """The legal tab shows legal models; medical's live on the medical tab."""
+
+    def test_another_domains_version_is_not_listed(self, client):
+        model_versions_repo.insert(
+            version_number="Medical Baseline", accuracy=0.9048,
+            f1_per_class={}, file_path="./models/MedicalModelShared",
+        )
+        model_versions_repo.insert(
+            version_number="v-20261023-120000", accuracy=0.75,
+            f1_per_class={}, file_path="models/v-20261023-120000",
+        )
+        resp = client.get("/admin/metrics", headers=ADMIN_HEADERS)
+        names = [v["version_number"] for v in resp.json()["model_versions"]]
+        assert "Medical Baseline" not in names
+        # A retrained version matches no pack, so it belongs to this domain.
+        assert "v-20261023-120000" in names

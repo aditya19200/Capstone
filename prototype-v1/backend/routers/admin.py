@@ -209,6 +209,11 @@ async def get_admin_metrics(
                 is_serving=bool(served_path) and v.get("file_path") == served_path,
             )
             for v in all_versions
+            # Only this instance's domain. The other domain's models belong to
+            # the other tab; listing them here greyed out was noise, and the
+            # header's Legal / Medical switch is how you get to them.
+            if (v.get("domain") or domain_for_model_path(v.get("file_path"))
+                or serving_domain) == serving_domain
         ],
         batch_throughput=[
             BatchThroughputItem(

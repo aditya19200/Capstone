@@ -74,7 +74,7 @@ function ModelVersionsTable({ versions, activatingId, onActivate, servingDomain 
         <table className="min-w-full divide-y divide-slate-200">
           <thead className="bg-slate-100">
             <tr>
-              {['Version', 'Domain', 'Accuracy', 'Trained', 'Status', ''].map((heading) => (
+              {['Version', 'Accuracy', 'Trained', 'Status', ''].map((heading) => (
                 <th
                   key={heading}
                   scope="col"
@@ -92,9 +92,6 @@ function ModelVersionsTable({ versions, activatingId, onActivate, servingDomain 
                   {/* version_number is the readable label ("v-20260903-093923");
                       version_id is the uuid the activate endpoint matches on. */}
                   {version.version_number ?? version.version_id}
-                </td>
-                <td className="px-4 py-4 text-sm text-slate-600">
-                  {version.domain ?? '—'}
                 </td>
                 <td className="px-4 py-4 text-sm text-slate-700">
                   {typeof version.accuracy === 'number' ? `${(version.accuracy * 100).toFixed(1)}%` : '—'}
@@ -142,10 +139,7 @@ function ModelVersionsTable({ versions, activatingId, onActivate, servingDomain 
         right now.{' '}
         <span className="font-semibold text-slate-600">Active</span> — the
         database&apos;s record of which version should load. Activating sets the
-        flag and loads the weights in one step, so the two normally match.{' '}
-        A version from another <span className="font-semibold text-slate-600">domain</span>{' '}
-        is listed but cannot be activated here — the label set is fixed when
-        the process starts, so each domain is served by its own instance.
+        flag and loads the weights in one step, so the two normally match.
       </p>
     </div>
   )
