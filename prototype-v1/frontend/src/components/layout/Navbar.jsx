@@ -1,5 +1,6 @@
 import { useAuth } from '../../auth/AuthContext.jsx'
 import useDomain from '../../hooks/useDomain.js'
+import DomainSwitcher from './DomainSwitcher.jsx'
 
 const roleLabels = {
   admin: 'Admin',
@@ -22,6 +23,7 @@ function Navbar() {
       </div>
 
       <div className="flex items-center gap-4">
+        <DomainSwitcher />
         <div className="hidden rounded-full bg-indigo-100 px-4 py-2 text-sm font-medium text-indigo-700 sm:block">
           Role: {displayRole}
         </div>

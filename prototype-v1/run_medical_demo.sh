@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# run_medical_demo.sh — start a SECOND stack serving the medical domain.
+# run_medical_demo.sh — start ONLY the medical stack.
+#
+# You normally do not need this: ./run_local_demo.sh now starts both domains
+# and the header has a Legal / Medical switch. Kept for running medical alone.
 #
 # Runs alongside ./run_local_demo.sh rather than replacing it:
 #
@@ -59,7 +62,10 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 echo "[1/2] Starting MEDICAL backend on http://localhost:8001 ..."
+# In-memory, not the shared Supabase: see run_local_demo.sh for why two
+# workers must not poll one domain-less queue.
 (cd backend && ACTIVE_DOMAIN=medical MODEL_PATH=./models/MedicalModelShared \
+    SUPABASE_URL=https://placeholder.supabase.co SUPABASE_SERVICE_KEY=placeholder_key \
     RUN_WORKERS_IN_PROCESS=true venv/bin/python -m uvicorn main:app --port 8001) \
     > backend-medical.log 2>&1 &
 PIDS+=($!)

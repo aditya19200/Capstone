@@ -96,16 +96,22 @@ These numbers come from the real path — `pdf_extract.extract()` then
 depend on where chunk boundaries fall, so **if you regenerate or edit these
 PDFs, re-measure before quoting anything.**
 
-## What not to touch on the medical tab
+## How the medical tab is wired
 
-`predictions` carries a domain column (migration 007) and every query filters
-on it, so medical uploads stay out of the legal review queue. `model_versions`
-does **not** — one table, no domain column, one global single-active index.
+`./run_local_demo.sh` starts both domains; switch with the **Legal / Medical**
+toggle in the header. Each domain is its own backend process, because the label
+set (10 vs 12) is fixed when a process starts.
 
-So on `:5181`: use **Annotate, Review, Ontology**. Do not open **Admin**, whose
-version table shows the legal row, and never press **Retrain**, which would
-deactivate the legal baseline in the shared table and leave the legal backend
-trying to load medical weights on its next restart.
+The medical backend runs on an **in-memory store**, not the shared Supabase. The
+job queues (`claim_batch_items`, `claim_xai_job`, retrain jobs) record no
+domain, so two workers polling one database would claim each other's work — a
+legal upload classified by the medical model. Isolating the store makes that
+impossible without a schema change. Its consequences:
 
-Admin and Retrain belong on the legal tab. That split matches the demo anyway:
-legal does the CSV → review → retrain → compare story, medical does PDFs.
+- the medical tab's status strip reads **in-memory** for the database — true;
+- medical uploads disappear when the stack restarts;
+- Retrain on medical reports not eligible (no validated medical annotations),
+  and cannot touch the legal tables in any case.
+
+Neo4j stays shared: the graph is only read here, and every query filters by
+domain.

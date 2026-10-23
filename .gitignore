@@ -96,3 +96,6 @@ batch_worker.log
 # Downloaded reference corpora — not part of the repo. The curated demo
 # subset lives in sample-data/demo/pdfs/ instead.
 prototype-v1/pdfs/
+
+# Future-scope notes: kept locally, not published.
+prototype-v1/docs/FUTURE_SCOPE.md

@@ -150,6 +150,7 @@
    own class, so remapping .border-indigo-200 alone does not reach it. */
 .dark-theme .hover\:border-indigo-200:hover { border-color: #2e3460; }
 .dark-theme .text-indigo-600  { color: #939fff; }
+.dark-theme .hover\:text-indigo-600:hover { color: #939fff; }  /* domain switcher */
 .dark-theme .text-indigo-700  { color: #a7b0ff; }
 /* bg-indigo-600 (primary button) and border-indigo-400/500 (focus rings)
    already read correctly against a dark ground — left as-is. */

@@ -32,32 +32,70 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-echo "[1/2] Starting backend API on http://localhost:8000 (batch + explain workers run inside it) ..."
+DOMAIN_LINKS="legal=http://localhost:5180"
+MEDICAL=0
+if [ -d backend/models/MedicalModelShared ]; then
+    MEDICAL=1
+    DOMAIN_LINKS="legal=http://localhost:5180,medical=http://localhost:5181"
+fi
+
+# Wait until a backend reports its model loaded, then print its startup checks.
+wait_for() {
+    local port=$1 log=$2 name=$3
+    for i in $(seq 1 60); do
+        if curl -s "http://localhost:$port/health" 2>/dev/null | grep -q '"model_loaded":true'; then
+            echo "$name ready."
+            # Surface the startup checks that otherwise only appear in the log.
+            # Whether the ontology check loaded decides whether confidently-wrong
+            # predictions reach the review queue at all.
+            grep -h "^\[startup\]" "$log" 2>/dev/null | sed 's/^/  /'
+            return 0
+        fi
+        sleep 1
+    done
+    echo "WARNING: $name did not report a loaded model within 60s — see $log" >&2
+}
+
+echo "[1/3] Starting the LEGAL backend on http://localhost:8000 ..."
 # RUN_WORKERS_IN_PROCESS: once Supabase is connected the workers would
 # otherwise expect separate processes, which this script doesn't start —
 # uploads would sit at 0%. See config/settings.py. No effect on the mock.
 (cd backend && RUN_WORKERS_IN_PROCESS=true venv/bin/python -m uvicorn main:app --port 8000) > backend.log 2>&1 &
 PIDS+=($!)
 
-echo "Waiting for the model to load..."
-for i in $(seq 1 30); do
-    if curl -s http://localhost:8000/health 2>/dev/null | grep -q '"model_loaded":true'; then
-        echo "Backend ready."
-        # Surface the startup checks that otherwise only appear in backend.log.
-        # Whether the ontology check loaded decides whether confidently-wrong
-        # predictions reach the review queue at all, so it should not be
-        # something you have to go and grep for.
-        grep -h "^\[startup\]" backend.log 2>/dev/null | sed 's/^/  /'
-        break
-    fi
-    sleep 1
-done
+if [ "$MEDICAL" = 1 ]; then
+    echo "[2/3] Starting the MEDICAL backend on http://localhost:8001 (in-memory) ..."
+    # Its own in-memory store, NOT the shared Supabase. The job queues
+    # (claim_batch_items, claim_xai_job, retrain_jobs) carry no domain, so two
+    # workers polling one database would claim each other's work — a legal
+    # upload classified by the medical model, stamped medical, gone from the
+    # legal queue. A placeholder URL makes is_configured() False for this
+    # process only (environment beats backend/.env). Neo4j stays shared: the
+    # graph is read-only here and every query is already filtered by domain.
+    (cd backend && ACTIVE_DOMAIN=medical MODEL_PATH=./models/MedicalModelShared \
+        SUPABASE_URL=https://placeholder.supabase.co SUPABASE_SERVICE_KEY=placeholder_key \
+        RUN_WORKERS_IN_PROCESS=true venv/bin/python -m uvicorn main:app --port 8001) \
+        > backend-medical.log 2>&1 &
+    PIDS+=($!)
+fi
 
-echo "[2/2] Starting frontend on http://localhost:5180 ..."
+echo "Waiting for the models to load..."
+wait_for 8000 backend.log "Legal backend"
+[ "$MEDICAL" = 1 ] && wait_for 8001 backend-medical.log "Medical backend"
+
+echo "[3/3] Starting the frontend ..."
+if [ "$MEDICAL" = 1 ]; then
+    # VITE_* in the environment beats frontend/.env, so the same source tree
+    # serves both tabs, each pointed at its own backend.
+    (cd frontend && VITE_API_BASE_URL=http://localhost:8001 VITE_DOMAIN_LINKS="$DOMAIN_LINKS" \
+        npm run dev -- --port 5181 --strictPort) > frontend-medical.log 2>&1 &
+    PIDS+=($!)
+fi
 echo ""
 echo "=========================================="
 echo " Open this in your browser: http://localhost:5180"
+[ "$MEDICAL" = 1 ] && echo " Switch domains with the Legal / Medical toggle in the header."
 echo " Press Ctrl+C here to stop everything."
 echo "=========================================="
 echo ""
-(cd frontend && npm run dev -- --port 5180)
+(cd frontend && VITE_DOMAIN_LINKS="$DOMAIN_LINKS" npm run dev -- --port 5180 --strictPort)

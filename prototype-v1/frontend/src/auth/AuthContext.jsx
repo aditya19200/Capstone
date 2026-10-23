@@ -17,10 +17,43 @@ const parseJwtPayload = (token) => {
   }
 }
 
+// The header's domain switcher moves between two instances on different ports,
+// which are different origins, so nothing in this tab's memory reaches the
+// other. It passes the role along as ?as=<role> instead, and the receiving tab
+// starts signed in as it. Mock auth only — there is no credential here to leak.
+const SWITCHABLE_ROLES = ['annotator', 'reviewer', 'admin']
+
+function roleFromUrl() {
+  if (typeof window === 'undefined') return null
+  const as = new URLSearchParams(window.location.search).get('as')
+  return SWITCHABLE_ROLES.includes(as) ? as : null
+}
+
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(null)
-  const [role, setRole] = useState(null)
-  const [userId, setUserId] = useState(null)
+  const [carriedRole] = useState(() => {
+    const carried = roleFromUrl()
+    if (carried) {
+      // Synchronously, not in the effect below: React runs children's effects
+      // before a parent's, so the page we land on would otherwise send its
+      // first request before the role header exists and get a 403.
+      // Idempotent, so StrictMode calling this twice is harmless.
+      setAuthToken('mock.token.value')
+      setAuthRole(carried)
+      setAuthUserId('mock-user-1')
+    }
+    return carried
+  })
+  const [token, setToken] = useState(carriedRole ? 'mock.token.value' : null)
+  const [role, setRole] = useState(carriedRole)
+  const [userId, setUserId] = useState(carriedRole ? 'mock-user-1' : null)
+
+  // Drop ?as= once read, so a reload or a copied link does not re-assert it.
+  useEffect(() => {
+    if (!carriedRole) return
+    const url = new URL(window.location.href)
+    url.searchParams.delete('as')
+    window.history.replaceState(null, '', url.pathname + url.search + url.hash)
+  }, [carriedRole])
 
   // useCallback with an empty deps array — these only call the setState
   // setters (guaranteed stable by React), so they never need to change
