@@ -489,10 +489,14 @@ export async function getAdminMetrics() {
   return {
     f1_per_class: Object.fromEntries(LEGAL_LABELS.map((label) => [label, Number((0.6 + Math.random() * 0.35).toFixed(3))])),
     annotation_counts_by_status: { pending: 42, validated: 318, rejected: 12 },
-    serving_model_version: 'v1',
+    serving_model_version: 'Legal Baseline',
+    serving_domain: 'legal',
     model_versions: [
-      { version_id: 'v1', version_number: 'Baseline', accuracy: 0.748, trained_at: '2026-06-01T00:00:00Z', is_active: true, is_serving: true },
-      { version_id: 'v2-candidate', version_number: 'v-20260820-101500', accuracy: 0.762, trained_at: '2026-08-20T00:00:00Z', is_active: false, is_serving: false },
+      { version_id: 'v1', version_number: 'Legal Baseline', accuracy: 0.748, trained_at: '2026-06-01T00:00:00Z', is_active: true, is_serving: true, domain: 'legal' },
+      { version_id: 'v2-candidate', version_number: 'v-20260820-101500', accuracy: 0.762, trained_at: '2026-08-20T00:00:00Z', is_active: false, is_serving: false, domain: 'legal' },
+      // A second domain's checkpoint: listed, but not activatable from a
+      // process serving legal. Mirrors what the real table shows.
+      { version_id: 'v-medical', version_number: 'Medical Baseline', accuracy: 0.905, trained_at: '2026-10-20T00:00:00Z', is_active: false, is_serving: false, domain: 'medical' },
     ],
   }
 }

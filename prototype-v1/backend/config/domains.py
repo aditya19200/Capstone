@@ -253,3 +253,25 @@ def active_domain() -> Domain:
         key, ", ".join(sorted(reg)), fallback.key,
     )
     return fallback
+
+
+def domain_for_model_path(file_path: Optional[str]) -> Optional[str]:
+    """
+    Which domain's pack declares *file_path* as its model.
+
+    model_versions has no domain column (see the open threads in
+    PROJECT_GUIDE), and adding one needs a migration against a database the
+    person running this may not administer. The packs already record a
+    model_path each, and a checkpoint belongs to exactly one domain, so the
+    mapping is recoverable without touching the schema.
+
+    Returns None for a retrained version, whose path is models/v-<stamp>/ and
+    matches no pack — callers treat that as "the domain this process serves",
+    since retraining only ever produces versions of the active domain.
+    """
+    if not file_path:
+        return None
+    for key, domain in registry().items():
+        if domain.model_path and domain.model_path == file_path:
+            return key
+    return None

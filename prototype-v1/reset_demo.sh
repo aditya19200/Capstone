@@ -71,10 +71,16 @@ print("    versions listed       {}".format(len(v)))
 for row in v:
     flags = [n for n, on in (("serving", row.get("is_serving")),
                              ("active", row.get("is_active"))) if on]
-    print("      - {}  {}".format(row.get("version_number"),
-                                  ", ".join(flags) or "inactive"))
-if len(v) != 1:
-    print("    ^ expected exactly 1 (the baseline). Anything else is left over.")'
+    print("      - {:<18} {:<8} {}".format(row.get("version_number"),
+                                           row.get("domain") or "-",
+                                           ", ".join(flags) or "inactive"))
+# One baseline per installed domain is the clean state; anything else in the
+# list is a retrained version a rehearsal left behind. Counting baselines
+# rather than rows, because the number of domains is not fixed.
+leftovers = [r for r in v if "baseline" not in (r.get("version_number") or "").lower()]
+if leftovers:
+    print("    ^ {} retrained version(s) left over: {}".format(
+        len(leftovers), ", ".join(r.get("version_number") for r in leftovers)))'
 
 echo
 echo "Ready. annotations_validated should read 55, and one version should be"

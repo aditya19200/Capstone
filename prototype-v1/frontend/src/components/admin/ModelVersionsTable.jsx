@@ -11,7 +11,28 @@
 // back. A table showing only is_active reports a model that is answering
 // nothing — which is exactly how the baseline came to show "Inactive" while
 // serving every prediction on the screen behind it.
-function StatusBadges({ version }) {
+function StatusBadges({ version, servingDomain }) {
+  // A checkpoint from another domain pack is not inactive — it is served by a
+  // different instance. Saying "Inactive" would read as "switch it on here",
+  // which this process cannot do: its label set is fixed at startup.
+  const foreign = Boolean(
+    servingDomain && version.domain && version.domain !== servingDomain,
+  )
+  if (foreign) {
+    const badge = 'rounded-full px-3 py-1 text-xs font-semibold'
+    return (
+      <span
+        className={`${badge} bg-slate-100 text-slate-600`}
+        title={`Served by the ${version.domain} instance. This process serves ${servingDomain} and cannot load another domain's label set.`}
+      >
+        {version.domain} instance
+      </span>
+    )
+  }
+  return _ownDomainBadges({ version })
+}
+
+function _ownDomainBadges({ version }) {
   const badge = 'rounded-full px-3 py-1 text-xs font-semibold'
   return (
     <div className="flex flex-wrap items-center gap-1.5">
@@ -41,7 +62,7 @@ function StatusBadges({ version }) {
   )
 }
 
-function ModelVersionsTable({ versions, activatingId, onActivate }) {
+function ModelVersionsTable({ versions, activatingId, onActivate, servingDomain }) {
   return (
     <div className="dashboard-card">
       <div className="border-b border-slate-200 pb-5">
@@ -53,7 +74,7 @@ function ModelVersionsTable({ versions, activatingId, onActivate }) {
         <table className="min-w-full divide-y divide-slate-200">
           <thead className="bg-slate-100">
             <tr>
-              {['Version', 'Accuracy', 'Trained', 'Status', ''].map((heading) => (
+              {['Version', 'Domain', 'Accuracy', 'Trained', 'Status', ''].map((heading) => (
                 <th
                   key={heading}
                   scope="col"
@@ -72,6 +93,9 @@ function ModelVersionsTable({ versions, activatingId, onActivate }) {
                       version_id is the uuid the activate endpoint matches on. */}
                   {version.version_number ?? version.version_id}
                 </td>
+                <td className="px-4 py-4 text-sm text-slate-600">
+                  {version.domain ?? '—'}
+                </td>
                 <td className="px-4 py-4 text-sm text-slate-700">
                   {typeof version.accuracy === 'number' ? `${(version.accuracy * 100).toFixed(1)}%` : '—'}
                 </td>
@@ -79,13 +103,28 @@ function ModelVersionsTable({ versions, activatingId, onActivate }) {
                   {new Date(version.trained_at).toLocaleDateString()}
                 </td>
                 <td className="px-4 py-4">
-                  <StatusBadges version={version} />
+                  <StatusBadges version={version} servingDomain={servingDomain} />
                 </td>
                 <td className="px-4 py-4 text-right">
                   <button
                     type="button"
                     className="btn-secondary"
-                    disabled={version.is_active || activatingId === version.version_id}
+                    disabled={
+                      version.is_active ||
+                      activatingId === version.version_id ||
+                      Boolean(
+                        servingDomain &&
+                          version.domain &&
+                          version.domain !== servingDomain,
+                      )
+                    }
+                    title={
+                      servingDomain &&
+                      version.domain &&
+                      version.domain !== servingDomain
+                        ? `Run the ${version.domain} instance to serve this version. The label set is bound when the process starts.`
+                        : undefined
+                    }
                     onClick={() => onActivate(version)}
                   >
                     {activatingId === version.version_id ? 'Activating...' : 'Activate'}
@@ -103,7 +142,10 @@ function ModelVersionsTable({ versions, activatingId, onActivate }) {
         right now.{' '}
         <span className="font-semibold text-slate-600">Active</span> — the
         database&apos;s record of which version should load. Activating sets the
-        flag and loads the weights in one step, so the two normally match.
+        flag and loads the weights in one step, so the two normally match.{' '}
+        A version from another <span className="font-semibold text-slate-600">domain</span>{' '}
+        is listed but cannot be activated here — the label set is fixed when
+        the process starts, so each domain is served by its own instance.
       </p>
     </div>
   )

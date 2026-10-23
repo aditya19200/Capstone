@@ -156,9 +156,17 @@ async def get_admin_metrics(
     # express either, so it reports a model that is not answering anything.
     served_path = model_service.loaded_path
 
+    # Which domain each checkpoint belongs to, recovered from its path rather
+    # than a column: model_versions has none, and adding one needs a migration
+    # against a database the operator may not administer. See
+    # config.domains.domain_for_model_path.
+    from config.domains import active_domain, domain_for_model_path
+    serving_domain = active_domain().key
+
     return AdminMetricsResponse(
         active_model_version=active_model["version_number"] if active_model else None,
         serving_model_version=model_service.loaded_version,
+        serving_domain=serving_domain,
         f1_per_class=active_model["f1_per_class"] if active_model else {},
         annotation_counts=annotation_counts,
         model_versions=[
@@ -168,6 +176,9 @@ async def get_admin_metrics(
                 accuracy=v["accuracy"],
                 is_active=v.get("is_active", False),
                 trained_at=v["trained_at"],
+                # A retrained version matches no pack; it is always a version
+                # of whichever domain produced it, which is this one.
+                domain=domain_for_model_path(v.get("file_path")) or serving_domain,
                 is_serving=bool(served_path) and v.get("file_path") == served_path,
             )
             for v in all_versions

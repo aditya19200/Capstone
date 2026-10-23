@@ -1,5 +1,5 @@
 {
-  "version_number": "Baseline (Medical)",
+  "version_number": "Medical Baseline",
   "domain": "medical",
   "accuracy": 0.9048,
   "accuracy_before_training": 0.0696,

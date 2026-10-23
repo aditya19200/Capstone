@@ -126,6 +126,7 @@ function AdminPage() {
             versions={metrics.model_versions}
             activatingId={activatingId}
             onActivate={handleActivate}
+            servingDomain={metrics.serving_domain}
           />
 
           <DatasetExportCard />

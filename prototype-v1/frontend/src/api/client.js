@@ -329,6 +329,10 @@ export async function getAdminMetrics() {
       // showing only the flag makes the table claim a model is in use when
       // the restart that would load it has not happened.
       is_serving: v.is_serving ?? false,
+      // Which domain pack this checkpoint belongs to. Compared against
+      // serving_domain below to decide whether Activate can do anything:
+      // a process serving 10 labels cannot load a 12-label checkpoint.
+      domain: v.domain ?? null,
       trained_at: v.trained_at,
     })),
   }

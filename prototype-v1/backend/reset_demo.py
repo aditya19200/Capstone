@@ -60,7 +60,7 @@ PLAN = [
     ("predictions", "every prediction (cascades annotations and xai_jobs)",
      "created_at", None),
     ("model_versions", "retrained versions, keeping the baseline row",
-     "trained_at", ("version_number", "baseline*")),   # see the delete loop
+     "trained_at", ("version_number", "*baseline*")),  # see the delete loop
     ("dataset_versions", "every dataset version", "created_at", None),
 ]
 
@@ -132,6 +132,12 @@ def main() -> int:
                 #   case-sensitive "baseline..." would miss it. That failure
                 #   is silent and backwards: it deletes the one row this is
                 #   here to protect.
+                #
+                #   "*baseline*", not "baseline*" -- the rows are named
+                #   "Legal Baseline" and "Medical Baseline", so an anchored
+                #   prefix match finds neither and deletes both. Same failure
+                #   mode as the case-sensitivity one above: silent, and
+                #   backwards.
                 #
                 #   "*", not "%" -- PostgREST's wildcard is "*". A literal "%"
                 #   goes into the query string as the start of a percent

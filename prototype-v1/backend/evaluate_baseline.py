@@ -160,10 +160,12 @@ def main():
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     OUT_FILE.write_text(json.dumps({
-        # Shown in the admin version table and on /health. "Baseline" is
-        # what it means; "baseline-LegalModelShared" was the name of a
-        # directory, which is nobody's business but this script's.
-        "version_number": "Baseline",
+        # Shown in the admin version table and on /health. Named after the
+        # domain, because the table now lists a baseline per domain and two
+        # rows both called "Baseline" are no use to anyone reading it.
+        # "baseline-LegalModelShared" was a directory name, which is nobody's
+        # business but this script's.
+        "version_number": f"{_active_domain().key.capitalize()} Baseline",
         "evaluated_at": datetime.now(timezone.utc).isoformat(),
         "model_path": settings.MODEL_PATH,
         "dataset": "datasets/v1.csv",

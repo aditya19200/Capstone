@@ -372,6 +372,14 @@ class ModelVersionSummary(BaseModel):
     accuracy: float
     is_active: bool
     trained_at: str
+    domain: Optional[str] = Field(
+        default=None,
+        description=(
+            "Which domain pack declares this checkpoint, resolved from its "
+            "file_path. None for a retrained version, whose path matches no "
+            "pack — those always belong to the domain that produced them."
+        ),
+    )
     is_serving: bool = Field(
         default=False,
         description=(
@@ -397,6 +405,16 @@ class AdminMetricsResponse(BaseModel):
             "version_number of the weights this process actually has loaded. "
             "Read from the model service rather than the database, so it is "
             "what predictions are really coming from."
+        ),
+    )
+    serving_domain: Optional[str] = Field(
+        default=None,
+        description=(
+            "The domain this process serves. A version whose domain differs "
+            "cannot be activated here: the label set is bound when the "
+            "process starts, so a 10-label process cannot load 12-label "
+            "weights. That version is served by the instance running its "
+            "domain."
         ),
     )
     f1_per_class: Dict[str, float] = Field(default_factory=dict)
