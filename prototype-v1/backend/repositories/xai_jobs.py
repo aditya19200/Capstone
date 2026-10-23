@@ -7,7 +7,9 @@ sweep_stuck() mirrors the same logic as batch_items.sweep_stuck().
 
 from typing import Dict, List, Optional
 
-from repositories._client import get_client, is_configured
+from repositories._client import (
+    current_domain, domain_queues_available, get_client, is_configured,
+)
 
 
 def insert(prediction_id: str) -> Dict:
@@ -97,7 +99,11 @@ def claim() -> Optional[Dict]:
         mock_db.update_xai_job(job_id=job["id"], status="processing")
         return mock_db.get_xai_job(job["id"])
 
-    result = get_client().rpc("claim_xai_job", {}).execute()
+    # Domain-scoped after migration 010, for the same reason as batch claims.
+    if domain_queues_available():
+        result = get_client().rpc("claim_xai_job_for", {"d": current_domain()}).execute()
+    else:
+        result = get_client().rpc("claim_xai_job", {}).execute()
     data = result.data
     if not data:
         return None

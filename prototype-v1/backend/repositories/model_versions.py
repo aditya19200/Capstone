@@ -14,7 +14,9 @@ transaction (see docs/MIGRATION_activate_model_version.md).
 import logging
 from typing import Dict, List, Optional
 
-from repositories._client import get_client, is_configured
+from repositories._client import (
+    current_domain, domain_queues_available, get_client, is_configured,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -33,14 +35,12 @@ def get_active() -> Optional[Dict]:
         from services import mock_db
         return mock_db.get_active_model_version()
 
-    result = (
-        get_client()
-        .table("model_versions")
-        .select("*")
-        .eq("is_active", True)
-        .limit(1)
-        .execute()
-    )
+    query = get_client().table("model_versions").select("*").eq("is_active", True)
+    # After 010 each domain has its own active version, so "the active one" is
+    # this domain's. Before it, the flag is global and this is unchanged.
+    if domain_queues_available():
+        query = query.eq("domain", current_domain())
+    result = query.limit(1).execute()
     return result.data[0] if result.data else None
 
 
@@ -50,6 +50,7 @@ def insert(
     f1_per_class: Dict[str, float],
     file_path: str,
     dataset_version_id: Optional[str] = None,
+    domain: Optional[str] = None,
 ) -> Dict:
     """
     Record a newly trained model version.
@@ -68,14 +69,19 @@ def insert(
             is_active=False,
         )
 
-    result = get_client().table("model_versions").insert({
+    row = {
         "version_number": version_number,
         "accuracy": accuracy,
         "f1_per_class": f1_per_class,
         "file_path": file_path,
         "dataset_version_id": dataset_version_id,
         "is_active": False,
-    }).execute()
+    }
+    # Explicit for the baselines, which one process registers for every
+    # domain; a retrained version belongs to whoever trained it.
+    if domain_queues_available():
+        row["domain"] = domain or current_domain()
+    result = get_client().table("model_versions").insert(row).execute()
     return result.data[0]
 
 
@@ -112,6 +118,17 @@ def set_active(version_id: str) -> Optional[Dict]:
         return mock_db.set_active_model_version(version_id)
 
     client = get_client()
+
+    # After 010: one statement, scoped to the target's own domain, with WHERE
+    # clauses throughout -- so activating a medical version no longer
+    # de-activates the legal one, and the 003 unfiltered-UPDATE failure that
+    # needed the fallback below does not arise.
+    if domain_queues_available():
+        result = client.rpc(
+            "activate_model_version_for", {"target_id": version_id}
+        ).execute()
+        return result.data[0] if result.data else None
+
     try:
         result = client.rpc(
             "activate_model_version", {"target_id": version_id}

@@ -102,7 +102,8 @@ PDFs, re-measure before quoting anything.**
 toggle in the header. Each domain is its own backend process, because the label
 set (10 vs 12) is fixed when a process starts.
 
-The medical backend runs on an **in-memory store**, not the shared Supabase. The
+**Until migration 010 is applied**, the medical backend runs on an
+**in-memory store**, not the shared Supabase. The
 job queues (`claim_batch_items`, `claim_xai_job`, retrain jobs) record no
 domain, so two workers polling one database would claim each other's work — a
 legal upload classified by the medical model. Isolating the store makes that
@@ -115,3 +116,9 @@ impossible without a schema change. Its consequences:
 
 Neo4j stays shared: the graph is only read here, and every query filters by
 domain.
+
+**After migration 010** (`db/migrations/010_domain_on_job_queues.sql`, pasted
+into the Supabase SQL editor), the launcher detects it and puts medical on
+Supabase too: each upload, explanation and retrain job carries its domain, each
+worker claims only its own, and each domain keeps its own active version.
+`check_data_layer.py` reports which state you are in.

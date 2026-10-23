@@ -46,3 +46,36 @@ def current_domain() -> str:
     """
     from config.domains import active_domain
     return active_domain().key
+
+
+_domain_queues: Optional[bool] = None
+
+
+def domain_queues_available() -> bool:
+    """
+    Whether migration 010 has been applied: a domain on batches, retrain_jobs
+    and model_versions, and the domain-scoped claim / activate functions.
+
+    Every repository that touches a job queue or the active-version flag asks
+    this first. Before 010 the answer is False and each one behaves exactly as
+    it always has, which is safe for one domain per database and is why the
+    medical instance is kept in memory until then. After 010 the answer is
+    True and each one scopes itself to current_domain(), so two domains can
+    share Supabase without claiming each other's work.
+
+    Probed once per process by selecting the new column; a missing column is
+    a PostgREST error, not an empty result. Mock mode answers False: the
+    in-memory store belongs to one process and so to one domain already.
+    """
+    global _domain_queues
+    if _domain_queues is not None:
+        return _domain_queues
+    if not is_configured():
+        _domain_queues = False
+        return _domain_queues
+    try:
+        get_client().table("batches").select("domain").limit(1).execute()
+        _domain_queues = True
+    except Exception:
+        _domain_queues = False
+    return _domain_queues

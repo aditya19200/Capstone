@@ -77,8 +77,15 @@ def register_baseline_if_absent() -> None:
         logger.exception("[baseline] could not read existing model versions")
         return
 
+    from repositories._client import domain_queues_available
+    per_domain = domain_queues_available()
+
     known_paths = {v.get("file_path") for v in existing}
-    something_active = any(v.get("is_active") for v in existing)
+    # Before migration 010 there is one active flag for the whole table, so
+    # only the domain this process serves may take it, and only if it is free.
+    # After 010 each domain has its own, so every domain's baseline can hold it.
+    active_domains = {v.get("domain") for v in existing if v.get("is_active")}
+    something_active = bool(active_domains)
     active_key = active_domain().key
 
     for key in sorted(registry()):
@@ -113,6 +120,7 @@ def register_baseline_if_absent() -> None:
                 accuracy=metrics["accuracy"],
                 f1_per_class=metrics["f1_per_class"],
                 file_path=metrics["model_path"],
+                domain=key,
             )
             known_paths.add(metrics["model_path"])
             logger.info(
@@ -124,10 +132,13 @@ def register_baseline_if_absent() -> None:
             logger.exception("[baseline] failed to register domain %r", key)
             continue
 
-        if key == active_key and not something_active:
+        may_activate = (key not in active_domains) if per_domain else (
+            key == active_key and not something_active)
+        if may_activate:
             try:
                 model_versions_repo.set_active(row["id"])
                 something_active = True
+                active_domains.add(key)
             except Exception:
                 logger.exception(
                     "[baseline] registered '%s' but could not mark it active; "
@@ -201,11 +212,19 @@ def reconcile_served_version(served_path: str) -> Optional[str]:
     if served.get("is_active"):
         return served["version_number"]
 
-    if any(v.get("is_active") for v in versions):
+    from repositories._client import domain_queues_available
+    from config.domains import domain_for_model_path
+    if domain_queues_available():
+        mine = served.get("domain") or domain_for_model_path(served.get("file_path"))
+        rivals = [v for v in versions if v.get("is_active")
+                  and (v.get("domain") or domain_for_model_path(v.get("file_path"))) == mine]
+    else:
+        rivals = [v for v in versions if v.get("is_active")]
+    if rivals:
         # Something else is flagged active while different weights are loaded.
         # Startup already tried to honour the flag and evidently could not, so
         # say so rather than overwriting a deliberate choice.
-        flagged = next(v["version_number"] for v in versions if v.get("is_active"))
+        flagged = rivals[0]["version_number"]
         logger.warning(
             "[baseline] '%s' is flagged active but '%s' is what loaded. The "
             "admin table will show the difference.", flagged,

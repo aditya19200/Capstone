@@ -7,7 +7,9 @@ sweep_stuck() resets rows that have been in 'processing' too long.
 
 from typing import Dict, List, Optional
 
-from repositories._client import get_client, is_configured
+from repositories._client import (
+    current_domain, domain_queues_available, get_client, is_configured,
+)
 
 
 def insert_many(batch_id: str, texts: List[str]) -> List[Dict]:
@@ -133,7 +135,15 @@ def claim(n: int) -> List[Dict]:
         from services import mock_db
         return mock_db.claim_batch_items(n)
 
-    result = get_client().rpc("claim_batch_items", {"n": n}).execute()
+    # After migration 010, claim only this domain's items: with two backends
+    # on one database the plain claim hands a legal upload to the medical
+    # worker. See _client.domain_queues_available().
+    if domain_queues_available():
+        result = get_client().rpc(
+            "claim_batch_items_for", {"n": n, "d": current_domain()}
+        ).execute()
+    else:
+        result = get_client().rpc("claim_batch_items", {"n": n}).execute()
     return result.data or []
 
 

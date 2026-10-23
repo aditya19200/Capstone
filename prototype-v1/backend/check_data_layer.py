@@ -83,6 +83,18 @@ def check_supabase():
     except Exception as exc:
         report(FAIL, f"retrain_jobs columns missing — run 008_app_schema_gaps.sql ({_short(exc)})")
 
+    # 010 is optional: without it the medical instance runs in memory, which
+    # is safe. With it, both domains share this database. Reported, not failed.
+    try:
+        client.table("batches").select("domain").limit(1).execute()
+        client.rpc("claim_batch_items_for", {"n": 0, "d": "legal"}).execute()
+        report(OK, "domain on the job queues (migration 010 ran) — medical can share Supabase")
+    except Exception:
+        # print, not report(SKIP): the summary counts SKIPs as "this database
+        # is on the mock", and Supabase is live either way.
+        print(f"{SKIP} migration 010 not applied — the medical instance will run in memory. "
+              "To share Supabase: run db/migrations/010_domain_on_job_queues.sql")
+
     for rpc, params in [("claim_batch_items", {"n": 0})]:
         try:
             client.rpc(rpc, params).execute()

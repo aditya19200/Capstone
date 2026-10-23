@@ -64,16 +64,21 @@ echo "[1/3] Starting the LEGAL backend on http://localhost:8000 ..."
 PIDS+=($!)
 
 if [ "$MEDICAL" = 1 ]; then
-    echo "[2/3] Starting the MEDICAL backend on http://localhost:8001 (in-memory) ..."
-    # Its own in-memory store, NOT the shared Supabase. The job queues
-    # (claim_batch_items, claim_xai_job, retrain_jobs) carry no domain, so two
-    # workers polling one database would claim each other's work — a legal
-    # upload classified by the medical model, stamped medical, gone from the
-    # legal queue. A placeholder URL makes is_configured() False for this
-    # process only (environment beats backend/.env). Neo4j stays shared: the
-    # graph is read-only here and every query is already filtered by domain.
-    (cd backend && ACTIVE_DOMAIN=medical MODEL_PATH=./models/MedicalModelShared \
-        SUPABASE_URL=https://placeholder.supabase.co SUPABASE_SERVICE_KEY=placeholder_key \
+    # Medical shares Supabase only once migration 010 is applied. Before it,
+    # the job queues (batches, xai_jobs, retrain_jobs) carry no domain and two
+    # workers polling one database would claim each other's work, so medical
+    # gets its own in-memory store instead. The check is the same one the
+    # repositories use, so the launcher and the code cannot disagree.
+    if (cd backend && venv/bin/python -c "import sys; sys.path.insert(0, '.'); \
+from repositories._client import domain_queues_available as ok; sys.exit(0 if ok() else 1)") \
+        >/dev/null 2>&1; then
+        echo "[2/3] Starting the MEDICAL backend on http://localhost:8001 (Supabase, migration 010 present) ..."
+        MEDICAL_DB=()
+    else
+        echo "[2/3] Starting the MEDICAL backend on http://localhost:8001 (in-memory: migration 010 not applied) ..."
+        MEDICAL_DB=(SUPABASE_URL=https://placeholder.supabase.co SUPABASE_SERVICE_KEY=placeholder_key)
+    fi
+    (cd backend && env "${MEDICAL_DB[@]}" ACTIVE_DOMAIN=medical MODEL_PATH=./models/MedicalModelShared \
         RUN_WORKERS_IN_PROCESS=true venv/bin/python -m uvicorn main:app --port 8001) \
         > backend-medical.log 2>&1 &
     PIDS+=($!)

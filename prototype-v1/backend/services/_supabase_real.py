@@ -276,12 +276,17 @@ def get_pending_xai_jobs() -> List[Dict]:
 # ===========================================================================
 
 def enqueue_retrain_job(triggered_by=None, notes=None, min_annotations=None) -> Dict:
-    result = get_client().table("retrain_jobs").insert({
+    from repositories._client import current_domain, domain_queues_available
+    row = {
         "status": "pending",
         "triggered_by": triggered_by,
         "notes": notes,
         "min_annotations": min_annotations,
-    }).execute()
+    }
+    # After 010, so each domain's retrain worker picks up only its own job.
+    if domain_queues_available():
+        row["domain"] = current_domain()
+    result = get_client().table("retrain_jobs").insert(row).execute()
     return result.data[0]
 
 
@@ -291,14 +296,13 @@ def get_retrain_job(job_id: str) -> Optional[Dict]:
 
 
 def get_latest_retrain_job() -> Optional[Dict]:
-    result = (
-        get_client()
-        .table("retrain_jobs")
-        .select("*")
-        .order("triggered_at", desc=True)
-        .limit(1)
-        .execute()
-    )
+    from repositories._client import current_domain, domain_queues_available
+    query = get_client().table("retrain_jobs").select("*")
+    # "The latest job" is this domain's latest job once two domains share
+    # the table (010); otherwise a medical worker would run a legal retrain.
+    if domain_queues_available():
+        query = query.eq("domain", current_domain())
+    result = query.order("triggered_at", desc=True).limit(1).execute()
     return result.data[0] if result.data else None
 
 

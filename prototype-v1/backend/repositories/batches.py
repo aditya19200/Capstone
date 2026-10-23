@@ -4,7 +4,9 @@ repositories/batches.py — CRUD for the batches table.
 
 from typing import Dict, List, Literal, Optional
 
-from repositories._client import get_client, is_configured
+from repositories._client import (
+    current_domain, domain_queues_available, get_client, is_configured,
+)
 
 BatchSource = Literal["paste", "csv", "pdf"]
 BatchStatus = Literal["pending", "processing", "done", "failed"]
@@ -22,13 +24,17 @@ def insert(
             source=source, total_items=total_items, filename=filename
         )
 
-    result = get_client().table("batches").insert({
+    row = {
         "source": source,
         "filename": filename,
         "status": "pending",
         "total_items": total_items,
         "completed_items": 0,
-    }).execute()
+    }
+    # The domain is what lets a worker claim only its own uploads (010).
+    if domain_queues_available():
+        row["domain"] = current_domain()
+    result = get_client().table("batches").insert(row).execute()
     return result.data[0]
 
 
@@ -84,6 +90,8 @@ def list_all(limit: Optional[int] = None) -> List[Dict]:
         return mock_db.list_batches(limit=limit)
 
     query = get_client().table("batches").select("*").order("created_at", desc=True)
+    if domain_queues_available():
+        query = query.eq("domain", current_domain())
     if limit is not None:
         query = query.limit(limit)
     result = query.execute()

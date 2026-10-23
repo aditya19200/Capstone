@@ -94,7 +94,7 @@ async def activate_model_version(
     # person nothing. Refuse before the flip, so is_active is never moved to
     # a version this process could not possibly load.
     from config.domains import active_domain, domain_for_model_path
-    row_domain = domain_for_model_path(row.get("file_path"))
+    row_domain = row.get("domain") or domain_for_model_path(row.get("file_path"))
     serving = active_domain().key
     if row_domain and row_domain != serving:
         if previous and previous["id"] != version_id:
@@ -203,7 +203,9 @@ async def get_admin_metrics(
                 trained_at=v["trained_at"],
                 # A retrained version matches no pack; it is always a version
                 # of whichever domain produced it, which is this one.
-                domain=domain_for_model_path(v.get("file_path")) or serving_domain,
+                # The column once migration 010 adds it; until then the path.
+                domain=(v.get("domain") or domain_for_model_path(v.get("file_path"))
+                        or serving_domain),
                 is_serving=bool(served_path) and v.get("file_path") == served_path,
             )
             for v in all_versions

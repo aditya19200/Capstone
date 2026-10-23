@@ -62,10 +62,15 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 echo "[1/2] Starting MEDICAL backend on http://localhost:8001 ..."
-# In-memory, not the shared Supabase: see run_local_demo.sh for why two
-# workers must not poll one domain-less queue.
-(cd backend && ACTIVE_DOMAIN=medical MODEL_PATH=./models/MedicalModelShared \
-    SUPABASE_URL=https://placeholder.supabase.co SUPABASE_SERVICE_KEY=placeholder_key \
+# Shared Supabase only once migration 010 is applied; in memory before it.
+# See run_local_demo.sh for why.
+MEDICAL_DB=(SUPABASE_URL=https://placeholder.supabase.co SUPABASE_SERVICE_KEY=placeholder_key)
+if (cd backend && venv/bin/python -c "import sys; sys.path.insert(0, '.'); \
+from repositories._client import domain_queues_available as ok; sys.exit(0 if ok() else 1)") \
+    >/dev/null 2>&1; then
+    MEDICAL_DB=()
+fi
+(cd backend && env "${MEDICAL_DB[@]}" ACTIVE_DOMAIN=medical MODEL_PATH=./models/MedicalModelShared \
     RUN_WORKERS_IN_PROCESS=true venv/bin/python -m uvicorn main:app --port 8001) \
     > backend-medical.log 2>&1 &
 PIDS+=($!)
