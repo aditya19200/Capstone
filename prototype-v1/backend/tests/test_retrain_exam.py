@@ -179,3 +179,29 @@ class TestAdminTableShowsTheComparison:
         assert rows["v-20261024-101500"]["parent_accuracy"] == 0.7089
         assert rows["v-20261024-101500"]["exam_rows"] == 1697
         assert rows["Legal Baseline"]["parent_accuracy"] is None
+
+
+class TestInterruptedJob:
+    """A job a dead worker left 'running' must not block every later run."""
+
+    def _run(self, monkeypatch, job):
+        updates = []
+        monkeypatch.setattr(retrain_worker, "get_latest_retrain_job", lambda: job)
+        monkeypatch.setattr(retrain_worker, "update_retrain_job",
+                            lambda **kw: updates.append(kw))
+        retrain_worker.fail_interrupted_job()
+        return updates
+
+    def test_marks_a_running_job_failed(self, monkeypatch):
+        updates = self._run(monkeypatch, {"id": "j1", "status": "running"})
+        assert [(u["job_id"], u["status"]) for u in updates] == [("j1", "failed")]
+
+    @pytest.mark.parametrize("status", ["pending", "complete", "failed"])
+    def test_leaves_any_other_job_alone(self, monkeypatch, status):
+        assert self._run(monkeypatch, {"id": "j1", "status": status}) == []
+
+    def test_survives_the_database_being_unreachable(self, monkeypatch):
+        def down():
+            raise ConnectionError("name resolution")
+        monkeypatch.setattr(retrain_worker, "get_latest_retrain_job", down)
+        retrain_worker.fail_interrupted_job()   # logs, does not raise

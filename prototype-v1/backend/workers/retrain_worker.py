@@ -48,6 +48,7 @@ from services.supabase_service import (
     list_annotations,
     update_retrain_job,
 )
+from repositories import predictions as predictions_repo
 from utils.text import normalize
 
 # ---------------------------------------------------------------------------
@@ -65,7 +66,7 @@ logger = logging.getLogger(__name__)
 # Config
 # ---------------------------------------------------------------------------
 
-POLL_INTERVAL_SECONDS = 30      # retraining is rare and slow; poll infrequently
+POLL_INTERVAL_SECONDS = 5       # a demo clicks Retrain and watches; one cheap query per poll
 MIN_ANNOTATIONS_DEFAULT = 50    # fallback if the job row doesn't carry
                                  # min_annotations — the real Postgres schema
                                  # doesn't have that column yet, only mock_db does
@@ -120,8 +121,15 @@ def build_training_data() -> Tuple[List[str], List[str]]:
     labels: List[str] = []
     skipped = 0
 
+    # One read for every prediction rather than one per annotation. Against
+    # the hosted database each round trip is ~0.4 s, and 81 of them were over
+    # half of what a retrain spent before training anything (24 Oct). The
+    # bulk read is capped at the API's page size, so anything it missed is
+    # still fetched on its own.
+    by_id = {p["id"]: p for p in predictions_repo.list_all()}
+
     for ann in annotations:
-        pred = get_prediction(ann["prediction_id"])
+        pred = by_id.get(ann["prediction_id"]) or get_prediction(ann["prediction_id"])
         if pred is None:
             skipped += 1
             continue
@@ -472,8 +480,29 @@ def process_retrain_job(job: Dict) -> None:
 # Main poll loop
 # ---------------------------------------------------------------------------
 
+def fail_interrupted_job() -> None:
+    """
+    Mark failed a job this worker left 'running' when it died.
+
+    One retrain worker runs per process, so a job still 'running' when it
+    starts belongs to a run that is gone. On 24 Oct a network drop failed the
+    job's final write and its 'failed' write alike, and the job sat 'running'
+    for good: the Retrain page waited on it, and POST /retrain refused every
+    new run behind it.
+    """
+    try:
+        job = get_latest_retrain_job()
+        if job and job["status"] == "running":
+            update_retrain_job(job_id=job["id"], status="failed", completed_at=_now_iso())
+            logger.warning("Retrain job %s was left running by a worker that "
+                           "stopped; marked failed so a new run can start.", job["id"])
+    except Exception:
+        logger.exception("Could not check for an interrupted retrain job")
+
+
 def main() -> None:
     logger.info("retrain_worker started. Polling every %ds.", POLL_INTERVAL_SECONDS)
+    fail_interrupted_job()
     while True:
         job = get_pending_retrain_job()
         if job:
