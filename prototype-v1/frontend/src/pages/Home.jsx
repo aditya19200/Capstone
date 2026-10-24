@@ -58,6 +58,15 @@ const ROLES = [
   },
 ]
 
+// Alphabetical. Two SRNs still to come — "___" marks the missing digits.
+const TEAM = [
+  { name: 'Ankush Gowda K R', srn: 'PES2UG23CS078' },
+  { name: 'Arjun S Kannur', srn: 'PES2UG23CS090' },
+  { name: 'Bidisha Paul', srn: 'PES2UG23CS___' },
+  { name: 'Rentala Shiva Naga Aditya', srn: 'PES2UG23CS___' },
+]
+const GUIDE = 'Prof. Kavitha L'
+
 function StatusDot({ ok }) {
   return (
     <span
@@ -166,7 +175,7 @@ function HomePage() {
           <div className="mb-6 flex justify-end">
             <DomainSwitcher />
           </div>
-          <p className="section-kicker">Capstone Project</p>
+          <p className="section-kicker">Team 100 · Capstone Project · PES University</p>
           <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
             XAI-Enabled Knowledge Graph-Driven Annotation Framework
           </h1>
@@ -241,6 +250,23 @@ function HomePage() {
               </li>
             ))}
           </ol>
+        </section>
+
+        <section className="mt-14">
+          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+            Team 100
+          </h2>
+          <p className="mt-2 text-sm text-slate-500">Guide: {GUIDE}</p>
+          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {TEAM.map((member) => (
+              <li key={member.name} className="dashboard-card">
+                <h3 className="text-base font-semibold text-slate-900">
+                  {member.name}
+                </h3>
+                <p className="mt-2 font-mono text-sm text-slate-500">{member.srn}</p>
+              </li>
+            ))}
+          </ul>
         </section>
 
       </div>
