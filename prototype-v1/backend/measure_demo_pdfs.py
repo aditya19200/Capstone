@@ -68,14 +68,20 @@ def main():
         # Review queue lists: under REVIEW_THRESHOLD, plus ontology flags.
         middle = sum(settings.CONFIDENCE_LOW <= p["confidence"] < bar for p in preds)
         low = sum(p["confidence"] < settings.CONFIDENCE_LOW for p in preds)
-        queue = sum(p["confidence"] < settings.REVIEW_THRESHOLD for p in preds)
+        # Counted as routers/queue.py builds it: under the threshold, or at or
+        # above it with an ontology conflict — not only the auto-accepted ones.
+        queue = sum(
+            p["confidence"] < settings.REVIEW_THRESHOLD
+            or ontology_check.check(t, p["predicted_label"]) is not None
+            for t, p in zip(texts, preds)
+        )
         print(f"{name}: {result.page_count} pages -> {len(texts)} docs | "
               f"accuracy {right}/{len(texts)} = {right / len(texts):.1%} | "
               f"avg conf {sum(p['confidence'] for p in preds) / len(preds):.3f}")
         print(f"   auto-accepted {len(accepted)} (wrong among them "
               f"{sum(p['predicted_label'] != gold for _, p in accepted)}) | "
               f"needs explanation {middle} | routed to a reviewer {low} | "
-              f"in the Review queue {queue} on confidence + flags below")
+              f"in the Review queue {queue}")
         print(f"   ontology flags {len(flags)}: {caught} catch a wrong label, "
               f"{false_pos} on a correct one")
         for p, c in flags:

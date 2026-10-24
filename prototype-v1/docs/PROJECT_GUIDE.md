@@ -217,7 +217,7 @@ Measured: 0 firings in 214 predictions, minimum observed margin 0.7428.
 
 ```python
 for r in predictions_repo.list_all():
-    if r["confidence"] < REVIEW_THRESHOLD:        # 0.5
+    if r["confidence"] < REVIEW_THRESHOLD:        # 0.55
         all_rows.append((r, "low_confidence", None))
         continue
     conflict = ontology_check.check(r["text_content"], r["predicted_label"])
@@ -822,8 +822,9 @@ would never surface, so recall still matters — per class, not per document.
 **Admin → Retrain → Activate**, then **upload `2-probe-set.csv` again**, then
 **Admin → Compare → pick the two probe batches.**
 
-Seven or eight of the eight flip from Family Law to Criminal Law, and none of
-them were ever corrected.
+Most of the eight flip from Family Law to Criminal Law, and none of them were
+ever corrected. How many varies by run: ten retrains on the same 82
+annotations gave 4 to 8 of 8 (RESULTS.md).
 
 **Proof, strongest first:** the Compare tab (same 8 documents, v1 vs v2, side
 by side) · the Review evidence cards · the `gold_label` column in the CSV.
@@ -1125,7 +1126,7 @@ ACTIVE_DOMAIN            = legal
 MODEL_PATH               = ./models/LegalModelShared
 CONFIDENCE_HIGH          = 0.85     # above this: AUTO_ACCEPT
 CONFIDENCE_LOW           = 0.55     # below this: ROUTE_TO_REVIEWER
-REVIEW_THRESHOLD         = 0.5      # the queue's low-confidence cut
+REVIEW_THRESHOLD         = 0.55     # the queue's low-confidence cut; = CONFIDENCE_LOW
 CALIBRATION_TEMPERATURE  = 1.0      # off; see RESULTS.md section 3
 ```
 

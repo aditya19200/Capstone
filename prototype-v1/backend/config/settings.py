@@ -66,7 +66,10 @@ class Settings(BaseSettings):
     # between LOW and HIGH → NEEDS_EXPLANATION
 
     # --- Human review ---
-    REVIEW_THRESHOLD: float = 0.5   # confidence < this → needs_review flag
+    # confidence < this → in the Review queue. Equal to CONFIDENCE_LOW: at
+    # 0.5 a prediction at 0.52 was labelled ROUTE_TO_REVIEWER and never
+    # reached the queue (24 Oct rehearsal, a probe misfiled at 0.516).
+    REVIEW_THRESHOLD: float = 0.55
 
     # --- Input validation ---
     MIN_TEXT_CHARS: int = 50        # reject shorter text — model mislabels short strings

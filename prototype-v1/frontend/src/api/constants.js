@@ -4,7 +4,7 @@
 
 export const CONFIDENCE_HIGH = 0.85 // above this -> AUTO_ACCEPT
 export const CONFIDENCE_LOW = 0.55 // below this -> ROUTE_TO_REVIEWER
-export const REVIEW_THRESHOLD = 0.5 // confidence < this -> needs_review
+export const REVIEW_THRESHOLD = 0.55 // confidence < this -> Review queue; equal to CONFIDENCE_LOW
 
 // Batch results table page size. Must match what client.js actually sends
 // as page_size on GET /batches/{id}/items — the two drifting apart is what

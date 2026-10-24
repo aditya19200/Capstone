@@ -138,6 +138,10 @@ Law with no human ever seeing them. The eight probe texts appear in none of
 checked before quoting any of this. The flip happens somewhere between 48 and
 60 validated annotations.
 
+The count after a retrain varies from run to run: ten retrains on the demo's
+82 validated annotations (24 Oct) gave between 4 and 8 of 8. See
+`docs/RESULTS.md`.
+
 ---
 
 ## Input formats

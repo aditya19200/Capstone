@@ -39,8 +39,12 @@ Both modes use the same ports: Ctrl+C one before starting the other.
 6  Admin      Compare -> Compare
 ```
 
-The eight probes change from Family Law to Criminal Law, and none of them was
-ever corrected. The Admin table shows the new version's accuracy on `datasets/v1.csv` minus
+Most of the eight probes change from Family Law to Criminal Law, and none of
+them was ever corrected. How many varies from one retrain to the next: ten
+retrains on the same corrections (24 Oct) gave anywhere from 4 to 8 of 8,
+because 80-odd examples is little to train on and training has random parts.
+So retrain again if the panel wants to see it twice; quote what the screen
+shows, and point to what the misses' confidence did with them. The Admin table shows the new version's accuracy on `datasets/v1.csv` minus
 any rows it trained on (1,697 in rehearsal), with the old model's score on
 the same rows under it.
 
@@ -65,7 +69,7 @@ See `medical-pdfs/README.md`. No retraining on medical.
 
 ```
 9   Admin      the version table: Medical Baseline 89.4%, Medical Round 1 90.8% (serving)
-10  Annotator  upload medical-pdfs/neurology-consults.pdf          1 of 19 auto-accepted, 6 in Review
+10  Annotator  upload medical-pdfs/neurology-consults.pdf          1 of 19 auto-accepted, 7 in Review
 11  Annotator  upload medical-pdfs/cardiology-catheterization.pdf  1 confident error flagged
 12  Reviewer   the queue: low-confidence items and the flagged one, with its evidence
 ```

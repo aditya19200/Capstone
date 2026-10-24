@@ -42,7 +42,7 @@ under Family Law:
                       on testimony, oath, the evidence.
 0.844  0.844          below the bar: not filed silently, but at 0.844 they get
                       an explanation rather than a place in the Review queue
-                      (which lists items under 0.5).
+                      (which lists items under 0.55).
 ```
 
 **After retraining** on the reviewers' corrections — which were about

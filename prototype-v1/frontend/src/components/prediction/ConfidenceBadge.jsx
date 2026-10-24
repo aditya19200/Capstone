@@ -1,7 +1,7 @@
 import { REVIEW_THRESHOLD } from '../../api/constants.js'
 
-// Thresholds per BIDISHA_TASKS.md Task 2 spec: green >= 0.7, yellow 0.5-0.7,
-// red < 0.5. The red/yellow boundary is REVIEW_THRESHOLD from the shared
+// Thresholds per BIDISHA_TASKS.md Task 2 spec: green >= 0.7, yellow from
+// REVIEW_THRESHOLD (0.55) to 0.7, red below it. The red/yellow boundary is REVIEW_THRESHOLD from the shared
 // constant (mirrors the backend) — never hardcode a different number there.
 const HIGH_THRESHOLD = 0.7
 

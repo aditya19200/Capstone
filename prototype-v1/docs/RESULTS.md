@@ -175,7 +175,7 @@ testimony. Five passages classify as **Family Law at 0.84–0.98**: three at
 The ontology check flags all three confident ones back to Criminal Law on
 `testimony`, `oath`, `the evidence`. The two at 0.844 are below the bar, so
 they are not filed silently: they get an explanation and are marked for one,
-though at 0.844 they sit above the review queue's 0.5 cut-off and do not
+though at 0.844 they sit above the review queue's 0.55 cut-off and do not
 appear in it. The check would not have flagged them — `child` genuinely
 dominates their vocabulary. **Say that**; it is the honest limit of a
 vocabulary-based check. Without the check, three would be accepted unseen.
@@ -234,6 +234,16 @@ checkpoints:
 0.996. Every one clears the 0.85 auto-accept threshold, so in production all
 eight would have been labelled Family Law and filed with no human ever seeing
 them. After retraining, all eight are correct, at 0.502 to 0.985.
+
+**That was one run, and the count varies between runs.** On 24 Oct the demo's
+82 validated annotations were retrained on ten times, offline, exactly as the
+worker trains: five times as annotated and five with four mislabelled
+corrections set to their right labels. The probes came out 8, 7, 7, 5, 4 of 8
+and 6, 7, 7, 4, 4 of 8. Fixing the labels did not help; the spread is the
+training's own randomness (dropout; the worker seeds the shuffle, not torch)
+on very little data. Some misses are cautious (0.52-0.58) and some are not:
+two runs filed two probes as Property at 0.91-0.96. The worker is left
+unseeded on purpose, so a retrain shown twice is two real runs.
 
 Example, verbatim:
 
@@ -548,8 +558,9 @@ The honest summary is three sentences, not one:
 > "Retraining on human corrections raised medical held-out accuracy by 3.4
 > points on average across five seeds — positive in all five, against a
 > training variance of 0.7 — and improved calibration error in all five. On
-> legal the same loop fixed the eight probes it was aimed at and did not
-> improve the model overall, and we report both."
+> legal the same loop fixed most of the eight probes it was aimed at — four
+> to eight of them, depending on the run — and did not improve the model
+> overall, and we report both."
 
 ### Do the corrections matter, or is it just more data?
 
@@ -841,8 +852,9 @@ no upload produces.
 > "Eight documents our model called Family Law at 99% confidence are actually
 > Criminal Law — IPC charges in a domestic setting. All eight would have been
 > auto-accepted with no human seeing them. After retraining on corrected
-> annotations, all eight are right. We checked first that none of the eight
-> appears anywhere in the training corpus."
+> annotations, most of them come out right — between four and all eight,
+> depending on the run. We checked first that none of the eight appears
+> anywhere in the training corpus."
 
 ## Sentences that are not
 
