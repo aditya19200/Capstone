@@ -5,8 +5,13 @@ import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './auth/AuthContext.jsx'
 import DomainProvider from './domain/DomainProvider.jsx'
+import { playArrival } from './domain/switchTransition.js'
 
 const queryClient = new QueryClient()
+
+// Before the first render, so the arriving half of a domain switch covers
+// the page from its first frame.
+playArrival()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
