@@ -29,6 +29,7 @@ from config.settings import settings
 from models.response_models import LowConfidenceItem, LowConfidenceQueueResponse
 from repositories import annotations as annotations_repo
 from repositories import predictions as predictions_repo
+from services.model_service import model_service
 from services.ontology_check import ontology_check
 
 logger = logging.getLogger(__name__)
@@ -95,6 +96,7 @@ async def get_low_confidence_queue(
     offset = (page - 1) * page_size
     page_rows = all_rows[offset : offset + page_size]
 
+    serving = model_service.loaded_version
     items = [
         LowConfidenceItem(
             prediction_id=r["id"],
@@ -111,6 +113,9 @@ async def get_low_confidence_queue(
             flag_detail=(conflict or {}).get("reason"),
             evidence_score=(conflict or {}).get("evidence_score"),
             predicted_label_score=(conflict or {}).get("predicted_label_score"),
+            predicted_by=r.get("model_version"),
+            superseded=bool(serving and r.get("model_version")
+                            and r["model_version"] != serving),
         )
         for r, reason, conflict in page_rows
     ]

@@ -300,6 +300,9 @@ export async function getLowConfidenceQueue() {
     flag_detail: item.flag_detail ?? null,
     evidence_score: item.evidence_score ?? null,
     predicted_label_score: item.predicted_label_score ?? null,
+    // Made by a version that is no longer serving (before a retrain).
+    predicted_by: item.predicted_by ?? null,
+    superseded: item.superseded ?? false,
   }))
 }
 

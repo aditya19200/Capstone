@@ -79,6 +79,14 @@ function ReviewQueueItem({ item, isSubmitting, onSubmit, onExplain }) {
                 queued on concept evidence, not on confidence
               </span>
             ) : null}
+            {item.superseded ? (
+              <span
+                className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600"
+                title="This prediction was made before the current version was activated. Re-upload the document to see what the serving model says."
+              >
+                from {item.predicted_by}, superseded
+              </span>
+            ) : null}
           </div>
         </div>
 

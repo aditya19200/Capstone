@@ -265,6 +265,12 @@ class LowConfidenceItem(BaseModel):
     # see the working rather than take the verdict on trust.
     evidence_score: Optional[float] = None
     predicted_label_score: Optional[float] = None
+    # Which model version made the prediction, and whether a different one is
+    # serving now. An item queued before a retrain stays in the queue — it is
+    # still unreviewed work — but the label it carries came from weights that
+    # are no longer answering, and the reviewer should be able to see that.
+    predicted_by: Optional[str] = None
+    superseded: bool = False
 
 
 class LowConfidenceQueueResponse(BaseModel):

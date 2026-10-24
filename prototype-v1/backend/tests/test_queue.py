@@ -165,3 +165,28 @@ class TestLowConfidenceQueueRoleCheck:
     def test_admin_role_returns_200(self, client):
         resp = client.get("/queue/low-confidence", headers=ADMIN_HEADERS)
         assert resp.status_code == 200
+
+
+class TestSupersededPredictions:
+    """An item predicted before a retrain says so, and stays in the queue."""
+
+    def test_marks_items_from_a_version_no_longer_serving(self, monkeypatch):
+        from fastapi.testclient import TestClient
+        from main import app
+        from services import mock_db
+        from services.model_service import model_service
+
+        mock_db._predictions.clear()
+        mock_db._annotations.clear()
+        with TestClient(app) as client:
+            monkeypatch.setattr(model_service, "_loaded_version", "v-new")
+            for version in ("Legal Baseline", "v-new"):
+                mock_db.create_prediction(
+                    text_content=f"text from {version}", predicted_label="Family Law",
+                    label_id=5, confidence=0.3, all_probabilities={},
+                    model_version=version)
+            items = {i["predicted_by"]: i for i in client.get(
+                "/queue/low-confidence", headers={"X-Role": "reviewer"}).json()["items"]}
+
+        assert items["Legal Baseline"]["superseded"] is True
+        assert items["v-new"]["superseded"] is False
