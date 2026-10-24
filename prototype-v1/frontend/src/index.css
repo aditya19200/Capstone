@@ -3,6 +3,14 @@
 @tailwind utilities;
 
 @layer base {
+  /* 18px rather than the browser's 16. Every Tailwind size and spacing is in
+     rem, so the whole interface scales together — the demo is shown on a TV
+     across a room, and the panel has said before that values were hard to
+     read. */
+  html {
+    font-size: 112.5%;
+  }
+
   body {
     @apply bg-slate-50 text-slate-800 antialiased;
   }
@@ -71,15 +79,15 @@
   --dk-surface-3: #2a313b;   /* hover, progress track */
   --dk-border: #2b323d;
   --dk-border-strong: #3a424f;
-  --dk-text-1: #e7eaef;      /* headings */
-  --dk-text-2: #c3cad5;      /* body */
-  --dk-text-3: #9aa3b1;      /* secondary */
+  --dk-text-1: #f5f7fa;      /* headings */
+  --dk-text-2: #dfe4eb;      /* body */
+  --dk-text-3: #c5ccd7;      /* secondary */
   /* text-4 and text-5 are lifted past their "natural" slate equivalents so
      they still clear WCAG AA on these grounds — text-slate-500 in particular
      is the most-used text class in the app (section kickers, small labels)
      and a literal translation of it lands under 4.5:1 here. */
-  --dk-text-4: #8b94a3;      /* muted labels      — 5.6:1 on cards */
-  --dk-text-5: #7d8695;      /* faint / placeholder — 4.2:1 on inputs */
+  --dk-text-4: #b4bcc8;      /* muted labels — brightened for a projector */
+  --dk-text-5: #a1aab7;      /* faint / placeholder */
 
   /* Recharts tooltips are HTML with an INLINE style, so unlike the SVG
      attributes above they do resolve var(). Defaults live on :root. */
@@ -114,7 +122,7 @@
 .dark-theme .text-slate-600 { color: var(--dk-text-3); }
 .dark-theme .text-slate-500 { color: var(--dk-text-4); }
 .dark-theme .text-slate-400 { color: var(--dk-text-5); }
-.dark-theme .text-slate-300 { color: #5c646f; }
+.dark-theme .text-slate-300 { color: #8d96a3; }
 .dark-theme .placeholder\:text-slate-400::placeholder { color: var(--dk-text-5); }
 
 /* ---- status chips: light pastel fills would glare on a dark ground, so
@@ -192,6 +200,8 @@
    ========================================================================== */
 
 .dark-theme .recharts-cartesian-axis-tick-value { fill: var(--dk-text-4); }
+/* The axis labels are sized in px by each chart; CSS beats the attribute. */
+.recharts-cartesian-axis-tick-value { font-size: 0.8rem; }
 .dark-theme .recharts-cartesian-axis-line,
 .dark-theme .recharts-cartesian-axis-tick-line { stroke: var(--dk-border-strong); }
 .dark-theme .recharts-cartesian-grid line { stroke: var(--dk-surface-3); }

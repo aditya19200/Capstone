@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getDomains, getHealth } from '../api/client.js'
 import { useAuth } from '../auth/AuthContext.jsx'
+import DomainSwitcher from '../components/layout/DomainSwitcher.jsx'
 
 // The app used to open on a card reading "Login" with three buttons and no
 // other text, so the first thing anyone saw gave no indication of what the
@@ -158,6 +159,13 @@ function HomePage() {
     <div className="min-h-screen bg-slate-50">
       <div className="mx-auto w-full max-w-5xl px-6 py-14">
         <header>
+          {/* The header's Legal / Medical switch lives in the workspace layout,
+              which this page sits outside; without this the other domain was
+              only reachable after picking a role. Renders nothing unless the
+              launcher started both domains. */}
+          <div className="mb-6 flex justify-end">
+            <DomainSwitcher />
+          </div>
           <p className="section-kicker">Capstone Project</p>
           <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
             XAI-Enabled Knowledge Graph-Driven Annotation Framework
