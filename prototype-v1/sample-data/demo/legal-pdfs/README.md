@@ -12,8 +12,12 @@ repeatable, so live numbers can differ by a passage or two.
 
 | Upload | File | Pages → passages | After retraining |
 |---|---|---:|---|
-| 7 | `judgment-labour.pdf` | 6 → 12 | 12/12 Labour & Employment, avg 0.95, 11 auto-accepted |
-| 8 | `judgment-criminal-pradeep.pdf` | 12 → 28 | **28/28 Criminal Law**, avg 0.96, 26 auto-accepted |
+| 7 | `judgment-labour.pdf` | 6 → 12 | 11–12 of 12 Labour & Employment |
+| 8 | `judgment-criminal-pradeep.pdf` | 12 → 28 | **26–28 of 28 Criminal Law** |
+
+The rehearsal gave 12/12 and 28/28; the 24 Oct live run, retrained on its own
+corrections, gave 11/12 and 26/28, with the misses at 33–64% confidence, so
+none was filed silently. Quote what your run shows.
 
 ## 7 — it just works
 
@@ -35,12 +39,15 @@ under Family Law:
 0.977  0.968  0.963   above the 0.85 bar: would be auto-accepted unseen.
                       The ontology check flags all three back to Criminal Law,
                       on testimony, oath, the evidence.
-0.844  0.844          below the bar: go to review on low confidence.
+0.844  0.844          below the bar: not filed silently, but at 0.844 they get
+                      an explanation rather than a place in the Review queue
+                      (which lists items under 0.5).
 ```
 
 **After retraining** on the reviewers' corrections — which were about
-domestic-setting criminal cases, not this judgment — all 28 passages are
-Criminal Law. The same mistake, fixed on a document the loop never saw.
+domestic-setting criminal cases, not this judgment — the Family Law
+passages are gone: 26 to 28 of 28 come out Criminal Law, and anything left is
+low confidence. The same mistake, fixed on a document the loop never saw.
 
 Say it in that order: the system caught the confident errors before, and the
 corrections it collected fixed them after.

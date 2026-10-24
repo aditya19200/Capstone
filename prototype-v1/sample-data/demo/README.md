@@ -52,8 +52,8 @@ only the `text` column, so those answers never reach the model.
 See `legal-pdfs/README.md`.
 
 ```
-7  Annotator  upload legal-pdfs/judgment-labour.pdf            it just works: 12/12
-8  Annotator  upload legal-pdfs/judgment-criminal-pradeep.pdf   28/28 Criminal Law
+7  Annotator  upload legal-pdfs/judgment-labour.pdf            it just works: 11-12 of 12
+8  Annotator  upload legal-pdfs/judgment-criminal-pradeep.pdf   26-28 of 28 Criminal Law
 ```
 
 Do not correct anything from these two in Review — they are not part of the
@@ -65,7 +65,7 @@ See `medical-pdfs/README.md`. No retraining on medical.
 
 ```
 9   Admin      the version table: Medical Baseline 89.4%, Medical Round 1 90.8% (serving)
-10  Annotator  upload medical-pdfs/neurology-consults.pdf          18 of 19 go to review
+10  Annotator  upload medical-pdfs/neurology-consults.pdf          1 of 19 auto-accepted, 6 in Review
 11  Annotator  upload medical-pdfs/cardiology-catheterization.pdf  1 confident error flagged
 12  Reviewer   the queue: low-confidence items and the flagged one, with its evidence
 ```

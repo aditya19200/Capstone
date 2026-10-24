@@ -18,7 +18,7 @@ fine-tuned on 881 training notes, then on a first round of 296 more
 ```
 accuracy                       248/273 = 90.8%   (round-0 baseline: 244 = 89.4%)
 auto-accepted (conf >= 0.85)   209 docs, 97.6% accurate
-routed to review (conf < 0.85)  64 docs, 68.8% accurate
+below the bar (conf < 0.85)    64 docs, 68.8% accurate
 ```
 
 Of 25 errors, **20 (80%) fall below the auto-accept bar on their own**. The
@@ -35,15 +35,17 @@ the evidence that feeding annotations back helps.
 
 | Upload | File | Pages → docs | Accuracy | Avg conf | What it demonstrates |
 |---|---|---:|---:|---:|---|
-| 10 | `neurology-consults.pdf` | 6 → 19 | 14/19 = 73.7% | 0.632 | **The routing transfers too.** 18 of 19 go to review |
+| 10 | `neurology-consults.pdf` | 6 → 19 | 14/19 = 73.7% | 0.632 | **The routing transfers too.** 1 auto-accepted, 11 explained, 6 in the Review queue |
 | 11 | `cardiology-catheterization.pdf` | 9 → 23 | 16/23 = 69.6% | 0.818 | **The ontology check transfers.** 1 flagged, correctly, 0 false positives |
 
 ### 10 — it knows what it does not know
 
-On these consult passages the model is unsure, average confidence 0.632, and
-**18 of 19 go to a human** instead of being auto-accepted. The one it accepts
-on its own is right. Low confidence arriving where the model is weak is the
-routing working, not failing.
+On these consult passages the model is unsure, average confidence 0.632, so
+**only 1 of 19 is auto-accepted**, and it is right. The other 18 are not filed
+silently: 11, between 0.55 and 0.85, get an explanation of why the model
+chose what it did, and 7 are routed to a reviewer — the 6 under 0.5 are the
+ones the Review queue lists. Low confidence arriving where the model is weak
+is the routing working, not failing.
 
 ### 11 — confidently wrong, caught
 

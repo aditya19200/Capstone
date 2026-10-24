@@ -173,11 +173,12 @@ testimony. Five passages classify as **Family Law at 0.84–0.98**: three at
 0.96–0.98, above the auto-accept threshold, and two at 0.844, just under it.
 
 The ontology check flags all three confident ones back to Criminal Law on
-`testimony`, `oath`, `the evidence`. The two at 0.844 reach review on low
-confidence; the check would not have flagged them — `child` genuinely
+`testimony`, `oath`, `the evidence`. The two at 0.844 are below the bar, so
+they are not filed silently: they get an explanation and are marked for one,
+though at 0.844 they sit above the review queue's 0.5 cut-off and do not
+appear in it. The check would not have flagged them — `child` genuinely
 dominates their vocabulary. **Say that**; it is the honest limit of a
-vocabulary-based check. Between the two routes all five reach a human, and
-without the check three would be accepted unseen.
+vocabulary-based check. Without the check, three would be accepted unseen.
 
 Re-measured 24 Oct through the path an upload takes (passages packed by token
 count, batched prediction). An earlier revision said four cleared the
