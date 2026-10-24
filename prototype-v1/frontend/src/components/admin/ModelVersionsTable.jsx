@@ -74,7 +74,7 @@ function ModelVersionsTable({ versions, activatingId, onActivate, servingDomain 
         <table className="min-w-full divide-y divide-slate-200">
           <thead className="bg-slate-100">
             <tr>
-              {['Version', 'Accuracy', 'Trained', 'Status', ''].map((heading) => (
+              {['Version', 'Accuracy', 'Added', 'Status', ''].map((heading) => (
                 <th
                   key={heading}
                   scope="col"

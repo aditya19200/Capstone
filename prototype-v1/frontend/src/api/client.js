@@ -333,6 +333,12 @@ export async function getAdminMetrics() {
       // serving_domain below to decide whether Activate can do anything:
       // a process serving 10 labels cannot load a 12-label checkpoint.
       domain: v.domain ?? null,
+      // A retrained version's parent, re-scored on exactly the rows this one
+      // was (ModelVersionsTable prints it under the accuracy). Absent for
+      // baselines.
+      parent_version: v.parent_version ?? null,
+      parent_accuracy: v.parent_accuracy ?? null,
+      exam_rows: v.exam_rows ?? null,
       trained_at: v.trained_at,
     })),
   }
