@@ -468,6 +468,13 @@ function AnnotatePage() {
 
       {phase === 'done' ? (
         <>
+          {/* Also below the table, but a 28-passage PDF pushes that one out of
+              sight, and uploading the next file meant leaving the page. */}
+          <div className="flex justify-end">
+            <button type="button" onClick={resetToIdle} className="btn-primary">
+              Start New Batch
+            </button>
+          </div>
           <BatchItemsTable
             items={items}
             page={page}
