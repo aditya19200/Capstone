@@ -35,6 +35,8 @@ GET  /batches/{id}/export
 
 import io
 import logging
+from concurrent.futures import ThreadPoolExecutor
+from typing import Dict, Optional
 
 import pandas as pd
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile, status
@@ -51,6 +53,7 @@ from models.response_models import (
 )
 from repositories import batch_items as batch_items_repo
 from repositories import batches as batches_repo
+from repositories import predictions as predictions_repo
 from config.settings import settings
 from services import pdf_extract
 from utils.text import count_tokens, normalize
@@ -243,6 +246,30 @@ async def submit_batch_pdf(file: UploadFile = File(...)) -> BatchCreateResponse:
 # GET /batches
 # ---------------------------------------------------------------------------
 
+# A finished batch's model never changes, so it is looked up once. The batches
+# table has no column for it (adding one is a migration); the version is on
+# each prediction instead.
+_batch_model_cache: Dict[str, str] = {}
+
+
+def _batch_model(batch: Dict) -> Optional[str]:
+    """The model version that classified a batch, read off its first classified item."""
+    cached = _batch_model_cache.get(batch["id"])
+    if cached:
+        return cached
+    try:
+        items = batch_items_repo.list_by_batch(batch["id"], offset=0, limit=5)
+        pid = next((i["prediction_id"] for i in items if i.get("prediction_id")), None)
+        pred = predictions_repo.get(pid) if pid else None
+    except Exception as exc:  # a label is not worth failing the list over
+        logger.warning("model version for batch %s unavailable: %s", batch["id"], exc)
+        return None
+    version = (pred or {}).get("model_version")
+    if version and batch.get("status") == "done":
+        _batch_model_cache[batch["id"]] = version
+    return version
+
+
 @router.get(
     "",
     response_model=BatchListResponse,
@@ -253,6 +280,10 @@ async def list_batches(
     limit: int = Query(default=20, ge=1, le=100),
 ) -> BatchListResponse:
     rows = batches_repo.list_all(limit=limit)
+    # Two lookups a batch, each a round trip to the hosted database (~0.4 s),
+    # so they run side by side rather than one after another.
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        models = list(pool.map(_batch_model, rows))
     return BatchListResponse(
         batches=[
             BatchSummary(
@@ -263,8 +294,9 @@ async def list_batches(
                 completed_items=r["completed_items"],
                 created_at=r["created_at"],
                 filename=r.get("filename"),
+                model_version=model,
             )
-            for r in rows
+            for r, model in zip(rows, models)
         ]
     )
 

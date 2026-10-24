@@ -647,10 +647,10 @@ class TestListBatches:
 
         batches = resp.json()["batches"]
         assert len(batches) == 1
-        # pages/Annotate.jsx reads exactly these seven.
+        # pages/Annotate.jsx reads exactly these eight.
         assert set(batches[0]) == {
             "batch_id", "source", "status", "total_items",
-            "completed_items", "created_at", "filename",
+            "completed_items", "created_at", "filename", "model_version",
         }
         assert batches[0]["filename"] is None   # pasted text has no file
         assert batches[0]["source"] == "paste"
@@ -697,6 +697,44 @@ class TestListBatches:
         assert BatchSummary is not ComparisonBatchSummary
         assert set(BatchSummary.model_fields) == {
             "batch_id", "source", "status", "total_items",
-            "completed_items", "created_at", "filename",
+            "completed_items", "created_at", "filename", "model_version",
         }
         assert "item_count" in ComparisonBatchSummary.model_fields
+
+
+class TestListBatchesModelVersion:
+    """The same file uploaded before and after a retrain must be told apart."""
+
+    @pytest.fixture(autouse=True)
+    def clear_cache(self):
+        from routers import batches as batches_router
+        batches_router._batch_model_cache.clear()
+        yield
+        batches_router._batch_model_cache.clear()
+
+    def _classified_batch(self, version, status="done"):
+        from repositories import predictions as predictions_repo
+
+        batch = batches_repo.insert(source="csv", total_items=1, filename="2-probe-set.csv")
+        item = batch_items_repo.insert_many(batch["id"], ["The husband was charged with theft."])[0]
+        pred = predictions_repo.insert(
+            text_content="The husband was charged with theft.",
+            predicted_label="Criminal Law", label_id=1, confidence=0.98,
+            all_probabilities={}, model_version=version,
+        )
+        batch_items_repo.update(item["id"], prediction_id=pred["id"], status="done")
+        batches_repo.update_status(batch["id"], status)
+        return batch["id"]
+
+    def test_each_batch_names_the_model_that_classified_it(self, client):
+        before = self._classified_batch("Legal Baseline")
+        after = self._classified_batch("v-20261024-145959")
+
+        by_id = {b["batch_id"]: b for b in client.get("/batches").json()["batches"]}
+        assert by_id[before]["model_version"] == "Legal Baseline"
+        assert by_id[after]["model_version"] == "v-20261024-145959"
+
+    def test_none_before_any_item_is_classified(self, client):
+        client.post("/batches/paste", json={"texts": ["The tenant sued the landlord."]})
+        (batch,) = client.get("/batches").json()["batches"]
+        assert batch["model_version"] is None

@@ -210,6 +210,10 @@ class BatchSummary(BaseModel):
     # The uploaded file's name, so a list of batches can be told apart by
     # more than their size. None for pasted text.
     filename: Optional[str] = None
+    # The model version that classified it — the same file uploaded before
+    # and after a retrain is otherwise two identical rows. None until its
+    # first item is classified.
+    model_version: Optional[str] = None
 
 
 class BatchListResponse(BaseModel):

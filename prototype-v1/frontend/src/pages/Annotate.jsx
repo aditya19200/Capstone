@@ -431,6 +431,12 @@ function AnnotatePage() {
                         : `${batch.completed_items}/${batch.total_items} classified`}
                       {' · '}
                       {new Date(batch.created_at).toLocaleString()}
+                      {batch.model_version ? (
+                        <>
+                          {' · '}
+                          <span className="font-mono text-indigo-600">{batch.model_version}</span>
+                        </>
+                      ) : null}
                     </p>
                   </div>
                   <button
