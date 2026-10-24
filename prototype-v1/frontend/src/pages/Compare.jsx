@@ -57,7 +57,7 @@ function ComparePage() {
   }
 
   const option = (b) =>
-    `${shortId(b.batch_id)} · ${b.item_count} docs · ${b.model_versions.join(', ')} · ${fmtTime(b.created_at)}`
+    `${b.filename || shortId(b.batch_id)} · ${b.item_count} docs · ${b.model_versions.join(', ')} · ${fmtTime(b.created_at)}`
 
   return (
     <section className="mx-auto flex w-full max-w-5xl flex-col gap-6 py-4">

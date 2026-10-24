@@ -262,6 +262,7 @@ async def list_batches(
                 total_items=r["total_items"],
                 completed_items=r["completed_items"],
                 created_at=r["created_at"],
+                filename=r.get("filename"),
             )
             for r in rows
         ]

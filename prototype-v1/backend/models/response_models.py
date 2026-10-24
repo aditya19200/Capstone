@@ -207,6 +207,9 @@ class BatchSummary(BaseModel):
     total_items: int
     completed_items: int
     created_at: str
+    # The uploaded file's name, so a list of batches can be told apart by
+    # more than their size. None for pasted text.
+    filename: Optional[str] = None
 
 
 class BatchListResponse(BaseModel):
@@ -562,6 +565,7 @@ class ComparisonBatchSummary(BaseModel):
         default_factory=list,
         description="Distinct model versions that produced this batch's predictions.",
     )
+    filename: Optional[str] = None
 
 
 class ComparisonRow(BaseModel):

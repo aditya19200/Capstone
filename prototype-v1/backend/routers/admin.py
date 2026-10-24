@@ -424,6 +424,7 @@ async def list_comparable_batches(
             created_at=batch.get("created_at", ""),
             item_count=len(preds),
             model_versions=versions,
+            filename=batch.get("filename"),
         ))
     return out
 

@@ -422,7 +422,7 @@ function AnnotatePage() {
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-slate-800">
-                      {BATCH_SOURCE_LABELS[batch.source] ?? 'Pasted text'} ·{' '}
+                      {batch.filename || (BATCH_SOURCE_LABELS[batch.source] ?? 'Pasted text')} ·{' '}
                       {batch.total_items} item{batch.total_items === 1 ? '' : 's'}
                     </p>
                     <p className="text-xs text-slate-500">
