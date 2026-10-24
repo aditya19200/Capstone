@@ -62,6 +62,10 @@ function AnnotatePage() {
   const [conceptsItem, setConceptsItem] = useState(null)
   const [exportUrl, setExportUrl] = useState(null)
   const [recentBatches, setRecentBatches] = useState(null) // null = loading
+  // True from the click until the server accepts the upload. Against a live
+  // database that can take several seconds while the workers are busy, and
+  // without it the button looked dead and got clicked twice — two batches.
+  const [uploading, setUploading] = useState(false)
   const [recentError, setRecentError] = useState('')
 
   const pollStartRef = useRef(null)
@@ -156,7 +160,9 @@ function AnnotatePage() {
   }
 
   const handleSubmit = async () => {
+    if (uploading) return
     setErrorMessage('')
+    setUploading(true)
 
     try {
       let response
@@ -203,6 +209,8 @@ function AnnotatePage() {
           : 'Something went wrong submitting the batch. Please try again.',
       )
       setPhase('error')
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -380,10 +388,10 @@ function AnnotatePage() {
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={isSubmitting}
+                disabled={isSubmitting || uploading}
                 className="btn-primary px-6 py-3"
               >
-                Submit Batch
+                {uploading ? 'Submitting…' : 'Submit Batch'}
               </button>
             </div>
           </div>
