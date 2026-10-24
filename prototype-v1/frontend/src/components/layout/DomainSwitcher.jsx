@@ -20,6 +20,27 @@ function parseLinks(raw) {
 
 const LINKS = parseLinks(import.meta.env.VITE_DOMAIN_LINKS)
 
+// The other domain is another page load, so fade this one out first (the
+// .page-leaving rule in index.css) and let the next one fade in. A modified
+// click — new tab, new window — is left to the browser.
+const LEAVE_MS = 160
+
+function leaveTo(event, target) {
+  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  event.preventDefault()
+  document.documentElement.classList.add('page-leaving')
+  window.setTimeout(() => {
+    window.location.href = target
+  }, LEAVE_MS)
+}
+
+// Coming back with the Back button can restore this page exactly as it was
+// left — faded out — so undo it whenever the page is shown.
+window.addEventListener('pageshow', () => {
+  document.documentElement.classList.remove('page-leaving')
+})
+
 function DomainSwitcher() {
   const { key: current } = useDomain()
   const { role } = useAuth()
@@ -46,6 +67,7 @@ function DomainSwitcher() {
           <a
             key={key}
             href={target}
+            onClick={(event) => leaveTo(event, target)}
             className="rounded-full px-4 py-1.5 text-sm font-semibold text-slate-600 transition hover:text-indigo-600"
           >
             {label}

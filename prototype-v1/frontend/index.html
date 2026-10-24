@@ -8,6 +8,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>XAI Annotation Framework</title>
     <meta name="description" content="Human-in-the-loop document annotation with explainability and an ontology consistency check." />
+    <!-- The stylesheet arrives with the JavaScript, so until then the browser
+         paints its default white — a flash on every load and on every switch
+         between the legal and medical tabs, which are separate pages. This
+         paints the dark background from the first frame. Same value as
+         --dk-bg in src/index.css. -->
+    <meta name="color-scheme" content="dark" />
+    <style>
+      html.dark-theme { background-color: #0f1319; color-scheme: dark; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
