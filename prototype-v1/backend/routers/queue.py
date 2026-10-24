@@ -104,6 +104,7 @@ async def get_low_confidence_queue(
                 r["text_content"][:_EXCERPT_LENGTH]
                 + ("..." if len(r["text_content"]) > _EXCERPT_LENGTH else "")
             ),
+            text_content=r["text_content"],
             predicted_label=r["predicted_label"],
             confidence=r["confidence"],
             created_at=r["created_at"],

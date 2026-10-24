@@ -1,5 +1,7 @@
 import { useEffect } from 'react'
 import { useExplanation, beginExplanation } from '../../hooks/useExplanation.js'
+import ConfidenceBadge from '../prediction/ConfidenceBadge.jsx'
+import OntologyFlag from '../review/OntologyFlag.jsx'
 import AgreementCard from './AgreementCard.jsx'
 import ExplanationPanel from './ExplanationPanel.jsx'
 
@@ -49,6 +51,34 @@ function ExplainPanel({ item, onClose }) {
         </div>
 
         <div className="space-y-6 p-6">
+          {/* The passage itself first. The review card shows only an
+              excerpt, and the explanation below takes 30-90 s — reading the
+              text should not wait for it. Batch items and queue items both
+              carry it as text_content. */}
+          {item.text_content ? (
+            <section className="dashboard-card">
+              <p className="section-kicker">Text</p>
+              <p className="mt-3 max-h-80 overflow-y-auto whitespace-pre-wrap text-base leading-7 text-slate-800">
+                {item.text_content}
+              </p>
+              <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-slate-200 pt-4">
+                <span className="text-sm font-medium text-slate-800">
+                  Predicted: {item.predicted_label}
+                </span>
+                {item.confidence != null ? (
+                  <>
+                    <ConfidenceBadge confidence={item.confidence} />
+                    <span className="font-mono text-sm text-slate-500">
+                      {(item.confidence * 100).toFixed(1)}%
+                    </span>
+                  </>
+                ) : null}
+              </div>
+            </section>
+          ) : null}
+
+          {item.flag_reason === 'ontology_conflict' ? <OntologyFlag item={item} /> : null}
+
           {(status === 'requesting' || status === 'pending' || status === 'processing' || status === 'idle') && (
             <div className="dashboard-card flex flex-col items-center gap-4 py-12 text-center">
               <Spinner />

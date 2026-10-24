@@ -261,6 +261,9 @@ class LowConfidenceItem(BaseModel):
 
     prediction_id: str
     text_excerpt: str
+    # The whole passage. The excerpt alone is not enough to judge a label
+    # from; the review drawer shows this. Same name as BatchItemOut's.
+    text_content: str
     predicted_label: str
     confidence: float
     created_at: str

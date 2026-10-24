@@ -84,6 +84,20 @@ class TestLowConfidenceQueueRoute:
         assert "text_excerpt" in item
         assert "created_at" in item
 
+    def test_item_carries_the_whole_text_not_only_the_excerpt(self, client):
+        # The excerpt stops at 200 characters; a reviewer cannot judge a
+        # label from that, so the review drawer shows the full passage.
+        long_text = "The accused was charged under Section 302 IPC. " * 20
+        from repositories import predictions as predictions_repo
+        predictions_repo.insert(
+            text_content=long_text, predicted_label="Family Law", label_id=0,
+            confidence=0.2, all_probabilities={}, model_version="Legal Baseline",
+        )
+
+        item = client.get("/queue/low-confidence", headers=REVIEWER_HEADERS).json()["items"][0]
+        assert item["text_content"] == long_text
+        assert len(item["text_excerpt"]) < len(long_text)
+
     def test_pagination(self, client):
         for i in range(3):
             _make_prediction(0.1 + i * 0.01)

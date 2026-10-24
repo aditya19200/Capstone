@@ -287,6 +287,8 @@ export async function getLowConfidenceQueue() {
   return data.items.map((item) => ({
     prediction_id: item.prediction_id,
     text_preview: item.text_excerpt,
+    // The whole passage, for the review drawer (ExplainPanel.jsx).
+    text_content: item.text_content ?? item.text_excerpt,
     predicted_label: item.predicted_label,
     confidence: item.confidence,
     // Why this item is in the queue. Items can arrive here on low confidence
