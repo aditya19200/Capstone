@@ -647,11 +647,12 @@ class TestListBatches:
 
         batches = resp.json()["batches"]
         assert len(batches) == 1
-        # pages/Annotate.jsx reads exactly these six.
+        # pages/Annotate.jsx reads exactly these seven.
         assert set(batches[0]) == {
             "batch_id", "source", "status", "total_items",
-            "completed_items", "created_at",
+            "completed_items", "created_at", "filename",
         }
+        assert batches[0]["filename"] is None   # pasted text has no file
         assert batches[0]["source"] == "paste"
         assert batches[0]["total_items"] == 2
 
@@ -696,6 +697,6 @@ class TestListBatches:
         assert BatchSummary is not ComparisonBatchSummary
         assert set(BatchSummary.model_fields) == {
             "batch_id", "source", "status", "total_items",
-            "completed_items", "created_at",
+            "completed_items", "created_at", "filename",
         }
         assert "item_count" in ComparisonBatchSummary.model_fields
