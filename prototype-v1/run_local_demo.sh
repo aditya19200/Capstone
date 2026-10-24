@@ -5,29 +5,54 @@
 # background threads internally — see backend/local_workers.py for why)
 # and the frontend.
 #
-# Data: with no backend/.env (or placeholder credentials) everything runs on
-# this machine only — no internet, no cloud accounts — and data lives in
-# memory, resetting whenever the backend restarts. With real Supabase / Neo4j
-# credentials in backend/.env, data persists there instead. Check which one
-# you're on with:  cd backend && ./venv/bin/python check_data_layer.py
+# Two modes:
 #
-# Usage:   ./run_local_demo.sh            start, keeping whatever data is there
-#          ./run_local_demo.sh --reset    wipe the demo data first, then start,
-#                                         then re-add the 55 confirmations
-#                                         Retrain needs (reset_demo.py, then
-#                                         seed_retrain_data.py, done for you)
+#   local (default)  everything on this machine: in-memory data and the
+#                    built-in copy of the ontology graph. No internet, no
+#                    database round trips, so uploads take seconds. Data
+#                    resets on every start, and the 55 confirmations Retrain
+#                    needs are added automatically each time.
+#
+#   --live           Supabase and Neo4j Aura, using backend/.env. Data
+#                    persists; every uploaded row is several round trips to
+#                    the hosted database (~2 s a row on 24 Oct).
+#
+# Usage:   ./run_local_demo.sh                   local
+#          ./run_local_demo.sh --live            hosted databases, data kept
+#          ./run_local_demo.sh --live --reset    hosted databases, wipe the demo
+#                                                data first, then re-add the 55
+#                                                confirmations
 # Stop:    Ctrl+C (stops everything it started)
 
 set -e
 cd "$(dirname "$0")"
 
 RESET=0
+LIVE=0
 for arg in "$@"; do
     case "$arg" in
         --reset) RESET=1 ;;
-        *) echo "Unknown option: $arg  (the only one is --reset)" >&2; exit 2 ;;
+        --live)  LIVE=1 ;;
+        *) echo "Unknown option: $arg  (options: --live, --reset)" >&2; exit 2 ;;
     esac
 done
+if [ "$RESET" = 1 ] && [ "$LIVE" = 0 ]; then
+    echo "(--reset only applies with --live; local mode starts empty every time anyway)"
+    RESET=0
+fi
+
+# Placeholders the code reads as "not configured": repositories fall back to
+# the in-memory store and the graph service to its built-in copy. Environment
+# variables beat backend/.env, so this needs no file changes.
+OFFLINE=(SUPABASE_URL=https://placeholder.supabase.co SUPABASE_SERVICE_KEY=placeholder_key \
+         NEO4J_URI=bolt://localhost:7687)
+if [ "$LIVE" = 1 ]; then
+    LEGAL_DB=()
+    echo "Mode: LIVE — Supabase and Neo4j Aura (backend/.env)"
+else
+    LEGAL_DB=("${OFFLINE[@]}")
+    echo "Mode: LOCAL — everything on this machine (add --live for the hosted databases)"
+fi
 
 # Use the newer Node.js installed via nvm (system Node 18 can't run this frontend)
 export NVM_DIR="$HOME/.nvm"
@@ -83,7 +108,7 @@ echo "[1/3] Starting the LEGAL backend on http://localhost:8000 ..."
 # RUN_WORKERS_IN_PROCESS: once Supabase is connected the workers would
 # otherwise expect separate processes, which this script doesn't start —
 # uploads would sit at 0%. See config/settings.py. No effect on the mock.
-(cd backend && RUN_WORKERS_IN_PROCESS=true venv/bin/python -m uvicorn main:app --port 8000) > backend.log 2>&1 &
+(cd backend && env "${LEGAL_DB[@]}" RUN_WORKERS_IN_PROCESS=true venv/bin/python -m uvicorn main:app --port 8000) > backend.log 2>&1 &
 PIDS+=($!)
 
 if [ "$MEDICAL" = 1 ]; then
@@ -92,7 +117,10 @@ if [ "$MEDICAL" = 1 ]; then
     # workers polling one database would claim each other's work, so medical
     # gets its own in-memory store instead. The check is the same one the
     # repositories use, so the launcher and the code cannot disagree.
-    if (cd backend && venv/bin/python -c "import sys; sys.path.insert(0, '.'); \
+    if [ "$LIVE" = 0 ]; then
+        echo "[2/3] Starting the MEDICAL backend on http://localhost:8001 (local) ..."
+        MEDICAL_DB=("${OFFLINE[@]}")
+    elif (cd backend && venv/bin/python -c "import sys; sys.path.insert(0, '.'); \
 from repositories._client import domain_queues_available as ok; sys.exit(0 if ok() else 1)") \
         >/dev/null 2>&1; then
         echo "[2/3] Starting the MEDICAL backend on http://localhost:8001 (Supabase, migration 010 present) ..."
@@ -110,12 +138,14 @@ fi
 echo "Waiting for the models to load..."
 wait_for 8000 backend.log "Legal backend"
 
-if [ "$RESET" = 1 ]; then
-    echo "[reset] Adding the 55 confirmations Retrain needs (log: seed.log) ..."
+# Local mode starts empty every time, so it always needs them; live mode only
+# after a reset, or it would add a second 55.
+if [ "$RESET" = 1 ] || [ "$LIVE" = 0 ]; then
+    echo "[setup] Adding the 55 confirmations Retrain needs (log: seed.log) ..."
     if (cd backend && venv/bin/python ../seed_retrain_data.py) > seed.log 2>&1; then
         tail -n 3 seed.log | sed 's/^/  /'
     else
-        echo "[reset] WARNING: seeding did not finish — see seed.log for the command that resumes it." >&2
+        echo "[setup] WARNING: seeding did not finish — see seed.log for the command that resumes it." >&2
     fi
 fi
 [ "$MEDICAL" = 1 ] && wait_for 8001 backend-medical.log "Medical backend"

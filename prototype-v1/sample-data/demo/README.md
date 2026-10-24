@@ -11,12 +11,17 @@ Everything else that used to live here is in `sample-data/archive/`.
 ## Before you start
 
 ```
-./run_local_demo.sh --reset      from the repo root: clears the last rehearsal,
-                                 starts both tabs, adds the 55 confirmations
-                                 Retrain needs (log in seed.log)
+./run_local_demo.sh              local: everything on this laptop, no internet,
+                                 uploads in seconds. Starts empty every time and
+                                 adds the 55 confirmations Retrain needs.
+
+./run_local_demo.sh --live       the hosted Supabase and Neo4j. Same app, but every
+                                 uploaded row is a few round trips (~2 s a row).
+./run_local_demo.sh --live --reset   the same, after wiping the last rehearsal
 ```
 
-Plain `./run_local_demo.sh` starts without touching the data.
+Wait for the terminal to print "Open this in your browser" before clicking.
+Both modes use the same ports: Ctrl+C one before starting the other.
 
 ## 1 — Legal: retraining (legal tab, :5180)
 
