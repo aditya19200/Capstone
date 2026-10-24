@@ -23,7 +23,8 @@ none was filed silently. Quote what your run shows.
 
 A labour judgment, start to finish, through the same uploader and worker as
 the CSVs. Nothing clever happens, which is the point: a real document, split
-into passages, every one classified correctly.
+into passages, and 11 or 12 of the 12 classified correctly — in the live run
+the one miss was at 33% confidence, so it went to a reviewer, not a label.
 
 ## 8 — the one that makes the argument
 
@@ -45,9 +46,11 @@ under Family Law:
 ```
 
 **After retraining** on the reviewers' corrections — which were about
-domestic-setting criminal cases, not this judgment — the Family Law
-passages are gone: 26 to 28 of 28 come out Criminal Law, and anything left is
-low confidence. The same mistake, fixed on a document the loop never saw.
+domestic-setting criminal cases, not this judgment — the three confident
+Family Law calls are gone: 26 to 28 of 28 come out Criminal Law, and anything
+left over is low confidence (live: one Family Law at 49%, which went to the
+Review queue, and one Constitutional at 64%). The same mistake, fixed on a
+document the loop never saw.
 
 Say it in that order: the system caught the confident errors before, and the
 corrections it collected fixed them after.
