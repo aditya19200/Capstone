@@ -62,10 +62,10 @@ const ROLES = [
 const TEAM = [
   { name: 'Ankush Gowda K R', srn: 'PES2UG23CS078' },
   { name: 'Arjun S Kannur', srn: 'PES2UG23CS090' },
-  { name: 'Bidisha Paul', srn: 'PES2UG23CS___' },
-  { name: 'Rentala Shiva Naga Aditya', srn: 'PES2UG23CS___' },
+  { name: 'Bidisha Paul', srn: 'PES2UG23CS131' },
+  { name: 'Rentala Shiva Naga Aditya', srn: 'PES2UG23CS473' },
 ]
-const GUIDE = 'Prof. Kavitha L'
+const GUIDE = 'Dr. Kavitha P'
 
 function StatusDot({ ok }) {
   return (
