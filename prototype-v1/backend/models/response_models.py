@@ -93,6 +93,8 @@ class TokenImportance(BaseModel):
 
     token: str = Field(..., description="The text token.")
     importance: float = Field(..., description="SHAP value — positive means towards predicted class.")
+    position: Optional[int] = Field(None, description="Place in the text, for reading order.")
+    text: Optional[str] = Field(None, description="The word as it appears in the text, with its spacing.")
 
 
 class ExplainResponse(BaseModel):

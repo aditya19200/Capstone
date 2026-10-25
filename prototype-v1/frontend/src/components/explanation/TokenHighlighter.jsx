@@ -1,37 +1,38 @@
-const getTokenTone = (value) => {
-  const magnitude = Math.abs(value)
-
-  if (value > 0) {
-    if (magnitude > 0.75) return 'bg-red-200 text-red-900 ring-1 ring-red-300'
-    if (magnitude > 0.4) return 'bg-orange-100 text-orange-900 ring-1 ring-orange-200'
-    if (magnitude > 0.15) return 'bg-amber-50 text-amber-900 ring-1 ring-amber-100'
-  }
-
-  if (value < 0) {
-    if (magnitude > 0.75) return 'bg-blue-200 text-blue-900 ring-1 ring-blue-300'
-    if (magnitude > 0.4) return 'bg-sky-100 text-sky-900 ring-1 ring-sky-200'
-    if (magnitude > 0.15) return 'bg-cyan-50 text-cyan-900 ring-1 ring-cyan-100'
-  }
-
-  return 'text-slate-700'
+// The passage in reading order, each word shaded by how much it moved the
+// model: red toward the predicted label, blue away from it.
+//
+// Shading is relative to the strongest word in this passage. Raw SHAP values
+// here are small (a few hundredths of a probability), so fixed cut-offs left
+// every word unshaded.
+const tone = (value, max) => {
+  const strength = max > 0 ? Math.abs(value) / max : 0
+  if (strength < 0.15) return undefined
+  const rgb = value > 0 ? '220, 38, 38' : '37, 99, 235'
+  return { backgroundColor: `rgba(${rgb}, ${(0.12 + 0.5 * strength).toFixed(2)})` }
 }
 
 function TokenHighlighter({ tokens }) {
+  // Entries carry their place in the text; older explanations, stored before
+  // that was recorded, come in importance order and are shown as they are.
+  const ordered = tokens.every((t) => t.position != null)
+    ? [...tokens].sort((a, b) => a.position - b.position)
+    : tokens
+  const max = Math.max(0, ...tokens.map((t) => Math.abs(t.value)))
+
   return (
-    <div className="overflow-hidden rounded-2xl bg-slate-50 p-4">
-      <div className="flex flex-wrap gap-2">
-      {tokens.map((item, index) => (
-        <span
-          key={`${item.token}-${index}`}
-          className={[
-            'max-w-full break-words rounded-md px-2 py-1 text-sm leading-6 transition',
-            getTokenTone(item.value),
-          ].join(' ')}
-        >
-          {item.token}
-        </span>
-      ))}
-      </div>
+    <div className="max-h-80 overflow-y-auto rounded-2xl bg-slate-50 p-4">
+      <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700">
+        {ordered.map((item, index) => (
+          <span
+            key={`${item.token}-${index}`}
+            className="rounded-sm"
+            style={tone(item.value, max)}
+            title={`${item.token}: ${item.value.toFixed(4)}`}
+          >
+            {item.text ?? `${item.token} `}
+          </span>
+        ))}
+      </p>
     </div>
   )
 }

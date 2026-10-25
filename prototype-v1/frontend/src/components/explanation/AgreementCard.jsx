@@ -1,6 +1,6 @@
 import useDomain from '../../hooks/useDomain.js'
 
-// Puts the model's own explanation next to the legal ontology's reading of
+// Puts the model's own explanation next to the domain ontology's reading of
 // the same text. SHAP says which words moved the model; the concept markers
 // say which domain those words belong to. Neither answers "did it reason
 // about the right things" alone — together they do, and a reviewer can
@@ -110,7 +110,8 @@ function AgreementCard({ agreement }) {
 
       <p className="mt-3 text-xs leading-5 text-slate-500 dark:text-slate-400">
         This compares two signals; it does not decide anything. Matching is by
-        vocabulary, so a document quoting a statute it is not about can trip it.
+        vocabulary, so a passage that mentions another {nounPrefix}field&apos;s terms
+        without being about it can trip it.
       </p>
     </section>
   )

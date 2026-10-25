@@ -1,18 +1,18 @@
 """
 services/xai_agreement.py — does the model's own explanation agree with the
-legal ontology?
+domain ontology?
 
 Two things in this system answer "why this label", and until now they never
 met:
 
   * SHAP (services/shap_service.py) reports which tokens pushed the model
     toward the label it chose. It explains the model, and knows no law.
-  * The ontology check (services/ontology_check.py) reports which legal
+  * The ontology check (services/ontology_check.py) reports which domain
     concepts the text contains and which domain they indicate. It knows the
     law, and never looks at the model.
 
 Putting them side by side answers a question neither can alone: are the words
-the model actually relied on legal vocabulary for the domain it chose, or did
+the model actually relied on the vocabulary for the domain it chose, or did
 it key on something else entirely?
 
 A worked example, from PRADEEP v. STATE OF HARYANA — a murder appeal the
@@ -30,10 +30,10 @@ What this is not
 Not a third classifier, and not a confidence score. It reports an
 observation and the evidence for it. Only a human decides anything.
 
-The matching is deliberately shallow and will miss things. SHAP tokenises
-into wordpieces and keeps whitespace ("tutor" + "ed "), while markers are
-whole words and bigrams mined from the corpus, so the two vocabularies do
-not line up exactly. Terms are matched against the reconstructed text rather
+The matching is deliberately shallow and will miss things. SHAP's tokens are
+merged back into whole words (services/shap_service.py), and markers are
+whole words and bigrams mined from the corpus, but a marker can still be a
+form the text does not use. Terms are matched against the reconstructed text rather
 than token-by-token, and a term is credited with the SHAP weight of the
 tokens it overlaps. A term the model never looked at scores nothing.
 """
@@ -87,10 +87,11 @@ def analyse(
 
     # Weight per cleaned token, keeping sign: positive pushed toward the
     # predicted label, negative pulled away from it.
+    # A SHAP entry can be a hyphenated word ("paranoid-ideation"); each part
+    # is credited with its weight, since markers are plain words.
     weight: Dict[str, float] = {}
     for entry in ranked:
-        word = _clean(str(entry.get("token", "")))
-        if word:
+        for word in _WORD.findall(_clean(str(entry.get("token", "")))):
             weight[word] = weight.get(word, 0.0) + float(entry.get("importance", 0.0))
 
     evidence = ontology_check.evidence(text)
@@ -183,8 +184,8 @@ def analyse(
     else:
         verdict = "no_overlap"
         summary = (
-            "None of the words the model relied on are legal concept markers for "
-            "any domain, so its reasoning and the ontology have nothing in common "
+            "None of the words the model relied on are concept markers for any "
+            "label, so its reasoning and the ontology have nothing in common "
             "to compare. The label rests on wording the concept layer does not "
             "recognise."
         )

@@ -413,3 +413,34 @@ class TestGetExplanationEndpoint:
 
         assert resp.status_code == 200
         assert resp.json()["status"] == "failed"
+
+
+class TestMergeWordpieces:
+    """Wordpieces are joined into the words a reader sees, values summed."""
+
+    def test_pieces_join_at_whitespace(self):
+        tokens = ["", "on ", "lit", "hium ", "level", ". ", "hall", "uc", "ination", "s", ", ", ""]
+        scores = [0.9, 0.1, 0.2, 0.3, 0.05, 0.01, 0.1, 0.1, 0.1, 0.1, 0.0, 0.9]
+
+        words, spans, values = SHAPService._merge_wordpieces(tokens, scores)
+
+        assert words == ["on", "lithium", "level", "hallucinations"]
+        assert spans == ["on ", "lithium ", "level. ", "hallucinations, "]
+        assert values == pytest.approx([0.1, 0.5, 0.06, 0.4])
+
+    def test_missing_space_after_punctuation_still_splits(self):
+        words, spans, _ = SHAPService._merge_wordpieces(
+            ["him", ".", ",", "HISTORY ", "(", "19", ") ", "paranoid", "-", "idea", "tion"],
+            [0.0] * 11,
+        )
+        assert words == ["him", "HISTORY", "19", "paranoid", "ideation"]
+        assert "".join(spans) == "him.,HISTORY (19) paranoid-ideation"
+
+    def test_positions_follow_the_text(self):
+        result = SHAPService._build_token_importances(
+            ["the", "contract"], [0.01, 0.8], ["the ", "contract"]
+        )
+        assert [(r["token"], r["position"], r["text"]) for r in result] == [
+            ("contract", 1, "contract"),
+            ("the", 0, "the "),
+        ]

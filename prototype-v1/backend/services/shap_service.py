@@ -11,12 +11,21 @@ Design decisions:
     shap.DeepExplainer, because DeepExplainer requires matching internal
     layer shapes that vary across BERT variants. The callable approach is
     model-agnostic and works reliably with any HuggingFace classifier.
-  - max_evals is capped at 200 to keep latency acceptable on CPU; raise it
-    in .env if you have GPU workers.
+  - max_evals sets how finely the partition explainer splits the text. At
+    200 it stops at phrase-sized groups, and every token in a group gets the
+    same share — the chart filled with ties like "he", ".", "a", "at". The
+    worker passes 500 (workers/xai_worker.py), about 4 s on the GPU — close
+    to 1000's ranking at half its time, which matters because every passage
+    not auto-accepted queues one.
+  - Wordpieces are merged back into whole words before anything sees them
+    ("lit" + "hium " -> "lithium"). SHAP values are additive, so a word's
+    value is the sum of its pieces' — the merge changes the unit, not the
+    attribution.
 """
 
 import logging
-from typing import Dict, List, Optional
+import string
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import shap
@@ -153,7 +162,8 @@ class SHAPService:
         token_shap   = shap_values.values[0, :, predicted_label_id]  # (n_tokens,)
         token_strings = shap_values.data[0]                           # (n_tokens,)
 
-        token_importances = self._build_token_importances(token_strings, token_shap)
+        words, spans, word_shap = self._merge_wordpieces(token_strings, token_shap)
+        token_importances = self._build_token_importances(words, word_shap, spans)
 
         logger.info(
             "SHAP explanation complete — %d tokens, top token: '%s' (%.4f)",
@@ -169,9 +179,54 @@ class SHAPService:
     # ------------------------------------------------------------------
 
     @staticmethod
+    def _merge_wordpieces(
+        tokens, shap_scores
+    ) -> Tuple[List[str], List[str], List[float]]:
+        """
+        Join wordpieces into the words a reader sees, summing their values.
+
+        The text masker returns each piece with the whitespace that followed
+        it, so a word ends at the first piece that ends in whitespace:
+        ['lit', 'hium ', 'level', '. '] -> ['lithium ', 'level. ']. The empty
+        strings it puts where [CLS] and [SEP] were are dropped.
+
+        Returns (words, spans, scores): the word as a label, with surrounding
+        punctuation trimmed ("level"); the span exactly as it appears in the
+        text, for rendering the passage in order ("level. "); and its value.
+        """
+        words, spans, scores = [], [], []
+        span, score = "", 0.0
+
+        def flush():
+            if span.strip():
+                label = span.strip().strip(string.punctuation) or span.strip()
+                words.append(label)
+                spans.append(span)
+                scores.append(score)
+
+        for tok, value in zip(tokens, shap_scores):
+            tok = str(tok)
+            if not tok:
+                continue
+            # PDF text often drops the space after punctuation
+            # ("him.,HISTORY"); a word that has ended in punctuation ends there.
+            if (span and span[-1] in string.punctuation and tok[0].isalnum()
+                    and any(c.isalnum() for c in span)):
+                flush()
+                span, score = "", 0.0
+            span += tok
+            score += float(value)
+            if tok[-1].isspace():
+                flush()
+                span, score = "", 0.0
+        flush()
+        return words, spans, scores
+
+    @staticmethod
     def _build_token_importances(
-        tokens: np.ndarray,
-        shap_scores: np.ndarray,
+        tokens,
+        shap_scores,
+        spans: Optional[List[str]] = None,
     ) -> List[Dict]:
         """
         Zip token strings with their SHAP scores and sort by absolute importance.
@@ -183,16 +238,27 @@ class SHAPService:
             tokens:      Array of token strings from the masker.
             shap_scores: Array of SHAP values for the predicted class.
 
+            spans:       The same words as they appear in the text, if known.
+
         Returns:
-            Sorted list of {"token": str, "importance": float} dicts.
+            Sorted list of {"token": str, "importance": float} dicts. Each
+            also carries "position", its place in the text, so the passage
+            can be redrawn in reading order, and "text" when spans are given.
         """
         _SPECIAL = {"[CLS]", "[SEP]", "[PAD]", "<s>", "</s>", "<pad>"}
 
-        paired = [
-            {"token": str(tok), "importance": round(float(score), 6)}
-            for tok, score in zip(tokens, shap_scores)
-            if str(tok) not in _SPECIAL
-        ]
+        paired = []
+        for position, (tok, score) in enumerate(zip(tokens, shap_scores)):
+            if str(tok) in _SPECIAL:
+                continue
+            entry = {
+                "token": str(tok),
+                "importance": round(float(score), 6),
+                "position": position,
+            }
+            if spans is not None:
+                entry["text"] = spans[position]
+            paired.append(entry)
 
         # Sort by absolute value — most influential tokens first
         paired.sort(key=lambda x: abs(x["importance"]), reverse=True)

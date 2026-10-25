@@ -43,7 +43,8 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 POLL_INTERVAL_SECONDS = 10      # SHAP is slow; poll less aggressively than prediction worker
-MAX_EVALS = 200                 # SHAP max_evals per explanation — raise for better accuracy
+MAX_EVALS = 500                 # SHAP max_evals per explanation. 200 left phrase-sized ties
+                                # in the chart; 500 resolves single words in ~4 s on GPU
 
 
 # ---------------------------------------------------------------------------

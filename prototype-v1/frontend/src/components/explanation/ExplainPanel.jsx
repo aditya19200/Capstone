@@ -25,9 +25,11 @@ function ExplainPanel({ item, onClose }) {
     return null
   }
 
-  const shapValues = (tokenImportances || []).map(({ token, importance }) => ({
+  const shapValues = (tokenImportances || []).map(({ token, importance, position, text }) => ({
     token,
     value: importance,
+    position,
+    text,
   }))
 
   return (
@@ -40,7 +42,7 @@ function ExplainPanel({ item, onClose }) {
       />
 
       <aside className="fixed bottom-0 right-0 top-20 z-40 w-full max-w-2xl overflow-y-auto border-l border-slate-200 bg-slate-50 shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-6 py-5 backdrop-blur">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-6 py-5">
           <div>
             <p className="section-kicker">Explanation</p>
             <h3 className="mt-2 text-xl font-semibold text-slate-900">{item.predicted_label}</h3>
@@ -52,7 +54,7 @@ function ExplainPanel({ item, onClose }) {
 
         <div className="space-y-6 p-6">
           {/* The passage itself first. The review card shows only an
-              excerpt, and the explanation below takes 30-90 s — reading the
+              excerpt, and the explanation below takes several seconds — reading the
               text should not wait for it. Batch items and queue items both
               carry it as text_content. */}
           {item.text_content ? (
@@ -83,7 +85,7 @@ function ExplainPanel({ item, onClose }) {
             <div className="dashboard-card flex flex-col items-center gap-4 py-12 text-center">
               <Spinner />
               <p className="text-sm font-medium text-slate-700">
-                Generating explanation (usually 30-90s)...
+                Generating explanation (usually under 15 s)...
               </p>
               <p className="text-xs uppercase tracking-[0.16em] text-slate-400">
                 This runs SHAP on the model — it's slow by design, not stuck.
