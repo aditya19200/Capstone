@@ -1,5 +1,5 @@
 """
-routers/ontology.py — Legal ontology endpoints.
+routers/ontology.py — Ontology endpoints.
 
 GET  /ontology
   Return all ontology nodes from the Neo4j graph (mocked).
@@ -7,6 +7,10 @@ GET  /ontology
 POST /ontology/validate
   Check whether a label (and optionally its asserted parent) exists in the
   ontology hierarchy.
+
+POST /ontology/reading
+  What the concept layer sees in a passage: every label's evidence and where
+  its markers sit, for the review drawer.
 """
 
 import logging
@@ -14,8 +18,14 @@ from typing import Optional
 
 from fastapi import APIRouter, Header, HTTPException, status
 
-from models.request_models import OntologyValidateRequest
-from models.response_models import OntologyNode, OntologyResponse, OntologyValidateResponse
+from config.domains import active_domain
+from models.request_models import OntologyReadingRequest, OntologyValidateRequest
+from models.response_models import (
+    OntologyNode,
+    OntologyReadingResponse,
+    OntologyResponse,
+    OntologyValidateResponse,
+)
 from services.neo4j_service import (
     get_all_labels,
     get_all_nodes,
@@ -23,6 +33,7 @@ from services.neo4j_service import (
     label_exists,
     validate_label_hierarchy,
 )
+from services.ontology_check import ontology_check
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -216,4 +227,57 @@ async def validate_label(
         parent_label=body.parent_label,
         parent_valid=True,
         message=message,
+    )
+
+
+# ---------------------------------------------------------------------------
+# POST /ontology/reading
+# ---------------------------------------------------------------------------
+
+def _reading_summary(reading: dict, predicted_label: str) -> str:
+    """One sentence on the strongest evidence, and how strong it is."""
+    if not reading["markers_total"]:
+        return "No concept markers are loaded for this domain."
+    labels = reading["labels"]
+    if not labels:
+        return (
+            f"None of the {reading['markers_total']:,} {active_domain().key} concept "
+            "markers occur in this passage, so the ontology has nothing to add "
+            "here. Judge it from the text."
+        )
+    top = labels[0]
+    terms = ", ".join(f"\u201c{t}\u201d" for t in top["terms"][:3])
+    if top["label"] == predicted_label:
+        lead = f"Most of the concept vocabulary here is {top['label']}, the model's label: {terms}."
+    else:
+        lead = (f"Most of the concept vocabulary here is {top['label']}, not the "
+                f"model's {predicted_label}: {terms}.")
+    if top["strong"]:
+        return lead + " That is strong evidence by the bar the check flags at."
+    return lead + " That is light evidence, below the bar the check flags at."
+
+
+@router.post(
+    "/reading",
+    response_model=OntologyReadingResponse,
+    status_code=status.HTTP_200_OK,
+    summary="What the concept layer sees in a passage",
+    description=(
+        "Every label's concept evidence in the text, strongest first, and the "
+        "character offsets of each marker so the passage can be highlighted. "
+        "Evidence for a reviewer to weigh; it changes no routing and makes no "
+        "suggestion."
+    ),
+)
+def read_concepts(body: OntologyReadingRequest) -> OntologyReadingResponse:
+    reading = ontology_check.reading(body.text)
+    bar = ontology_check.thresholds
+    return OntologyReadingResponse(
+        predicted_label=body.predicted_label,
+        summary=_reading_summary(reading, body.predicted_label),
+        markers_total=reading["markers_total"],
+        bar_evidence=bar["min_evidence"],
+        bar_terms=bar["min_matched_terms"],
+        labels=reading["labels"],
+        spans=reading["spans"],
     )

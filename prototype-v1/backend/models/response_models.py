@@ -522,6 +522,38 @@ class OntologyResponse(BaseModel):
     nodes: List[OntologyNode]
 
 
+class ConceptEvidence(BaseModel):
+    """One label's concept evidence in a passage."""
+
+    label: str
+    score: float = Field(..., description="Summed weight of the label's markers found.")
+    terms: List[str] = Field(..., description="The markers found, heaviest first.")
+    strong: bool = Field(..., description="Clears the bar the ontology check flags at.")
+
+
+class ConceptSpan(BaseModel):
+    """Where one marker sits in the passage, by character offset."""
+
+    start: int
+    end: int
+    label: str
+
+
+class OntologyReadingResponse(BaseModel):
+    """
+    Returned from POST /ontology/reading. Evidence for a reviewer to weigh,
+    not a verdict: the flag itself comes from the queue, as before.
+    """
+
+    predicted_label: str
+    summary: str
+    markers_total: int = Field(..., description="How many markers the domain has in all.")
+    bar_evidence: float = Field(..., description="Evidence a label needs to count as strong.")
+    bar_terms: int = Field(..., description="Distinct markers it needs as well.")
+    labels: List[ConceptEvidence] = Field(..., description="Labels with any evidence, strongest first.")
+    spans: List[ConceptSpan]
+
+
 class OntologyValidateResponse(BaseModel):
     """Returned from POST /ontology/validate."""
 

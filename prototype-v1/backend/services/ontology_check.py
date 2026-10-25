@@ -202,6 +202,11 @@ class OntologyCheck:
     def is_loaded(self) -> bool:
         return self._loaded
 
+    @property
+    def thresholds(self) -> Dict[str, float]:
+        """This domain's operating point: the bar a label's evidence must clear."""
+        return dict(self._thresholds)
+
     def evidence(self, text: str) -> Dict[str, Dict]:
         """
         Score every domain by the markers present in *text*.
@@ -224,6 +229,59 @@ class OntologyCheck:
             if terms:
                 found[label] = {"score": round(score, 4), "terms": terms}
         return found
+
+    def reading(self, text: str) -> Dict:
+        """
+        Everything the concept layer sees in *text*, for a reviewer to read.
+
+        check() answers one question — is the contradiction strong enough to
+        flag? — and says nothing otherwise. A reviewer deciding a label can use
+        more: which labels' vocabulary is present, how much, and where. This
+        returns that, ranked, with each marker's position so the passage can
+        be highlighted. It decides and suggests nothing; `strong` says only
+        whether a label's evidence clears the bar check() uses.
+
+        Scores match evidence(): a term counts once however often it occurs.
+        """
+        total = sum(len(v) for v in self._markers.values())
+        if not self._loaded:
+            return {"markers_total": 0, "labels": [], "spans": []}
+
+        lowered = text.lower()
+        labels: List[Dict] = []
+        hits = []
+        for label, patterns in self._patterns.items():
+            score, terms = 0.0, []
+            for pattern, term, weight in patterns:
+                found = list(pattern.finditer(lowered))
+                if found:
+                    score += weight
+                    terms.append((weight, term))
+                    hits.extend((m.start(), m.end(), label) for m in found)
+            if terms:
+                labels.append({
+                    "label": label,
+                    "score": round(score, 4),
+                    "terms": [term for _, term in sorted(terms, key=lambda t: -t[0])],
+                    "strong": (score >= self._thresholds["min_evidence"]
+                               and len(terms) >= self._thresholds["min_matched_terms"]),
+                })
+        labels.sort(key=lambda r: -r["score"])
+
+        # Overlapping markers ("pigtail" inside "pigtail catheter") keep the
+        # leftmost, then the longest. Positions index the lowered text, which
+        # is the original's only while lower() keeps every character's length
+        # — true of anything ASCII; otherwise no highlighting rather than a
+        # misplaced one.
+        spans = []
+        if len(lowered) == len(text):
+            end = -1
+            for start, stop, label in sorted(hits, key=lambda h: (h[0], h[0] - h[1])):
+                if start >= end:
+                    spans.append({"start": start, "end": stop, "label": label})
+                    end = stop
+
+        return {"markers_total": total, "labels": labels, "spans": spans}
 
     def check(self, text: str, predicted_label: str) -> Optional[Dict]:
         """

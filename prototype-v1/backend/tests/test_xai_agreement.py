@@ -66,6 +66,15 @@ class TestVerdicts:
         assert r["verdict"] == "no_overlap"
         assert r["supporting"] == [] and r["contradicting"] == []
 
+    def test_no_overlap_says_whether_the_text_has_markers_at_all(self):
+        r = xai_agreement.analyse(self.TAX, "Taxation Law",
+                                  toks(("susceptible ", 0.9), ("tutored ", 0.8)))
+        assert "does contain concept markers" in r["summary"]
+        r = xai_agreement.analyse("The quick brown fox jumps over the lazy dog.",
+                                  "Taxation Law", toks(("fox ", 0.9), ("dog ", 0.5)))
+        assert r["verdict"] == "no_overlap"
+        assert "none of the concept markers" in r["summary"]
+
 
 class TestMatching:
     def test_token_whitespace_and_hashes_are_stripped(self):

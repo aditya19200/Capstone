@@ -1,7 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { getOntologyReading } from '../../api/client.js'
 import { useExplanation, beginExplanation } from '../../hooks/useExplanation.js'
 import ConfidenceBadge from '../prediction/ConfidenceBadge.jsx'
+import ConceptText from '../review/ConceptText.jsx'
 import OntologyFlag from '../review/OntologyFlag.jsx'
+import OntologyReading from '../review/OntologyReading.jsx'
 import AgreementCard from './AgreementCard.jsx'
 import ExplanationPanel from './ExplanationPanel.jsx'
 
@@ -20,6 +23,26 @@ function ExplainPanel({ item, onClose }) {
       beginExplanation(predictionId)
     }
   }, [predictionId])
+
+  // The concept layer's reading is plain matching, back in milliseconds, so
+  // it is there to read while SHAP runs. Stored with the id it belongs to, so
+  // a drawer reopened on another item never shows the previous one's.
+  const text = item?.text_content
+  const predictedLabel = item?.predicted_label
+  const [reading, setReading] = useState({ id: null, data: null })
+  useEffect(() => {
+    if (!predictionId || !text) return undefined
+    let cancelled = false
+    getOntologyReading({ text, predictedLabel })
+      .then((data) => {
+        if (!cancelled) setReading({ id: predictionId, data })
+      })
+      .catch(() => {}) // optional: the drawer reads fine without it
+    return () => {
+      cancelled = true
+    }
+  }, [predictionId, text, predictedLabel])
+  const concepts = reading.id === predictionId ? reading.data : null
 
   if (!item) {
     return null
@@ -61,8 +84,25 @@ function ExplainPanel({ item, onClose }) {
             <section className="dashboard-card">
               <p className="section-kicker">Text</p>
               <p className="mt-3 max-h-80 overflow-y-auto whitespace-pre-wrap text-base leading-7 text-slate-800">
-                {item.text_content}
+                <ConceptText
+                  text={item.text_content}
+                  spans={concepts?.spans}
+                  predictedLabel={item.predicted_label}
+                />
               </p>
+              {concepts?.spans?.length ? (
+                <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+                  <span>Concept markers:</span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: 'rgb(16, 185, 129)' }} />
+                    {item.predicted_label}, the model&apos;s label
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: 'rgb(245, 158, 11)' }} />
+                    other labels (hover a word to see which)
+                  </span>
+                </p>
+              ) : null}
               <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-slate-200 pt-4">
                 <span className="text-sm font-medium text-slate-800">
                   Predicted: {item.predicted_label}
@@ -80,6 +120,8 @@ function ExplainPanel({ item, onClose }) {
           ) : null}
 
           {item.flag_reason === 'ontology_conflict' ? <OntologyFlag item={item} /> : null}
+
+          <OntologyReading reading={concepts} predictedLabel={item.predicted_label} />
 
           {(status === 'requesting' || status === 'pending' || status === 'processing' || status === 'idle') && (
             <div className="dashboard-card flex flex-col items-center gap-4 py-12 text-center">

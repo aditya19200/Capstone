@@ -144,6 +144,18 @@ export async function getOntologyNode(label) {
   return data
 }
 
+// What the concept layer sees in a passage: each label's evidence, strongest
+// first, and where its markers sit. The mocks have no concept layer, so the
+// drawer simply leaves the section out.
+export async function getOntologyReading({ text, predictedLabel }) {
+  if (USE_MOCKS) return null
+  const { data } = await axiosClient.post('/ontology/reading', {
+    text,
+    predicted_label: predictedLabel,
+  })
+  return data
+}
+
 export async function validateOntologyLabel({ label, parentLabel }) {
   if (USE_MOCKS) return mocks.validateOntologyLabel({ label, parentLabel })
   const { data } = await axiosClient.post('/ontology/validate', {

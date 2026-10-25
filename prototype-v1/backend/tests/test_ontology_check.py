@@ -80,3 +80,65 @@ class TestDegradation:
         assert c.is_loaded() is False
         assert c.evidence("Anything at all.") == {}
         assert c.check("Anything at all.", "Family Law") is None
+
+
+class TestReading:
+    """What the review drawer shows: every label's evidence, and where."""
+
+    def test_scores_match_evidence(self, check):
+        reading = check.reading(CRIMINAL_IN_DOMESTIC_SETTING)
+        evidence = check.evidence(CRIMINAL_IN_DOMESTIC_SETTING)
+        assert {r["label"]: r["score"] for r in reading["labels"]} == {
+            label: detail["score"] for label, detail in evidence.items()
+        }
+        scores = [r["score"] for r in reading["labels"]]
+        assert scores == sorted(scores, reverse=True)
+
+    def test_spans_point_at_markers_and_do_not_overlap(self, check):
+        text = CRIMINAL_IN_DOMESTIC_SETTING
+        reading = check.reading(text)
+        terms = {t for r in reading["labels"] for t in r["terms"]}
+        assert reading["spans"]
+        end = -1
+        for span in reading["spans"]:
+            assert span["start"] >= end
+            assert text[span["start"]:span["end"]].lower() in terms
+            end = span["end"]
+
+    def test_strong_uses_the_flagging_bar(self, check):
+        bar = check.thresholds
+        for r in check.reading(CRIMINAL_IN_DOMESTIC_SETTING)["labels"]:
+            assert r["strong"] == (
+                r["score"] >= bar["min_evidence"]
+                and len(r["terms"]) >= bar["min_matched_terms"]
+            )
+
+    def test_no_markers_is_an_empty_reading(self, check):
+        reading = check.reading("The quick brown fox jumps over the lazy dog.")
+        assert reading["labels"] == [] and reading["spans"] == []
+        assert reading["markers_total"] > 0
+
+
+class TestReadingEndpoint:
+    @pytest.fixture
+    def client(self):
+        from fastapi.testclient import TestClient
+        from main import app
+        with TestClient(app) as c:
+            yield c
+
+    def test_names_the_strongest_label(self, client, check):
+        r = client.post("/ontology/reading", json={
+            "text": CRIMINAL_IN_DOMESTIC_SETTING, "predicted_label": "Family Law",
+        })
+        assert r.status_code == 200
+        body = r.json()
+        assert body["labels"][0]["label"] == "Criminal Law"
+        assert "not the model's Family Law" in body["summary"]
+
+    def test_says_so_when_nothing_matches(self, client, check):
+        r = client.post("/ontology/reading", json={
+            "text": "The quick brown fox jumps over the lazy dog.", "predicted_label": "Family Law",
+        })
+        assert r.status_code == 200
+        assert "has nothing to add" in r.json()["summary"]

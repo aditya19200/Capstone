@@ -181,13 +181,20 @@ def analyse(
             f"vocabulary ({names(rival_against)}), all of which pushed against "
             f"{predicted_label}. None of them changed the outcome."
         )
-    else:
+    elif not evidence:
         verdict = "no_overlap"
         summary = (
-            "None of the words the model relied on are concept markers for any "
-            "label, so its reasoning and the ontology have nothing in common "
-            "to compare. The label rests on wording the concept layer does not "
-            "recognise."
+            "The passage contains none of the concept markers, so there is "
+            "nothing to set the model's reasoning against. The label rests on "
+            "wording the concept layer does not cover."
+        )
+    else:
+        verdict = "no_overlap"
+        best_label, best = max(evidence.items(), key=lambda kv: kv[1]["score"])
+        summary = (
+            f"The passage does contain concept markers ({best_label}: "
+            f"{', '.join(chr(0x201c) + t + chr(0x201d) for t in best['terms'][:3])}), "
+            "but none of them are among the words the model relied on."
         )
 
     return {

@@ -150,6 +150,13 @@ class RetrainRequest(BaseModel):
 # /ontology/validate
 # ---------------------------------------------------------------------------
 
+class OntologyReadingRequest(BaseModel):
+    """Body for POST /ontology/reading — what the concept layer sees in a text."""
+
+    text: str = Field(..., min_length=1, max_length=20000, description="The passage to read.")
+    predicted_label: str = Field(..., description="The model's label, for the summary sentence.")
+
+
 class OntologyValidateRequest(BaseModel):
     """
     Body for POST /ontology/validate — check whether a label exists in the
