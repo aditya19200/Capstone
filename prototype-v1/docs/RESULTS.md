@@ -188,13 +188,17 @@ threshold and two were missed.
 
 | passage | verdict | |
 |---|---|---|
-| @0.977 | `no_overlap` | drivers were `tutored`, `age`, `susceptible` — not legal vocabulary at all |
+| @0.977 | `no_overlap` | drivers were `tutored`, `age`, `tutoring` — not legal vocabulary at all |
 | @0.968 | `overruled` | `child` pushed toward Family, `criminal` pushed **against**; model went with Family anyway |
 | @0.963 | `mixed` | used `testimony`, a *Criminal* marker, to support Family Law |
 | Taxation @0.990 | `aligned` | `tax act`, `tax` |
 | Labour @0.994 | `aligned` | `labour` |
 
 The verdict varies with the evidence rather than tracking confidence.
+
+The three Pradeep rows were re-run 25 Oct at SHAP max_evals 500, the current
+setting, with wordpieces merged into words: same verdicts. At the earlier
+setting of 200, `susceptible` also ranked among the @0.977 drivers.
 
 ---
 

@@ -18,7 +18,7 @@ it key on something else entirely?
 A worked example, from PRADEEP v. STATE OF HARYANA — a murder appeal the
 model files under Family Law at 0.977:
 
-    SHAP's top drivers   tutored, age, susceptible, tutoring
+    SHAP's top drivers   tutored, age, tutoring
     concept markers      criminal, the evidence, testimony -> Criminal Law
 
 The model latched onto a child's suggestibility. The vocabulary is evidence
