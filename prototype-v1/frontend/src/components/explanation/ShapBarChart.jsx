@@ -1,5 +1,7 @@
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
+const MAX_LABEL = 18 // characters; longer words are shortened with an ellipsis
+
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) {
     return null
@@ -24,6 +26,11 @@ function ShapBarChart({ tokens }) {
     }))
     .reverse()
 
+  // Explanations arrive as whole words now, so a fixed label column clips the
+  // long ones ("hydrocephalus"). Size it to the longest word, within reason.
+  const longest = Math.max(0, ...chartData.map((item) => Math.min(item.token.length, MAX_LABEL)))
+  const labelWidth = Math.max(56, Math.round(longest * 7.5) + 12)
+
   return (
     <div className="h-72 w-full">
       <ResponsiveContainer width="100%" height="100%">
@@ -34,12 +41,13 @@ function ShapBarChart({ tokens }) {
             type="category"
             dataKey="token"
             tick={{ fill: '#334155', fontSize: 12 }}
-            width={90}
+            tickFormatter={(token) => (token.length > MAX_LABEL ? `${token.slice(0, MAX_LABEL - 1)}…` : token)}
+            width={labelWidth}
           />
           <Tooltip cursor={{ fill: '#f8fafc' }} content={<CustomTooltip />} />
           <Bar dataKey="value" radius={[0, 6, 6, 0]}>
-            {chartData.map((entry) => (
-              <Cell key={entry.token} fill={entry.fill} />
+            {chartData.map((entry, index) => (
+              <Cell key={`${entry.token}-${index}`} fill={entry.fill} />
             ))}
           </Bar>
         </BarChart>
